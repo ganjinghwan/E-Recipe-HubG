@@ -1,0 +1,1 @@
+/* Define user schema with fields for email, password (hashed), etc. */
