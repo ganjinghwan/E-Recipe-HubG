@@ -220,7 +220,7 @@ const Recipes = () => {
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
                 <Button colorScheme="orange">Play Video</Button>
-                <Button colorScheme="orange">Recipe Author</Button>
+                <Button colorScheme="orange">Pastry</Button>
               </HStack>
             </VStack>
           </Flex>
