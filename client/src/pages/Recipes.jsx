@@ -15,15 +15,23 @@ import {
 } from "@chakra-ui/react";
 import { FaHeart } from "react-icons/fa";
 import recipesBackground from "../pic/room.jpg";
+import Croissant from "../pic/Croissant.jpeg";
+import Macaron from "../pic/Macaron.jpeg";
+import Cannoli from "../pic/Cannoli.jpeg";
+import Profiterole from "../pic/Profiteroles.jpeg";
+import Eclair from "../pic/Eclair.jpeg";
+import Brownie from "../pic/Brownie.jpeg";
+import Pancake from "../pic/Pancakes.jpeg";
 
+// Define food items
 const foodItems = [
-  { id: 1, name: "Croissant", image: "Croissant.jpeg", rating: "4.5" },
-  { id: 2, name: "Macaron", image: "Macaron.jpeg", rating: "4.7" },
-  { id: 3, name: "Cannoli", image: "Cannoli.jpeg", rating: "4.3" },
-  { id: 4, name: "Profiterole", image: "Profiteroles.jpeg", rating: "4.8" },
-  { id: 5, name: "Eclair", image: "Eclair.jpeg", rating: "4.6" },
-  { id: 6, name: "Brownie", image: "Brownie.jpeg", rating: "4.4" },
-  { id: 7, name: "Pancake", image: "Pancakes.jpeg", rating: "4.9" },
+  { id: 1, name: "Croissant", image: Croissant, rating: "4.5" },
+  { id: 2, name: "Macaron", image: Macaron, rating: "4.7" },
+  { id: 3, name: "Cannoli", image: Cannoli, rating: "4.3" },
+  { id: 4, name: "Profiterole", image: Profiterole, rating: "4.8" },
+  { id: 5, name: "Eclair", image: Eclair, rating: "4.6" },
+  { id: 6, name: "Brownie", image: Brownie, rating: "4.4" },
+  { id: 7, name: "Pancake", image: Pancake, rating: "4.9" },
 ];
 
 const Recipes = () => {
@@ -88,6 +96,36 @@ const Recipes = () => {
       position="relative"
       textAlign="center"
     >
+      {/* Keyframe animations */}
+      <style>
+        {`
+          @keyframes slideLeftFadeOut {
+            from { opacity: 1; transform: translateX(0); }
+            to { opacity: 0; transform: translateX(-100px); }
+          }
+
+          @keyframes slideInFromCurve {
+            from {
+              transform: translate(150%, -150%) rotate(-20deg); /* Start at top-right tilted */
+              opacity: 0;
+            }
+            to {
+              transform: translate(0, 0) rotate(0deg); /* Settle at the center upright */
+              opacity: 1;
+            }
+          }
+
+          @keyframes scrollAnimation {
+            from {
+              transform: translateX(0);
+            }
+            to {
+              transform: translateX(-100%);
+            }
+          }
+        `}
+        
+      </style>
       <Grid
         templateColumns={{ base: "1fr", md: "2fr 1fr" }}
         templateRows={{ base: "auto", md: "auto auto" }}
@@ -95,18 +133,27 @@ const Recipes = () => {
         w="90%"
         maxW="1200px"
       >
-        <GridItem colSpan={1} rowSpan={1}>
+        {/*Top Left column - Display Animation Image and details*/}
+        <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 1 }}>
           <Flex direction={{ base: "column", md: "row" }} gap={4} align="start">
             <Center
               w="300px"
               h="300px"
               overflow="hidden"
               borderRadius="50%"
+              border="3px solid white"
               pos="relative"
-              animation={animationState}
+              sx={{
+                animation:
+                  animationState === "slide-left"
+                    ? "slideLeftFadeOut 1.2s forwards"
+                    : animationState === "slide-down"
+                    ? "slideInFromCurve 1.4s forwards cubic-bezier(0.25, 1, 0.5, 1)"
+                    : "none",
+              }}
             >
               <Image
-                src={require(`../pic/${selectedFood.image}`)}
+                src={selectedFood.image}
                 alt={selectedFood.name}
                 objectFit="cover"
                 w="full"
@@ -114,7 +161,10 @@ const Recipes = () => {
               />
             </Center>
             <VStack align="start">
-              <HStack>
+              <HStack 
+                marginTop="20px"
+                marginLeft="30px"
+                >
                 <Text fontSize="xl" fontWeight="bold">
                   {selectedFood.name.toUpperCase()}
                 </Text>
@@ -126,7 +176,7 @@ const Recipes = () => {
                   }
                 />
               </HStack>
-              <HStack spacing={4} mt={4}>
+              <HStack spacing={4} mt={4} marginLeft="30px">
                 <Button colorScheme="orange">Play Video</Button>
                 <Button colorScheme="orange">Order Food</Button>
               </HStack>
@@ -134,7 +184,8 @@ const Recipes = () => {
           </Flex>
         </GridItem>
 
-        <GridItem colSpan={1} rowSpan={1}>
+        {/* Info Board content */}
+        <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 1 }}>
           <Box bg="white" p={4} borderRadius="md" shadow="md">
             <Flex justify="space-around" mb={4}>
               <Button
@@ -178,9 +229,18 @@ const Recipes = () => {
           </Box>
         </GridItem>
 
-        <GridItem colSpan={1} rowSpan={1}>
-          <Flex align="center" pos="relative" overflow="hidden">
-            <IconButton
+
+        {/* Carousel content */}
+        <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 2 }}>
+        <Flex
+          align="center"
+          pos="relative"
+          overflow="hidden"
+          w="100%"
+          h="150px"
+          borderRadius="md"
+        >
+            {/* <IconButton
               icon={"<"}
               onClick={handleScrollLeft}
               pos="absolute"
@@ -189,35 +249,45 @@ const Recipes = () => {
               bg="transparent"
               colorScheme="purple"
               zIndex="2"
-            />
+            /> */}
             <Flex
-              transform={`translateX(-${carouselIndex * 20}%)`}
-              transition="transform 0.5s ease-in-out"
-              gap={4}
-              py={4}
+              as="div"
+              display="flex"
+              alignItems="center"
+              position="absolute"
+              w="max-content"
+              gap={10}
+              animation="scrollAnimation 30s linear infinite"
             >
-              {foodItems.map((food) => (
-                <VStack
-                  key={food.id}
-                  onClick={() => handleFoodSelection(food)}
-                  cursor="pointer"
-                  w="100px"
-                  bg={food.id === selectedFood.id ? "#b1b5b5" : "transparent"}
-                  p={2}
-                  borderRadius="lg"
-                  boxShadow={food.id === selectedFood.id ? "md" : "none"}
-                >
+              {/* Duplicate food items for smooth looping */}
+              {/* Continuously Append Food Items */}
+              {Array(5) // Number of times the array is repeated (can be adjusted)
+                .fill(foodItems) // Fill the array multiple times
+                .flat() // Flatten the arrays into a single array
+                .map((food, index) => (
+                  <VStack
+                    key={`${food.id}-${index}`}
+                    onClick={() => handleFoodSelection(food)}
+                    cursor="pointer"
+                    w="100px"
+                    flexShrink={0}
+                    p={2}
+                    textAlign="center"
+                    bg={food.id === selectedFood.id ? "#b1b5b5" : "transparent"}
+                    borderRadius="lg"
+                    boxShadow={food.id === selectedFood.id ? "md" : "none"}
+                  >
                   <Image
-                    src={require(`../pic/${food.image}`)}
+                    src={food.image}
                     alt={food.name}
                     borderRadius="full"
-                    boxSize="80px"
+                    boxSize="85px"
                   />
                   <Text>{food.name}</Text>
                 </VStack>
               ))}
             </Flex>
-            <IconButton
+            {/* <IconButton
               icon={">"}
               onClick={handleScrollRight}
               pos="absolute"
@@ -226,11 +296,12 @@ const Recipes = () => {
               bg="transparent"
               colorScheme="purple"
               zIndex="2"
-            />
+            /> */}
           </Flex>
         </GridItem>
 
-        <GridItem colSpan={2} rowSpan={1}>
+        {/* Icon content */}
+        <GridItem colSpan={{ base: 2, md: 2 }} rowSpan={{ base: 1, md: 1 }}>
           <Center>Some icons or additional content here.</Center>
         </GridItem>
       </Grid>
