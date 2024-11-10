@@ -192,7 +192,7 @@ const Recipes = () => {
                   }
                 />
               </HStack>
-              <HStack spacing={6} marginLeft="30px"> {/* Wider gap for icons */}
+              <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
                 <IconButton
                   icon={<FaPlus />}
                   aria-label="Create"
@@ -220,7 +220,7 @@ const Recipes = () => {
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
                 <Button colorScheme="orange">Play Video</Button>
-                <Button colorScheme="orange">Order Food</Button>
+                <Button colorScheme="orange">Recipe Author</Button>
               </HStack>
             </VStack>
           </Flex>
