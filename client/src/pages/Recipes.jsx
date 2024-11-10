@@ -181,14 +181,14 @@ const Recipes = () => {
                 marginTop="20px"
                 marginLeft="30px"
                 >
-                <Text fontSize="xl" fontWeight="bold">
+                <Text fontSize="4xl" fontWeight="bold">
                   {selectedFood.name.toUpperCase()}
                 </Text>
                 <IconButton
-                  icon={<FaHeart />}
+                  icon={<FaHeart/>}
                   onClick={() => handleToggleFavorite(selectedFood.id)}
                   colorScheme={
-                    favoriteFoods.includes(selectedFood.id) ? "red" : "gray"
+                  favoriteFoods.includes(selectedFood.id) ? "red" : "gray"
                   }
                 />
               </HStack>
