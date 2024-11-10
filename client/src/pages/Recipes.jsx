@@ -12,8 +12,16 @@ import {
   VStack,
   HStack,
   Center,
+  useDisclosure,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
 } from "@chakra-ui/react";
-import { FaHeart } from "react-icons/fa";
+import { FaHeart, FaPlus, FaEye, FaEdit, FaTrash } from "react-icons/fa";
 import recipesBackground from "../pic/room.jpg";
 import Croissant from "../pic/Croissant.jpeg";
 import Macaron from "../pic/Macaron.jpeg";
@@ -40,6 +48,8 @@ const Recipes = () => {
   const [activeTab, setActiveTab] = useState("Overview");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [favoriteFoods, setFavoriteFoods] = useState([]);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [activeModal, setActiveModal] = useState("");
   const toast = useToast();
 
   const handleFoodSelection = (food) => {
@@ -83,6 +93,11 @@ const Recipes = () => {
     );
   };
 
+  const handleIconClick = (action) => {
+    setActiveModal(action);
+    onOpen();
+  };
+
   return (
     <Flex
       direction="column"
@@ -95,6 +110,7 @@ const Recipes = () => {
       bgRepeat="no-repeat"
       position="relative"
       textAlign="center"
+      filter={isOpen ? "blur(5px)" : "none"}  // Apply blur when modal is open
     >
       {/* Keyframe animations */}
       <style>
@@ -160,7 +176,7 @@ const Recipes = () => {
                 h="full"
               />
             </Center>
-            <VStack align="start">
+            <VStack align="start" >
               <HStack 
                 marginTop="20px"
                 marginLeft="30px"
@@ -174,6 +190,32 @@ const Recipes = () => {
                   colorScheme={
                     favoriteFoods.includes(selectedFood.id) ? "red" : "gray"
                   }
+                />
+              </HStack>
+              <HStack spacing={6} marginLeft="30px"> {/* Wider gap for icons */}
+                <IconButton
+                  icon={<FaPlus />}
+                  aria-label="Create"
+                  colorScheme="teal"
+                  onClick={() => handleIconClick("create")}
+                />
+                <IconButton
+                  icon={<FaEye />}
+                  aria-label="Read"
+                  colorScheme="blue"
+                  onClick={() => handleIconClick("read")}
+                />
+                <IconButton
+                  icon={<FaEdit />}
+                  aria-label="Update"
+                  colorScheme="yellow"
+                  onClick={() => handleIconClick("update")}
+                />
+                <IconButton
+                  icon={<FaTrash />}
+                  aria-label="Delete"
+                  colorScheme="red"
+                  onClick={() => handleIconClick("delete")}
                 />
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
@@ -205,7 +247,7 @@ const Recipes = () => {
             </Flex>
             <Box>
               {activeTab === "Overview" ? (
-                <VStack align="start">
+                <VStack align="start" margin="10px" textAlign="left">
                   <Text fontSize="lg">Overview</Text>
                   <Text>
                     <strong>Rating:</strong> {selectedFood.rating}
@@ -216,12 +258,12 @@ const Recipes = () => {
                   </Text>
                 </VStack>
               ) : (
-                <VStack align="start">
+                <VStack align="start" margin="10px" textAlign="left">
                   <Text fontSize="lg">Ingredients</Text>
                   <ul>
-                    <li>Ingredient 1</li>
-                    <li>Ingredient 2</li>
-                    <li>Ingredient 3</li>
+                    <li>Ingredient 1: Qincai</li>
+                    <li>Ingredient 2: No need any Ingredients</li>
+                    <li>Ingredient 3: Keep it usual</li>
                   </ul>
                 </VStack>
               )}
@@ -257,7 +299,7 @@ const Recipes = () => {
               position="absolute"
               w="max-content"
               gap={10}
-              animation="scrollAnimation 30s linear infinite"
+              animation="scrollAnimation 50s linear infinite"
             >
               {/* Duplicate food items for smooth looping */}
               {/* Continuously Append Food Items */}
@@ -300,10 +342,65 @@ const Recipes = () => {
           </Flex>
         </GridItem>
 
-        {/* Icon content */}
-        <GridItem colSpan={{ base: 2, md: 2 }} rowSpan={{ base: 1, md: 1 }}>
-          <Center>Some icons or additional content here.</Center>
-        </GridItem>
+        {/* CRUD Icon Section */}
+        {/* <GridItem 
+          colSpan={{ base: 2, md: 2 }} 
+          rowSpan={{ base: 1, md: 1 }}
+          display = "flex"
+          justifyContent="left"
+          position="absolute"
+          bottom="20"
+          w="100%"
+          marginLeft="250px"
+        >
+        <Center mt={8}>
+          <HStack spacing={8}> 
+            <IconButton
+              icon={<FaPlus />}
+              aria-label="Create"
+              colorScheme="teal"
+              onClick={() => handleIconClick("create")}
+            />
+            <IconButton
+              icon={<FaEye />}
+              aria-label="Read"
+              colorScheme="blue"
+              onClick={() => handleIconClick("read")}
+            />
+            <IconButton
+              icon={<FaEdit />}
+              aria-label="Update"
+              colorScheme="yellow"
+              onClick={() => handleIconClick("update")}
+            />
+            <IconButton
+              icon={<FaTrash />}
+              aria-label="Delete"
+              colorScheme="red"
+              onClick={() => handleIconClick("delete")}
+            />
+          </HStack>
+        </Center>
+      </GridItem> */}
+
+      {/* Modal for CRUD actions */}
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>{`${activeModal.charAt(0).toUpperCase() + activeModal.slice(1)} Item`}</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <Text>
+              {`This is the ${activeModal} page content for ${activeModal} functionality.`}
+            </Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button colorScheme="blue" mr={3} onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
       </Grid>
     </Flex>
   );
