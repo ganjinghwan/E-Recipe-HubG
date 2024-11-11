@@ -11,6 +11,9 @@ import {
   useToast,
   VStack,
   HStack,
+  Input,
+  Textarea,
+  Select,
   Center,
   useDisclosure,
   Modal,
@@ -30,6 +33,8 @@ import Profiterole from "../pic/Profiteroles.jpeg";
 import Eclair from "../pic/Eclair.jpeg";
 import Brownie from "../pic/Brownie.jpeg";
 import Pancake from "../pic/Pancakes.jpeg";
+import { useStoreRecipe } from "../store/StoreRecipe";
+
 
 // Define food items
 const foodItems = [
@@ -50,6 +55,16 @@ const Recipes = () => {
   const [favoriteFoods, setFavoriteFoods] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [activeModal, setActiveModal] = useState("");
+  const [newRecipe, setNewRecipe] = useState({
+    title: "",
+    ingredients: [],
+    instructions: "",
+    prepTime: "",
+    steps: [],
+    category: "",
+    image: "",
+  });
+  const {createRecipe} = useStoreRecipe();
   const toast = useToast();
 
   const handleFoodSelection = (food) => {
@@ -96,6 +111,50 @@ const Recipes = () => {
   const handleIconClick = (action) => {
     setActiveModal(action);
     onOpen();
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewRecipe((prevRecipe) => ({
+      ...prevRecipe,
+      [name]: name === "ingredients" || name === "steps"
+        ? value.split(name === "ingredients" ? "," : "\n").map(i => i.trim())
+        : value,
+    }));
+  };
+  
+  
+
+
+  const handleAddRecipe = async () => {
+    const {success,message} = await createRecipe(newRecipe);
+    console.log(newRecipe);
+    if (!success) {
+      toast({
+        title:"Error",
+        description: message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title:"Success",
+        description: message,
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+    setNewRecipe({
+      title: "",
+      ingredients: [],
+      instructions: "",
+      prepTime: "",
+      steps: [],
+      category: "",
+      image: "",
+    });
   };
 
   return (
@@ -385,19 +444,160 @@ const Recipes = () => {
 
       {/* Modal for CRUD actions */}
       <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>{`${activeModal.charAt(0).toUpperCase() + activeModal.slice(1)} Item`}</ModalHeader>
+        <ModalOverlay 
+          //  sx={{
+          //   bg: "rgba(255, 255, 255, 0.1)", // Semi-transparent background color
+          //   backdropFilter: "blur(10px)", // Blur effect
+          // }}
+        />
+        <ModalContent
+          bg="rgba(255, 255, 255, 0.5)" // Semi-transparent modal background
+          boxShadow="lg"
+          border="1px solid grey"
+        >
+          <ModalHeader>
+            {activeModal === "create" && "Create New Recipe"}
+            {activeModal === "update" && "Update Recipe"}
+            {activeModal === "delete" && "Delete Recipe"}
+          </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <Text>
-              {`This is the ${activeModal} page content for ${activeModal} functionality.`}
-            </Text>
+            {activeModal === "create" && (
+              <VStack spacing={4} align="stretch">
+                <Input
+                  placeholder="Title"
+                  name="title"
+                  value={newRecipe.title}
+                  onChange= {(e) => handleInputChange(e)}
+                />
+                <Textarea
+                  placeholder="Ingredients"
+                  name="ingredients"
+                  value={newRecipe.ingredients.join(", ")}
+                  onChange= {(e) => handleInputChange(e)}                
+                />
+                <Textarea
+                  placeholder="Instructions"
+                  name="instructions"
+                  value={newRecipe.instructions}
+                  onChange= {(e) => handleInputChange(e)}
+                />
+                <Input
+                  placeholder="Prep Time"
+                  name="prepTime"
+                  value={newRecipe.prepTime}
+                  onChange= {(e) => handleInputChange(e)}
+                />
+                <Textarea
+                  placeholder="Steps"
+                  name="steps"
+                  value={newRecipe.steps.join("\n")}
+                  onChange= {(e) => handleInputChange(e)}                
+              />
+                <Select
+                  placeholder="Category"
+                  name="category"
+                  value={newRecipe.category}
+                  onChange= {(e) => handleInputChange(e)}                
+                  >
+                  <option value="Pastry">Pastry</option>
+                  <option value="Breakfast">Breakfast</option>
+                  {/* Add more categories as needed */}
+                </Select>
+                <Input
+                  placeholder="Image URL"
+                  name="image"
+                  value={newRecipe.image}
+                  onChange= {(e) => handleInputChange(e)}                
+              />
+              </VStack>
+            )}
+
+            {activeModal === "update" && (
+              <VStack spacing={4} align="stretch">
+                <Input
+                  placeholder="Title"
+                  name="title"
+                  value={newRecipe.title}
+                  onChange= {(e) => handleInputChange(e)}
+                />
+                <Textarea
+                  placeholder="Ingredients"
+                  name="ingredients"
+                  value={newRecipe.ingredients.join(", ")}
+                  onChange= {(e) => handleInputChange(e)}                
+                />
+                <Textarea
+                  placeholder="Instructions"
+                  name="instructions"
+                  value={newRecipe.instructions}
+                  onChange= {(e) => handleInputChange(e)}
+                />
+                <Input
+                  placeholder="Prep Time"
+                  name="prepTime"
+                  value={newRecipe.prepTime}
+                  onChange= {(e) => handleInputChange(e)}
+                />
+                <Textarea
+                  placeholder="Steps"
+                  name="steps"
+                  value={newRecipe.steps.join("\n")}
+                  onChange= {(e) => handleInputChange(e)}                
+               />
+                <Select
+                  placeholder="Category"
+                  name="category"
+                  value={newRecipe.category}
+                  onChange= {(e) => handleInputChange(e)}                
+                  >
+                  <option value="Pastry">Pastry</option>
+                  <option value="Breakfast">Breakfast</option>
+                  {/* Add more categories as needed */}
+                </Select>
+                <Input
+                  placeholder="Image URL"
+                  name="image"
+                  value={newRecipe.image}
+                  onChange= {(e) => handleInputChange(e)}                
+               />
+              </VStack>
+            )}
+
+            {activeModal === "delete" && (
+              <Text>Are you sure you want to delete this recipe?</Text>
+            )}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={onClose}>
-              Close
-            </Button>
+            {activeModal === "delete" ? (
+              <>
+                <Button colorScheme="red" mr={3} onClick={onClose}>
+                  Delete
+                </Button>
+                <Button onClick={onClose}>Cancel</Button>
+              </>
+            ) : activeModal === "create" ? (
+              <>
+                <Button colorScheme="blue" mr={3} onClick={handleAddRecipe}>
+                  Add Recipe
+                </Button>
+                <Button onClick={onClose}>Cancel</Button>
+              </>
+            ) : activeModal === "update" ? (
+              <>
+                <Button colorScheme="blue" mr={3} onClick={onClose}>
+                  Update Recipe
+                </Button>
+                <Button onClick={onClose}>Cancel</Button>
+              </>
+            ) : activeModal === "read" ? (
+              <>
+                <Button colorScheme="blue" mr={3} onClick={onClose}>
+                  Read Recipe
+                </Button>
+                <Button onClick={onClose}>Cancel</Button>
+              </>
+            ) : null}
           </ModalFooter>
         </ModalContent>
       </Modal>

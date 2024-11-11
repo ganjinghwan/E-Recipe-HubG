@@ -14,8 +14,8 @@ export const getRecipes = async (req, res) => {
 export const createRecipe = async (req, res) => {
     const recipe = req.body;
 
-    if(!recipe.name || !recipe.ingredients || !recipe.instructions || !recipe.image) {
-        return res.status(400).json({ success: false, message: 'All fields are required' });
+    if(!recipe.title || !recipe.ingredients || !recipe.instructions || !recipe.prepTime || !recipe.steps || !recipe.category || !recipe.image) {
+        return res.status(409).json({ success: false, message: 'All fields are required' });
     }
 
    const newRecipe = new Recipe(recipe);

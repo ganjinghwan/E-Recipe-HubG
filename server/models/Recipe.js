@@ -2,7 +2,7 @@
 import mongoose from "mongoose";
 
 const recipeSchema = new mongoose.Schema({
-    name:{
+    title:{
         type: String,
         required:true
     },
@@ -14,8 +14,20 @@ const recipeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    image: {
+    prepTime: {
         type: String,
+        required: true
+    },
+    steps: {
+        type: Array,
+        required: true
+    },
+    category: {
+        type: String,
+        required: true
+    },
+    image: {
+        type: String,// Store image URL or file path
         required: true
     }
     // user: {
