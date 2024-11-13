@@ -15,7 +15,7 @@ const recipeSchema = new mongoose.Schema({
         required: true
     },
     prepTime: {
-        type: String,
+        type: Number,
         required: true
     },
     category: {

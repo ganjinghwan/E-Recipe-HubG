@@ -23,9 +23,10 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
-  Link
+  Link,
+  Tooltip
 } from "@chakra-ui/react";
-import { FaHeart, FaPlus, FaEye, FaEdit, FaTrash, FaClock } from "react-icons/fa";
+import { FaHeart, FaPlus, FaEye, FaEdit, FaTrash, FaClock, FaYoutube, FaVideo } from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa"; // Import specific icons
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
@@ -33,7 +34,7 @@ import { useStoreRecipe } from "../store/StoreRecipe";
 const Recipes = () => {
   const [selectedFood, setSelectedFood] = useState(null);
   const [animationState, setAnimationState] = useState("");
-  const [activeTab, setActiveTab] = useState("instructions");
+  const [activeTab, setActiveTab] = useState("Instruction");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [favoriteFoods, setFavoriteFoods] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -52,6 +53,19 @@ const Recipes = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const categories = ["All", "Breakfast", "Lunch", "Dinner", "Pastry"];
   const toast = useToast();
+  const getImageSrc = (image) => {
+    return isValidUrl(image) ? image : "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+  };
+
+  const isValidUrl = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  };
+  
 
   useEffect(() => {
     fetchRecipes();
@@ -121,7 +135,7 @@ const Recipes = () => {
       ...prevRecipe,
       [name]: name === "ingredients" || name === "instructions"
         ? value
-            .split(",")
+            .split(name === "ingredients" ? "," : "\n")
             .map((i) => i.trimStart()) // Trims only leading whitespace, keeping spaces within words intact
         : value,
     }));
@@ -157,6 +171,7 @@ const Recipes = () => {
       image: "",
       video: "",
     });
+    onClose();
   };
 
   return (
@@ -239,7 +254,8 @@ const Recipes = () => {
             >
              {selectedFood && (
               <Image
-                src={selectedFood.image}
+                // src={selectedFood.image}
+                src={getImageSrc(selectedFood.image)}
                 alt={selectedFood.title}
                 objectFit="cover"
                 w="full"
@@ -257,6 +273,7 @@ const Recipes = () => {
                 <Text fontSize="4xl" fontWeight="bold">
                   {selectedFood?.title?.toUpperCase()}
                 </Text>
+                <Tooltip label="Add to favorites">
                 <IconButton
                   marginTop="4px"
                   marginLeft= "4px"
@@ -265,43 +282,29 @@ const Recipes = () => {
                   onClick={() => handleToggleFavorite(selectedFood?.id)}
                   colorScheme={favoriteFoods.includes(selectedFood?.id) ? "red" : "gray"}
                 />
+                </Tooltip>
               </HStack>
               <HStack marginLeft="30px" alignItems="center" marginBottom="10px"  >
                 <FaClock size="20px" />
                 <Text fontSize="md" fontWeight="medium">
-                  {selectedFood?.prepTime}
+                  {selectedFood?.prepTime}mins
                 </Text>
               </HStack>
               <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
+                <Tooltip label="Create">
                 <IconButton
                   icon={<FaPlus />}
                   aria-label="Create"
                   colorScheme="teal"
                   onClick={() => handleIconClick("create")}
                 />
+                </Tooltip>
+                <Tooltip label="Video">
                 <IconButton
-                  icon={<FaEye />}
-                  aria-label="Read"
-                  colorScheme="blue"
-                  onClick={() => handleIconClick("read")}
-                />
-                <IconButton
-                  icon={<FaEdit />}
-                  aria-label="Update"
-                  colorScheme="yellow"
-                  onClick={() => handleIconClick("update")}
-                />
-                <IconButton
-                  icon={<FaTrash />}
-                  aria-label="Delete"
+                  icon={<FaYoutube />}
+                  aria-label="Video"
                   colorScheme="red"
-                  onClick={() => handleIconClick("delete")}
-                />
-              </HStack>
-              <HStack spacing={4} mt={4} marginLeft="30px">
-              <Button 
-                colorScheme="orange"
-                onClick={() => {
+                  onClick={() => {
                     if (!selectedFood?.video) {
                       toast({
                         title: "No video",
@@ -314,14 +317,33 @@ const Recipes = () => {
                       window.open(selectedFood.video, "_blank");
                     }
                   }}
-                >
-                  Play Video
-                </Button>
+                />
+                </Tooltip>
+                <Tooltip label="Update">
+                <IconButton
+                  icon={<FaEdit />}
+                  aria-label="Update"
+                  colorScheme="yellow"
+                  onClick={() => handleIconClick("update")}
+                />
+                </Tooltip>
+                <Tooltip label="Delete">
+                <IconButton
+                  icon={<FaTrash />}
+                  aria-label="Delete"
+                  colorScheme="orange"
+                  onClick={() => handleIconClick("delete")}
+                />
+                </Tooltip>
+              </HStack>
+              <HStack spacing={4} mt={4} marginLeft="30px">
+              
                 {/* Category selection dropdown */}
                 <Select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                   placeholder="Select Category"
+                  width="180px"
                 >
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -342,6 +364,7 @@ const Recipes = () => {
                 variant="link"
                 colorScheme={activeTab === "Instruction" ? "orange" : "gray"}
                 onClick={() => setActiveTab("Instruction")}
+                borderBottom={activeTab === "Instruction" ? "3px solid orange" : "none"}
               >
                 Instruction
               </Button>
@@ -349,13 +372,14 @@ const Recipes = () => {
                 variant="link"
                 colorScheme={activeTab === "Ingredients" ? "orange" : "gray"}
                 onClick={() => setActiveTab("Ingredients")}
+                borderBottom={activeTab === "Ingredients" ? "3px solid orange" : "none"}
               >
                 Ingredients
               </Button>
             </Flex>
             <Box>
               {activeTab === "Instruction" ? (
-                <VStack align="start" margin="10px" textAlign="left">
+                <VStack align="start" margin="20px" textAlign="left" >
                   <ul>
                     {selectedFood?.instructions.map((instruction, index) => (
                       <li key={index}>{instruction}</li>
@@ -363,7 +387,7 @@ const Recipes = () => {
                   </ul>
                 </VStack>
               ) : (
-                <VStack align="start" margin="10px" textAlign="left">
+                <VStack align="start" margin="20px" textAlign="left">
                   <ul>
                     {selectedFood?.ingredients.map((ingredient, index) => (
                       <li key={index}>{ingredient}</li>
@@ -435,11 +459,10 @@ const Recipes = () => {
                       transform: "scale(1.05)",
                     }}
                   >
+
+                    
                     <Image
-                      src={
-                        food?.image ||
-                        "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                      }
+                      src={getImageSrc(food?.image)}
                       alt={food?.title || "404 No Found"}
                       borderRadius="full"
                       boxSize="85px"
@@ -516,7 +539,8 @@ const Recipes = () => {
                   onChange= {(e) => handleInputChange(e)}
                 />
                 <Input
-                  placeholder="Times Needed"
+                  placeholder="Times Needed (minutes)"
+                  type="number"
                   name="prepTime"
                   value={newRecipe.prepTime}
                   onChange= {(e) => handleInputChange(e)}
@@ -569,17 +593,12 @@ const Recipes = () => {
                   onChange= {(e) => handleInputChange(e)}
                 />
                 <Input
-                  placeholder="Times Needed"
+                  placeholder="Times Needed (minutes)"
+                  type="number"
                   name="prepTime"
                   value={newRecipe.prepTime}
                   onChange= {(e) => handleInputChange(e)}
                 />
-                {/* <Textarea
-                  placeholder="Steps"
-                  name="steps"
-                  value={newRecipe.steps.join("\n")}
-                  onChange= {(e) => handleInputChange(e)}                
-               /> */}
                 <Select
                   placeholder="Category"
                   name="category"
@@ -629,13 +648,6 @@ const Recipes = () => {
               <>
                 <Button colorScheme="blue" mr={3} onClick={onClose}>
                   Confirm
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </>
-            ) : activeModal === "read" ? (
-              <>
-                <Button colorScheme="blue" mr={3} onClick={onClose}>
-                  Submit
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
               </>
