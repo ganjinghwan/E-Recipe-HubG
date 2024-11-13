@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -23,34 +23,17 @@ import {
   ModalCloseButton,
   ModalBody,
   ModalFooter,
+  Link
 } from "@chakra-ui/react";
-import { FaHeart, FaPlus, FaEye, FaEdit, FaTrash } from "react-icons/fa";
+import { FaHeart, FaPlus, FaEye, FaEdit, FaTrash, FaClock } from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa"; // Import specific icons
 import recipesBackground from "../pic/room.jpg";
-import Croissant from "../pic/Croissant.jpeg";
-import Macaron from "../pic/Macaron.jpeg";
-import Cannoli from "../pic/Cannoli.jpeg";
-import Profiterole from "../pic/Profiteroles.jpeg";
-import Eclair from "../pic/Eclair.jpeg";
-import Brownie from "../pic/Brownie.jpeg";
-import Pancake from "../pic/Pancakes.jpeg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 
-
-// Define food items
-const foodItems = [
-  { id: 1, name: "Croissant", image: Croissant, rating: "4.5" },
-  { id: 2, name: "Macaron", image: Macaron, rating: "4.7" },
-  { id: 3, name: "Cannoli", image: Cannoli, rating: "4.3" },
-  { id: 4, name: "Profiterole", image: Profiterole, rating: "4.8" },
-  { id: 5, name: "Eclair", image: Eclair, rating: "4.6" },
-  { id: 6, name: "Brownie", image: Brownie, rating: "4.4" },
-  { id: 7, name: "Pancake", image: Pancake, rating: "4.9" },
-];
-
 const Recipes = () => {
-  const [selectedFood, setSelectedFood] = useState(foodItems[0]);
+  const [selectedFood, setSelectedFood] = useState(null);
   const [animationState, setAnimationState] = useState("");
-  const [activeTab, setActiveTab] = useState("Overview");
+  const [activeTab, setActiveTab] = useState("instructions");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [favoriteFoods, setFavoriteFoods] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -58,19 +41,33 @@ const Recipes = () => {
   const [newRecipe, setNewRecipe] = useState({
     title: "",
     ingredients: [],
-    instructions: "",
+    instructions: [],
     prepTime: "",
-    steps: [],
     category: "",
     image: "",
+    video: "",
   });
   const {createRecipe} = useStoreRecipe();
+  const {fetchRecipes, recipes} = useStoreRecipe();
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const categories = ["All", "Breakfast", "Lunch", "Dinner", "Pastry"];
   const toast = useToast();
 
-  const handleFoodSelection = (food) => {
-    if (food.id !== selectedFood.id && !animationState) {
-      setAnimationState("slide-left");
+  useEffect(() => {
+    fetchRecipes();
+  }, [fetchRecipes]);
 
+
+  useEffect(() => {
+    if (recipes.length > 0) {
+      setSelectedFood(recipes[0]); // Set the first recipe as the initial selected food
+    }
+  }, [recipes]);
+
+  const handleFoodSelection = (food) => {
+    if (food._id !== selectedFood?._id && !animationState) {
+      setAnimationState("slide-left");
+      
       setTimeout(() => {
         setSelectedFood(food);
         setAnimationState("slide-down");
@@ -81,6 +78,11 @@ const Recipes = () => {
       }, 1000);
     }
   };
+
+  const filteredRecipes = selectedCategory === "All"
+    ? recipes
+    : recipes.filter((food) => food.category === selectedCategory);
+
 
   const handleToggleFavorite = (foodId) => {
     const isFavorite = favoriteFoods.includes(foodId);
@@ -104,7 +106,7 @@ const Recipes = () => {
 
   const handleScrollRight = () => {
     setCarouselIndex((prevIndex) =>
-      Math.min(prevIndex + 1, foodItems.length - 5)
+      Math.min(prevIndex + 1, recipes.length - 5)
     );
   };
 
@@ -117,14 +119,14 @@ const Recipes = () => {
     const { name, value } = e.target;
     setNewRecipe((prevRecipe) => ({
       ...prevRecipe,
-      [name]: name === "ingredients" || name === "steps"
-        ? value.split(name === "ingredients" ? "," : "\n").map(i => i.trim())
+      [name]: name === "ingredients" || name === "instructions"
+        ? value
+            .split(",")
+            .map((i) => i.trimStart()) // Trims only leading whitespace, keeping spaces within words intact
         : value,
     }));
   };
   
-  
-
 
   const handleAddRecipe = async () => {
     const {success,message} = await createRecipe(newRecipe);
@@ -149,11 +151,11 @@ const Recipes = () => {
     setNewRecipe({
       title: "",
       ingredients: [],
-      instructions: "",
+      instructions: [],
       prepTime: "",
-      steps: [],
       category: "",
       image: "",
+      video: "",
     });
   };
 
@@ -189,28 +191,36 @@ const Recipes = () => {
               opacity: 1;
             }
           }
-
-          @keyframes scrollAnimation {
-            from {
-              transform: translateX(0);
-            }
-            to {
-              transform: translateX(-100%);
-            }
-          }
         `}
-        
       </style>
+
+      {recipes.length === 0 ? (
+        // Show message if no recipes exist
+        <Center>
+          <VStack spacing={4} bg="rgba(255, 255, 255, 0.8)" p={4} borderRadius="md">
+            <Text fontSize="xl" fontWeight="bold">
+              There are no recorded food recipes yet.
+            </Text>
+            <Link color="blue.500" onClick={() => handleIconClick("create")}>
+              Create a new recipe
+            </Link>
+          </VStack>
+        </Center>
+      ) : (
+        // Show main recipe content if recipes exist
       <Grid
         templateColumns={{ base: "1fr", md: "2fr 1fr" }}
         templateRows={{ base: "auto", md: "auto auto" }}
-        gap={6}
+        gap={10}
         w="90%"
         maxW="1200px"
+        // border = "3px solid white"
       >
         {/*Top Left column - Display Animation Image and details*/}
         <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 1 }}>
-          <Flex direction={{ base: "column", md: "row" }} gap={4} align="start">
+          <Flex direction={{ base: "column", md: "row" }} gap={4} align="start"
+                // border = "3px solid black"
+                >
             <Center
               w="300px"
               h="300px"
@@ -227,29 +237,40 @@ const Recipes = () => {
                     : "none",
               }}
             >
+             {selectedFood && (
               <Image
                 src={selectedFood.image}
-                alt={selectedFood.name}
+                alt={selectedFood.title}
                 objectFit="cover"
                 w="full"
                 h="full"
               />
+            )}
             </Center>
-            <VStack align="start" >
+            <VStack align="start" 
+            // border="3px solid purple" 
+            >
               <HStack 
                 marginTop="20px"
                 marginLeft="30px"
                 >
                 <Text fontSize="4xl" fontWeight="bold">
-                  {selectedFood.name.toUpperCase()}
+                  {selectedFood?.title?.toUpperCase()}
                 </Text>
                 <IconButton
+                  marginTop="4px"
+                  marginLeft= "4px"
+                  size="sm"
                   icon={<FaHeart/>}
-                  onClick={() => handleToggleFavorite(selectedFood.id)}
-                  colorScheme={
-                  favoriteFoods.includes(selectedFood.id) ? "red" : "gray"
-                  }
+                  onClick={() => handleToggleFavorite(selectedFood?.id)}
+                  colorScheme={favoriteFoods.includes(selectedFood?.id) ? "red" : "gray"}
                 />
+              </HStack>
+              <HStack marginLeft="30px" alignItems="center" marginBottom="10px"  >
+                <FaClock size="20px" />
+                <Text fontSize="md" fontWeight="medium">
+                  {selectedFood?.prepTime}
+                </Text>
               </HStack>
               <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
                 <IconButton
@@ -278,23 +299,51 @@ const Recipes = () => {
                 />
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
-                <Button colorScheme="orange">Play Video</Button>
-                <Button colorScheme="orange">Pastry</Button>
+              <Button 
+                colorScheme="orange"
+                onClick={() => {
+                    if (!selectedFood?.video) {
+                      toast({
+                        title: "No video",
+                        status: "warning",
+                        duration: 3000,
+                        isClosable: true,
+                        position: "bottom",
+                      });
+                    } else {
+                      window.open(selectedFood.video, "_blank");
+                    }
+                  }}
+                >
+                  Play Video
+                </Button>
+                {/* Category selection dropdown */}
+                <Select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  placeholder="Select Category"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </Select>
               </HStack>
             </VStack>
           </Flex>
         </GridItem>
 
         {/* Info Board content */}
-        <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 1 }}>
+        <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 1 }} 
+        // border="3px solid pink"
+        >
           <Box bg="white" p={4} borderRadius="md" shadow="md">
             <Flex justify="space-around" mb={4}>
               <Button
                 variant="link"
-                colorScheme={activeTab === "Overview" ? "orange" : "gray"}
-                onClick={() => setActiveTab("Overview")}
+                colorScheme={activeTab === "Instruction" ? "orange" : "gray"}
+                onClick={() => setActiveTab("Instruction")}
               >
-                Overview
+                Instruction
               </Button>
               <Button
                 variant="link"
@@ -305,24 +354,20 @@ const Recipes = () => {
               </Button>
             </Flex>
             <Box>
-              {activeTab === "Overview" ? (
+              {activeTab === "Instruction" ? (
                 <VStack align="start" margin="10px" textAlign="left">
-                  <Text fontSize="lg">Overview</Text>
-                  <Text>
-                    <strong>Rating:</strong> {selectedFood.rating}
-                  </Text>
-                  <Text>
-                    Chef Reza, a talented chef, brings authentic{" "}
-                    {selectedFood.name} to life.
-                  </Text>
+                  <ul>
+                    {selectedFood?.instructions.map((instruction, index) => (
+                      <li key={index}>{instruction}</li>
+                    ))}
+                  </ul>
                 </VStack>
               ) : (
                 <VStack align="start" margin="10px" textAlign="left">
-                  <Text fontSize="lg">Ingredients</Text>
                   <ul>
-                    <li>Ingredient 1: Qincai</li>
-                    <li>Ingredient 2: No need any Ingredients</li>
-                    <li>Ingredient 3: Keep it usual</li>
+                    {selectedFood?.ingredients.map((ingredient, index) => (
+                      <li key={index}>{ingredient}</li>
+                    ))}
                   </ul>
                 </VStack>
               )}
@@ -333,73 +378,95 @@ const Recipes = () => {
 
         {/* Carousel content */}
         <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 2 }}>
-        <Flex
-          align="center"
-          pos="relative"
-          overflow="hidden"
-          w="100%"
-          h="150px"
-          borderRadius="md"
-        >
-            {/* <IconButton
-              icon={"<"}
+          <Flex
+            align="center"
+            pos="relative"
+            overflow="hidden"
+            w="100%"
+            h="150px"
+            borderRadius="md"
+            // border="3px solid red"
+          >
+            {/* Left Scroll Button */}
+            <IconButton
+              icon={<FaChevronLeft />} 
               onClick={handleScrollLeft}
               pos="absolute"
-              left="0"
-              transform="translateY(-50%)"
+              left="10px"
               bg="transparent"
-              colorScheme="purple"
+              color="black"
+              boxShadow="md"
               zIndex="2"
-            /> */}
+              aria-label="Scroll Left"
+              _hover={{ bg: "gray.200" }}
+              isDisabled={carouselIndex === 0} 
+            />
             <Flex
               as="div"
-              display="flex"
               alignItems="center"
-              position="absolute"
-              w="max-content"
+              position="relative"
+              overflow="hidden"
+              w="full"
               gap={10}
-              animation="scrollAnimation 50s linear infinite"
+              pl="60px"
+              pr="60px"
+              transition="transform 0.5s ease-in-out"
+              // transform={`translateX(-${carouselIndex * 1}px)`} // Smooth transition
             >
-              {/* Duplicate food items for smooth looping */}
-              {/* Continuously Append Food Items */}
-              {Array(5) // Number of times the array is repeated (can be adjusted)
-                .fill(foodItems) // Fill the array multiple times
-                .flat() // Flatten the arrays into a single array
-                .map((food, index) => (
+              {filteredRecipes
+                .slice(carouselIndex, carouselIndex + 5) // Show only 5 items
+                .map((food) => (
                   <VStack
-                    key={`${food.id}-${index}`}
+                    key={food.id}
                     onClick={() => handleFoodSelection(food)}
                     cursor="pointer"
                     w="100px"
                     flexShrink={0}
                     p={2}
                     textAlign="center"
-                    bg={food.id === selectedFood.id ? "#b1b5b5" : "transparent"}
+                    bg={food.id === selectedFood?.id ? "#b1b5b5" : "transparent"}
                     borderRadius="lg"
-                    boxShadow={food.id === selectedFood.id ? "md" : "none"}
+                    boxShadow={food.id === selectedFood?.id ? "md" : "none"}
+                    transform={food.id === selectedFood?.id ? "scale(1.05)" : "scale(1)"}
+                    opacity={food.id === selectedFood?.id ? 1 : 0.6}
+                    transition="transform 0.5s ease, opacity 0.5s ease"
+                    _hover={{
+                      boxShadow: "lg",
+                      transform: "scale(1.05)",
+                    }}
                   >
-                  <Image
-                    src={food.image}
-                    alt={food.name}
-                    borderRadius="full"
-                    boxSize="85px"
-                  />
-                  <Text>{food.name}</Text>
-                </VStack>
-              ))}
+                    <Image
+                      src={
+                        food?.image ||
+                        "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                      }
+                      alt={food?.title || "404 No Found"}
+                      borderRadius="full"
+                      boxSize="85px"
+                    />
+                    <Text>{food.title}</Text>
+                  </VStack>
+                ))}
             </Flex>
-            {/* <IconButton
-              icon={">"}
+            {/* Right Scroll Button */}
+            <IconButton
+              icon={<FaChevronRight />} // Use the React Icon component here
               onClick={handleScrollRight}
               pos="absolute"
-              right="0"
-              transform="translateY(-50%)"
+              right="10px"
               bg="transparent"
-              colorScheme="purple"
+              color= "black"
+              boxShadow="md"
               zIndex="2"
-            /> */}
+              aria-label="Scroll Right"
+              _hover={{ bg: "gray.200" }}
+              isDisabled={carouselIndex + 5 >= filteredRecipes.length} // Disable if at end
+            />
           </Flex>
         </GridItem>
+
+      </Grid>
+      )}
 
         {/* CRUD Icon Section */}
         {/* <GridItem 
@@ -411,50 +478,16 @@ const Recipes = () => {
           bottom="20"
           w="100%"
           marginLeft="250px"
-        >
-        <Center mt={8}>
-          <HStack spacing={8}> 
-            <IconButton
-              icon={<FaPlus />}
-              aria-label="Create"
-              colorScheme="teal"
-              onClick={() => handleIconClick("create")}
-            />
-            <IconButton
-              icon={<FaEye />}
-              aria-label="Read"
-              colorScheme="blue"
-              onClick={() => handleIconClick("read")}
-            />
-            <IconButton
-              icon={<FaEdit />}
-              aria-label="Update"
-              colorScheme="yellow"
-              onClick={() => handleIconClick("update")}
-            />
-            <IconButton
-              icon={<FaTrash />}
-              aria-label="Delete"
-              colorScheme="red"
-              onClick={() => handleIconClick("delete")}
-            />
-          </HStack>
-        </Center>
-      </GridItem> */}
+        > */}
 
       {/* Modal for CRUD actions */}
       <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay 
-          //  sx={{
-          //   bg: "rgba(255, 255, 255, 0.1)", // Semi-transparent background color
-          //   backdropFilter: "blur(10px)", // Blur effect
-          // }}
-        />
+        <ModalOverlay />
         <ModalContent
           bg="rgba(255, 255, 255, 0.5)" // Semi-transparent modal background
           boxShadow="lg"
           border="1px solid grey"
-        >
+        > 
           <ModalHeader>
             {activeModal === "create" && "Create New Recipe"}
             {activeModal === "update" && "Update Recipe"}
@@ -479,35 +512,37 @@ const Recipes = () => {
                 <Textarea
                   placeholder="Instructions"
                   name="instructions"
-                  value={newRecipe.instructions}
+                  value={newRecipe.instructions.join("\n")}
                   onChange= {(e) => handleInputChange(e)}
                 />
                 <Input
-                  placeholder="Prep Time"
+                  placeholder="Times Needed"
                   name="prepTime"
                   value={newRecipe.prepTime}
                   onChange= {(e) => handleInputChange(e)}
                 />
-                <Textarea
-                  placeholder="Steps"
-                  name="steps"
-                  value={newRecipe.steps.join("\n")}
-                  onChange= {(e) => handleInputChange(e)}                
-              />
                 <Select
                   placeholder="Category"
                   name="category"
                   value={newRecipe.category}
                   onChange= {(e) => handleInputChange(e)}                
                   >
-                  <option value="Pastry">Pastry</option>
-                  <option value="Breakfast">Breakfast</option>
-                  {/* Add more categories as needed */}
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Pastry</option>
+                  
                 </Select>
                 <Input
                   placeholder="Image URL"
                   name="image"
                   value={newRecipe.image}
+                  onChange= {(e) => handleInputChange(e)}                
+              />
+                <Input
+                  placeholder="Video URL [optional]"
+                  name="video"
+                  value={newRecipe.video}
                   onChange= {(e) => handleInputChange(e)}                
               />
               </VStack>
@@ -530,30 +565,31 @@ const Recipes = () => {
                 <Textarea
                   placeholder="Instructions"
                   name="instructions"
-                  value={newRecipe.instructions}
+                  value={newRecipe.instructions.join("\n")}
                   onChange= {(e) => handleInputChange(e)}
                 />
                 <Input
-                  placeholder="Prep Time"
+                  placeholder="Times Needed"
                   name="prepTime"
                   value={newRecipe.prepTime}
                   onChange= {(e) => handleInputChange(e)}
                 />
-                <Textarea
+                {/* <Textarea
                   placeholder="Steps"
                   name="steps"
                   value={newRecipe.steps.join("\n")}
                   onChange= {(e) => handleInputChange(e)}                
-               />
+               /> */}
                 <Select
                   placeholder="Category"
                   name="category"
                   value={newRecipe.category}
                   onChange= {(e) => handleInputChange(e)}                
                   >
-                  <option value="Pastry">Pastry</option>
-                  <option value="Breakfast">Breakfast</option>
-                  {/* Add more categories as needed */}
+                    <option value="breakfast">Breakfast</option>
+                    <option value="lunch">Lunch</option>
+                    <option value="dinner">Dinner</option>
+                    <option value="snack">Pastry</option>
                 </Select>
                 <Input
                   placeholder="Image URL"
@@ -561,6 +597,12 @@ const Recipes = () => {
                   value={newRecipe.image}
                   onChange= {(e) => handleInputChange(e)}                
                />
+                <Input
+                    placeholder="Video URL [optional]"
+                    name="video"
+                    value={newRecipe.video}
+                    onChange= {(e) => handleInputChange(e)}                
+                />
               </VStack>
             )}
 
@@ -579,21 +621,21 @@ const Recipes = () => {
             ) : activeModal === "create" ? (
               <>
                 <Button colorScheme="blue" mr={3} onClick={handleAddRecipe}>
-                  Add Recipe
+                  Submit
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
               </>
             ) : activeModal === "update" ? (
               <>
                 <Button colorScheme="blue" mr={3} onClick={onClose}>
-                  Update Recipe
+                  Confirm
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
               </>
             ) : activeModal === "read" ? (
               <>
                 <Button colorScheme="blue" mr={3} onClick={onClose}>
-                  Read Recipe
+                  Submit
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
               </>
@@ -601,7 +643,6 @@ const Recipes = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-      </Grid>
     </Flex>
   );
 };

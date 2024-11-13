@@ -11,15 +11,11 @@ const recipeSchema = new mongoose.Schema({
         required: true
     },
     instructions: {
-        type: String,
+        type: Array,
         required: true
     },
     prepTime: {
         type: String,
-        required: true
-    },
-    steps: {
-        type: Array,
         required: true
     },
     category: {
@@ -29,7 +25,11 @@ const recipeSchema = new mongoose.Schema({
     image: {
         type: String,// Store image URL or file path
         required: true
-    }
+    },
+    video: {
+        type: String,
+        required: false
+    },
     // user: {
     //     type: mongoose.Schema.Types.ObjectId,
     //     ref: 'User'

@@ -8,13 +8,12 @@ export const useStoreRecipe = create((set) => ({
         if (
             !newRecipe.title ||
             !newRecipe.ingredients.length ||
-            !newRecipe.instructions ||
+            !newRecipe.instructions.length ||
             !newRecipe.prepTime ||
-            !newRecipe.steps.length ||
             !newRecipe.category ||
             !newRecipe.image
         ) {
-              return { success: false, message: 'All fields are required.' };
+              return { success: false, message: 'All fields are required [except video-URL].' };
         }
         const res = await fetch("/api/recipesinfo", {
             method: "POST",
@@ -26,5 +25,13 @@ export const useStoreRecipe = create((set) => ({
             const data = await res.json();
             set((state) => ({ recipes: [...state.recipes, data.data] }));
             return { success: true, message: 'Recipe created successfully.' };
-    }
+    },
+
+
+    fetchRecipes: async () => {
+        const res = await fetch("/api/recipesinfo");
+        const data = await res.json();
+        set({ recipes: data.data });
+    },
+
 }));
