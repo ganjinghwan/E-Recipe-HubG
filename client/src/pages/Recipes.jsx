@@ -79,11 +79,15 @@ const Recipes = () => {
   }, [recipes]);
 
   const handleFoodSelection = (food) => {
+    // console.log("Clicked Food111:", food);
     if (food._id !== selectedFood?._id && !animationState) {
       setAnimationState("slide-left");
+      // console.log("The food id is111:", food._id);
       
       setTimeout(() => {
         setSelectedFood(food);
+        // console.log("Selected Food Updated2:", food);
+        // console.log("The food id is2222:", food._id);
         setAnimationState("slide-down");
 
         setTimeout(() => {
@@ -92,6 +96,7 @@ const Recipes = () => {
       }, 1000);
     }
   };
+  
 
   const filteredRecipes = selectedCategory === "All"
     ? recipes
@@ -441,25 +446,31 @@ const Recipes = () => {
                 .slice(carouselIndex, carouselIndex + 5) // Show only 5 items
                 .map((food) => (
                   <VStack
-                    key={food.id}
+                    key={food._id}
                     onClick={() => handleFoodSelection(food)}
                     cursor="pointer"
                     w="100px"
                     flexShrink={0}
                     p={2}
                     textAlign="center"
-                    bg={food.id === selectedFood?.id ? "#b1b5b5" : "transparent"}
-                    borderRadius="lg"
-                    boxShadow={food.id === selectedFood?.id ? "md" : "none"}
-                    transform={food.id === selectedFood?.id ? "scale(1.05)" : "scale(1)"}
-                    opacity={food.id === selectedFood?.id ? 1 : 0.6}
-                    transition="transform 0.5s ease, opacity 0.5s ease"
+                    bg={food._id === selectedFood?._id ? "#b1b5b5" : "transparent"} // Apply background only to the selected item
+                    boxShadow={
+                      food._id === selectedFood?._id
+                        ? "0 4px 15px rgba(0, 0, 0, 0.2)" // Highlight shadow for the selected item
+                        : "none"
+                    }
+                    transform={
+                      food._id === selectedFood?._id
+                        ? "scale(1.05)" // Slight zoom for the selected item
+                        : "scale(1)"
+                    }
+                    borderRadius="15px"
+                    transition="transform 0.3s ease, background-color 0.3s ease"
                     _hover={{
-                      boxShadow: "lg",
-                      transform: "scale(1.05)",
-                    }}
-                  >
-
+                      boxShadow: "xl",
+                      transform: food._id === selectedFood?._id ? "scale(1.05)" : "scale(1.1)", // Ensure hover works correctly
+                     }}
+                    >
                     
                     <Image
                       src={getImageSrc(food?.image)}
