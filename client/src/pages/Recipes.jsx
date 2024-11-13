@@ -54,7 +54,7 @@ const Recipes = () => {
   const categories = ["All", "Breakfast", "Lunch", "Dinner", "Pastry"];
   const toast = useToast();
   const getImageSrc = (image) => {
-    return isValidUrl(image) ? image : "https://images.unsplash.com/photo-1594322436404-5a0526db4d13?q=80&w=2029&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
+    return isValidUrl(image) ? image : "https://i.pinimg.com/originals/88/4f/6b/884f6bbb75ed5e1446d3b6151b53b3cf.gif";
   };
 
   const isValidUrl = (url) => {
