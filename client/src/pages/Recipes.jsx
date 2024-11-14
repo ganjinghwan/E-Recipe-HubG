@@ -24,10 +24,14 @@ import {
   ModalBody,
   ModalFooter,
   Link,
-  Tooltip
+  Tooltip,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
 } from "@chakra-ui/react";
-import { FaHeart, FaPlus, FaEye, FaEdit, FaTrash, FaClock, FaYoutube, FaVideo } from "react-icons/fa";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa"; // Import specific icons
+import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube} from "react-icons/fa";
+import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 
@@ -50,11 +54,15 @@ const Recipes = () => {
   });
   const {createRecipe} = useStoreRecipe();
   const {fetchRecipes, recipes} = useStoreRecipe();
+  const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const categories = ["All", "Breakfast", "Lunch", "Dinner", "Pastry"];
   const toast = useToast();
   const getImageSrc = (image) => {
     return isValidUrl(image) ? image : "https://i.pinimg.com/originals/88/4f/6b/884f6bbb75ed5e1446d3b6151b53b3cf.gif";
+  };
+
+  const capitalize = (str) => {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
   const isValidUrl = (url) => {
@@ -68,15 +76,39 @@ const Recipes = () => {
   
 
   useEffect(() => {
-    fetchRecipes();
+    fetchRecipes().then(() => {
+      setSelectedCategory("all"); // Set category to "All" after fetching recipes
+    });
   }, [fetchRecipes]);
+  
+
+  // useEffect(() => {
+  //   fetchRecipes();
+  // }, [fetchRecipes]);
 
 
   useEffect(() => {
     if (recipes.length > 0) {
       setSelectedFood(recipes[0]); // Set the first recipe as the initial selected food
+
+      // Get unique categories from recipes
+      const uniqueCategories = Array.from(
+        new Set(
+          recipes.map((recipe) => recipe.category.toLowerCase())
+        )
+      ).map(capitalize);
+      setCategories(["All", ...uniqueCategories]);
+
     }
   }, [recipes]);
+
+
+  const filteredRecipes =
+    selectedCategory === "all"
+      ? recipes
+      : recipes.filter(
+          (recipe) => recipe.category.toLowerCase() === selectedCategory
+        );
 
   const handleFoodSelection = (food) => {
     // console.log("Clicked Food111:", food);
@@ -97,10 +129,6 @@ const Recipes = () => {
     }
   };
   
-
-  const filteredRecipes = selectedCategory === "All"
-    ? recipes
-    : recipes.filter((food) => food.category === selectedCategory);
 
 
   const handleToggleFavorite = (foodId) => {
@@ -344,16 +372,45 @@ const Recipes = () => {
               <HStack spacing={4} mt={4} marginLeft="30px">
               
                 {/* Category selection dropdown */}
-                <Select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  placeholder="Select Category"
+                {/* <Select 
+                  defaultValue="All"
+                  value={selectedCategory} 
+                  onChange={(e) => setSelectedCategory(e.target.value.toLowerCase())}
                   width="180px"
+                  border="3px solid"
                 >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
+                  
+                  {categories.map((category) => (
+                    <option key={category} value={category.toLowerCase()}>
+                      {category}
+                    </option>
                   ))}
-                </Select>
+                  
+                </Select> */}
+                <Menu>
+                  <MenuButton as={Button} rightIcon={<FaChevronDown />} width="180px" border="2px solid">
+                    {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} {/* Display selected category */}
+                  </MenuButton>
+                  <MenuList maxH="100px" overflowY="auto"> {/* Set scrollable dropdown content */}
+                    {categories.map((category) => (
+                      <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}>
+                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu>
+                {/* <Menu>
+                  <MenuButton as={Button} width="200px" border="3px solid">
+                    {selectedCategory || 'All'}
+                  </MenuButton>
+                  <MenuList maxH="150px" overflowY="auto">
+                    {categories.map((category) => (
+                      <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}>
+                        {category}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </Menu> */}
               </HStack>
             </VStack>
           </Flex>
@@ -580,17 +637,12 @@ const Recipes = () => {
                 value={newRecipe.prepTime}
                 onChange={handleInputChange}
               />
-              <Select
+              <Input
                 placeholder="Category"
                 name="category"
                 value={newRecipe.category}
                 onChange={handleInputChange}
-              >
-                <option value="breakfast">Breakfast</option>
-                <option value="lunch">Lunch</option>
-                <option value="dinner">Dinner</option>
-                <option value="snack">Pastry</option>
-              </Select>
+              />
               <Input
                 placeholder="Image URL"
                 name="image"
