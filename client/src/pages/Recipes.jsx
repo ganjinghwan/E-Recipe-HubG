@@ -360,19 +360,19 @@ const Recipes = () => {
         </GridItem>
 
         {/* Info Board content */}
-        <GridItem colSpan={{ base: 1, md: 1 }} rowSpan={{ base: 1, md: 1 }} 
-        // border="3px solid pink"
+        <GridItem 
+          colSpan={{ base: 1, md: 1 }} 
+          rowSpan={{ base: 1, md: 1 }}
         >
-          <Box bg="white" p={4} borderRadius="md" shadow="md">
+          <Box 
+            bg="white" 
+            p={4} 
+            borderRadius="md" 
+            shadow="md" 
+            maxH="300px"
+          >
+            {/* Tab Navigation */}
             <Flex justify="space-around" mb={4}>
-              <Button
-                variant="link"
-                colorScheme={activeTab === "Instruction" ? "orange" : "gray"}
-                onClick={() => setActiveTab("Instruction")}
-                borderBottom={activeTab === "Instruction" ? "3px solid orange" : "none"}
-              >
-                Instruction
-              </Button>
               <Button
                 variant="link"
                 colorScheme={activeTab === "Ingredients" ? "orange" : "gray"}
@@ -381,24 +381,48 @@ const Recipes = () => {
               >
                 Ingredients
               </Button>
+              <Button
+                variant="link"
+                colorScheme={activeTab === "Instruction" ? "orange" : "gray"}
+                onClick={() => setActiveTab("Instruction")}
+                borderBottom={activeTab === "Instruction" ? "3px solid orange" : "none"}
+              >
+                Instructions
+              </Button>
             </Flex>
-            <Box>
-              {activeTab === "Instruction" ? (
-                <VStack align="start" margin="20px" textAlign="left" >
-                  <ul>
-                    {selectedFood?.instructions.map((instruction, index) => (
-                      <li key={index}>{instruction}</li>
-                    ))}
-                  </ul>
-                </VStack>
-              ) : (
-                <VStack align="start" margin="20px" textAlign="left">
-                  <ul>
-                    {selectedFood?.ingredients.map((ingredient, index) => (
-                      <li key={index}>{ingredient}</li>
-                    ))}
-                  </ul>
-                </VStack>
+
+            {/* Scrollable Content */}
+            <Box 
+              maxH="230px" 
+              overflowY="auto" 
+              padding="10px" 
+              border="1px solid lightgray" 
+              borderRadius="md"
+              textAlign="left"
+            >
+              {activeTab === "Ingredients" ? (
+              <VStack align="start">
+                <Text fontWeight="semibold" mb={2}>Ingredients:</Text>
+                <ul style={{ paddingLeft: "20px" }}>
+                  {selectedFood?.ingredients.map((ingredient, index) => (
+                   <li key={index}>
+                   {ingredient}
+                 </li>
+                  ))}
+                </ul>
+              </VStack>
+            ) : (
+              <VStack align="start">
+                <Text fontWeight="semibold" mb={2}>Instructions:</Text>
+                <ol style={{ paddingLeft: "20px" }}>
+                  {selectedFood?.instructions.map((instruction, index) => (
+                    <li key={index} >
+                      {/* <Text as="span" fontWeight="medium"></Text> */}
+                      {instruction}
+                    </li>
+                  ))}
+                </ol>
+              </VStack>
               )}
             </Box>
           </Box>
@@ -518,7 +542,7 @@ const Recipes = () => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent
-          bg="rgba(255, 255, 255, 0.5)" // Semi-transparent modal background
+          bg="rgba(255, 255, 255, 0.6)" // Semi-transparent modal background
           boxShadow="lg"
           border="1px solid grey"
         > 
@@ -529,112 +553,58 @@ const Recipes = () => {
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {activeModal === "create" && (
-              <VStack spacing={4} align="stretch">
-                <Input
-                  placeholder="Title"
-                  name="title"
-                  value={newRecipe.title}
-                  onChange= {(e) => handleInputChange(e)}
-                />
-                <Textarea
-                  placeholder="Ingredients"
-                  name="ingredients"
-                  value={newRecipe.ingredients.join(", ")}
-                  onChange= {(e) => handleInputChange(e)}                
-                />
-                <Textarea
-                  placeholder="Instructions"
-                  name="instructions"
-                  value={newRecipe.instructions.join("\n")}
-                  onChange= {(e) => handleInputChange(e)}
-                />
-                <Input
-                  placeholder="Times Needed (minutes)"
-                  type="number"
-                  name="prepTime"
-                  value={newRecipe.prepTime}
-                  onChange= {(e) => handleInputChange(e)}
-                />
-                <Select
-                  placeholder="Category"
-                  name="category"
-                  value={newRecipe.category}
-                  onChange= {(e) => handleInputChange(e)}                
-                  >
-                    <option value="breakfast">Breakfast</option>
-                    <option value="lunch">Lunch</option>
-                    <option value="dinner">Dinner</option>
-                    <option value="snack">Pastry</option>
-                  
-                </Select>
-                <Input
-                  placeholder="Image URL"
-                  name="image"
-                  value={newRecipe.image}
-                  onChange= {(e) => handleInputChange(e)}                
+          {["create", "update"].includes(activeModal) && (
+            <VStack spacing={4} align="stretch">
+              <Input
+                placeholder="Title"
+                name="title"
+                value={newRecipe.title}
+                onChange={handleInputChange}
               />
-                <Input
-                  placeholder="Video URL [optional]"
-                  name="video"
-                  value={newRecipe.video}
-                  onChange= {(e) => handleInputChange(e)}                
+              <Textarea
+                placeholder="Ingredients (comma-separated)"
+                name="ingredients"
+                value={newRecipe.ingredients.join(", ")}
+                onChange={handleInputChange}
               />
-              </VStack>
-            )}
-
-            {activeModal === "update" && (
-              <VStack spacing={4} align="stretch">
-                <Input
-                  placeholder="Title"
-                  name="title"
-                  value={newRecipe.title}
-                  onChange= {(e) => handleInputChange(e)}
-                />
-                <Textarea
-                  placeholder="Ingredients"
-                  name="ingredients"
-                  value={newRecipe.ingredients.join(", ")}
-                  onChange= {(e) => handleInputChange(e)}                
-                />
-                <Textarea
-                  placeholder="Instructions"
-                  name="instructions"
-                  value={newRecipe.instructions.join("\n")}
-                  onChange= {(e) => handleInputChange(e)}
-                />
-                <Input
-                  placeholder="Times Needed (minutes)"
-                  type="number"
-                  name="prepTime"
-                  value={newRecipe.prepTime}
-                  onChange= {(e) => handleInputChange(e)}
-                />
-                <Select
-                  placeholder="Category"
-                  name="category"
-                  value={newRecipe.category}
-                  onChange= {(e) => handleInputChange(e)}                
-                  >
-                    <option value="breakfast">Breakfast</option>
-                    <option value="lunch">Lunch</option>
-                    <option value="dinner">Dinner</option>
-                    <option value="snack">Pastry</option>
-                </Select>
-                <Input
-                  placeholder="Image URL"
-                  name="image"
-                  value={newRecipe.image}
-                  onChange= {(e) => handleInputChange(e)}                
-               />
-                <Input
-                    placeholder="Video URL [optional]"
-                    name="video"
-                    value={newRecipe.video}
-                    onChange= {(e) => handleInputChange(e)}                
-                />
-              </VStack>
-            )}
+              <Textarea
+                placeholder="Instructions (one per line)"
+                name="instructions"
+                value={newRecipe.instructions.join("\n")}
+                onChange={handleInputChange}
+              />
+              <Input
+                placeholder="Time Needed (minutes)"
+                type="number"
+                name="prepTime"
+                value={newRecipe.prepTime}
+                onChange={handleInputChange}
+              />
+              <Select
+                placeholder="Category"
+                name="category"
+                value={newRecipe.category}
+                onChange={handleInputChange}
+              >
+                <option value="breakfast">Breakfast</option>
+                <option value="lunch">Lunch</option>
+                <option value="dinner">Dinner</option>
+                <option value="snack">Pastry</option>
+              </Select>
+              <Input
+                placeholder="Image URL"
+                name="image"
+                value={newRecipe.image}
+                onChange={handleInputChange}
+              />
+              <Input
+                placeholder="Video URL [optional]"
+                name="video"
+                value={newRecipe.video}
+                onChange={handleInputChange}
+              />
+            </VStack>
+          )}
 
             {activeModal === "delete" && (
               <Text>Are you sure you want to delete this recipe?</Text>
@@ -648,17 +618,14 @@ const Recipes = () => {
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
               </>
-            ) : activeModal === "create" ? (
+            ) : ["create", "update"].includes(activeModal) ? (
               <>
-                <Button colorScheme="blue" mr={3} onClick={handleAddRecipe}>
-                  Submit
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </>
-            ) : activeModal === "update" ? (
-              <>
-                <Button colorScheme="blue" mr={3} onClick={onClose}>
-                  Confirm
+                <Button
+                  colorScheme="blue"
+                  mr={3}
+                  onClick={activeModal === "create" ? handleAddRecipe : onClose}
+                >
+                  {activeModal === "create" ? "Submit" : "Confirm"}
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
               </>
