@@ -52,10 +52,11 @@ const Recipes = () => {
     image: "",
     video: "",
   });
-  const {createRecipe, deleteRecipes} = useStoreRecipe();
+  const {createRecipe, deleteRecipes, updateRecipes} = useStoreRecipe();
   const {fetchRecipes, recipes} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [updatedRecipe, setUpdatedRecipe] = useState(selectedFood);
   const toast = useToast();
   const getImageSrc = (image) => {
     return isValidUrl(image) ? image : "https://i.pinimg.com/originals/88/4f/6b/884f6bbb75ed5e1446d3b6151b53b3cf.gif";
@@ -158,6 +159,11 @@ const Recipes = () => {
   };
 
   const handleIconClick = (action) => {
+
+    if (action === "update") {
+      setUpdatedRecipe(selectedFood); // Ensure `updatedRecipe` is set
+    }
+
     setActiveModal(action);
     onOpen();
   };
@@ -226,6 +232,32 @@ const Recipes = () => {
        isClosable: true,
      });
    }
+   onClose();
+  };
+
+
+  const handleUpdateRecipe = async (rid,updatedRecipe) => {
+    const {success,message} = await updateRecipes(rid,updatedRecipe);
+    if (!success) {
+      toast({
+        title:"Error",
+        description: message,
+        status: "error",
+        duration: 3500,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title:"Success",
+        description: message,
+        status: "success",
+        duration: 3500,
+        isClosable: true,
+      });
+      setSelectedFood(updatedRecipe);
+      
+    }
+    onClose();
   };
 
   return (
@@ -241,7 +273,7 @@ const Recipes = () => {
       position="relative"
       textAlign="center"
       filter={isOpen ? "blur(5px)" : "none"}  // Apply blur when modal is open
-    >
+    > 
       {/* Keyframe animations */}
       <style>
         {`
@@ -636,45 +668,102 @@ const Recipes = () => {
               <Input
                 placeholder="Title"
                 name="title"
-                value={newRecipe.title}
-                onChange={handleInputChange}
+                value={activeModal === "update" ? updatedRecipe?.title || "" : newRecipe.title}
+                onChange={(e) =>
+                  activeModal === "update"
+                    ? setUpdatedRecipe((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    : handleInputChange(e)
+                }
               />
               <Textarea
                 placeholder="Ingredients (comma-separated)"
                 name="ingredients"
-                value={newRecipe.ingredients.join(", ")}
-                onChange={handleInputChange}
+                value={
+                  activeModal === "update"
+                    ? updatedRecipe?.ingredients.join(",") || ""
+                    : newRecipe.ingredients.join(",")
+                }
+                onChange={(e) =>
+                  activeModal === "update"
+                    ? setUpdatedRecipe((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value.split(","),
+                      }))
+                    : handleInputChange(e)
+                }
               />
               <Textarea
                 placeholder="Instructions (one per line)"
                 name="instructions"
-                value={newRecipe.instructions.join("\n")}
-                onChange={handleInputChange}
+                value={
+                  activeModal === "update"
+                    ? updatedRecipe?.instructions.join("\n") || ""
+                    : newRecipe.instructions.join("\n")
+                }
+                onChange={(e) =>
+                  activeModal === "update"
+                    ? setUpdatedRecipe((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value.split("\n"),
+                      }))
+                    : handleInputChange(e)
+                }
               />
               <Input
                 placeholder="Time Needed (minutes)"
                 type="number"
                 name="prepTime"
-                value={newRecipe.prepTime}
-                onChange={handleInputChange}
+                value={activeModal === "update" ? updatedRecipe?.prepTime || "" : newRecipe.prepTime}
+                onChange={(e) =>
+                  activeModal === "update"
+                    ? setUpdatedRecipe((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    : handleInputChange(e)
+                }
               />
               <Input
                 placeholder="Category"
                 name="category"
-                value={newRecipe.category}
-                onChange={handleInputChange}
+                value={activeModal === "update" ? updatedRecipe?.category || "" : newRecipe.category}
+                onChange={(e) =>
+                  activeModal === "update"
+                    ? setUpdatedRecipe((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    : handleInputChange(e)
+                }
               />
               <Input
                 placeholder="Image URL"
                 name="image"
-                value={newRecipe.image}
-                onChange={handleInputChange}
+                value={activeModal === "update" ? updatedRecipe?.image || "" : newRecipe.image}
+                onChange={(e) =>
+                  activeModal === "update"
+                    ? setUpdatedRecipe((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    : handleInputChange(e)
+                }
               />
               <Input
                 placeholder="Video URL [optional]"
                 name="video"
-                value={newRecipe.video}
-                onChange={handleInputChange}
+                value={activeModal === "update" ? updatedRecipe?.video || "" : newRecipe.video}
+                onChange={(e) =>
+                  activeModal === "update"
+                    ? setUpdatedRecipe((prev) => ({
+                        ...prev,
+                        [e.target.name]: e.target.value,
+                      }))
+                    : handleInputChange(e)
+                }
               />
             </VStack>
           )}
@@ -701,7 +790,11 @@ const Recipes = () => {
                 <Button
                   colorScheme="blue"
                   mr={3}
-                  onClick={activeModal === "create" ? handleAddRecipe : onClose}
+                  onClick={
+                    activeModal === "create"
+                      ? handleAddRecipe
+                      : () => handleUpdateRecipe(selectedFood?._id, updatedRecipe)
+                  }
                 >
                   {activeModal === "create" ? "Submit" : "Confirm"}
                 </Button>
