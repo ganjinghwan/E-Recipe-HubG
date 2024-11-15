@@ -34,4 +34,17 @@ export const useStoreRecipe = create((set) => ({
         set({ recipes: data.data });
     },
 
+
+
+    deleteRecipes: async (rid) => {
+        const res = await fetch(`/api/recipesinfo/${rid}`, {
+            method: "DELETE",
+        });
+        const data = await res.json();
+        if(!data.success) return { success: false, message: data.message };
+
+        set((state) => ({ recipes: state.recipes.filter((recipe) => recipe._id !== rid) }));
+        return { success: true, message: 'Recipe deleted successfully.' };
+    }
+
 }));

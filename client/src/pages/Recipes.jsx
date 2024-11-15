@@ -52,7 +52,7 @@ const Recipes = () => {
     image: "",
     video: "",
   });
-  const {createRecipe} = useStoreRecipe();
+  const {createRecipe, deleteRecipes} = useStoreRecipe();
   const {fetchRecipes, recipes} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -205,6 +205,27 @@ const Recipes = () => {
       video: "",
     });
     onClose();
+  };
+
+  const handleDeleteRecipe = async (rid) => {
+   const {success,message} = await deleteRecipes(rid);
+   if (!success) {
+     toast({
+       title:"Error",
+       description: message,
+       status: "error",
+       duration: 5000,
+       isClosable: true,
+     });
+   } else {
+     toast({
+       title:"Success",
+       description: message,
+       status: "success",
+       duration: 5000,
+       isClosable: true,
+     });
+   }
   };
 
   return (
@@ -659,13 +680,18 @@ const Recipes = () => {
           )}
 
             {activeModal === "delete" && (
-              <Text>Are you sure you want to delete this recipe?</Text>
+              <Text>Are you sure you want to delete{" "}
+              <Text as="span" fontWeight="bold">
+                "{selectedFood?.title}"
+              </Text>{" "}
+              recipe?
+              </Text>
             )}
           </ModalBody>
           <ModalFooter>
             {activeModal === "delete" ? (
               <>
-                <Button colorScheme="red" mr={3} onClick={onClose}>
+                <Button colorScheme="red" mr={3} onClick={() => handleDeleteRecipe(selectedFood?._id)} >
                   Delete
                 </Button>
                 <Button onClick={onClose}>Cancel</Button>
