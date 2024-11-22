@@ -20,25 +20,61 @@ import {
   Button,
 } from "@chakra-ui/react";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
-import { Link as RouterLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import { Link as RouterLink, useLocation } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
+import LoginForm from "./LoginForm";
+import SignUpForm from "./SignUpForm";
+import { useAuthStore } from "../store/authStore";
+import ProfileForm from "./ProfileForm";
+
 
 const MotionBox = motion(Box); // For animations
 
 const Navbar = () => {
   const [isSearchBarActive, setIsSearchBarActive] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // For hamburger menu
-
-  const toggleSearchBar = () => setIsSearchBarActive(!isSearchBarActive);
-
-  const handleSignOut = () => {
-    setIsLoggedIn(false);
-    onClose();
-  };
+  const [isSignUp, setIsSignUp] = useState(false);
+  const { isAuthenticated, logout } = useAuthStore();
+  const { isOpen: isOpenProfile, onOpen: onOpenProfile, onClose: onCloseProfile } = useDisclosure();
+  const location = useLocation();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
+  const toggleSearchBar = () => {setIsSearchBarActive(!isSearchBarActive); };
+
+  const openLoginForm = () => {
+    setIsSignUp(false);
+    onOpen();
+  };
+
+  const openSignUpForm = () => {
+    setIsSignUp(true);
+    onOpen();
+  };
+
+  const switchToSignUp = () => {
+    setIsSignUp(true);
+  };
+
+  const switchToLogin = () => {
+    setIsSignUp(false);
+  };
+
+  const openProfileForm = () => {
+      onOpenProfile();
+  };
+
+  const handleLogout = () => {
+    logout();
+    setIsMobileMenuOpen(false);
+  };
+
+  useEffect(() => {
+    if (location.pathname === "/verify-email") {
+      setIsMobileMenuOpen(false);
+    }
+  }, [location]);
+
 
   return (
     <Flex
@@ -48,8 +84,8 @@ const Navbar = () => {
       top="0"
       left="0"
       width="100%"
-      px="4"
-      py="2"
+      px={{ base: "2", md: "4" }}
+      py={{ base: "2", md: "4" }}
       zIndex="1000"
       align="center"
       justify="space-between"
@@ -144,6 +180,8 @@ const Navbar = () => {
 
       {/* Right Section: Search, Favorites, Profile */}
       <Flex align="center" gap="4" position="relative">
+      {isAuthenticated ? (
+        <>
         {/* Search Bar */}
         <Box position="relative" display="flex" alignItems="center">
           <MotionBox
@@ -201,37 +239,42 @@ const Navbar = () => {
             _hover={{ bg: "whiteAlpha.200" }}
           />
           <MenuList bg="gray.800" color="black">
-            <MenuItem _hover={{ bg: "orange.300" }}>
-              {isLoggedIn ? "Logged In" : "Not Logged In"}
-            </MenuItem>
-            {!isLoggedIn && (
-              <MenuItem onClick={onOpen} _hover={{ bg: "orange.300" }}>
-                Sign In
-              </MenuItem>
-            )}
-            {isLoggedIn && (
-              <MenuItem onClick={handleSignOut} _hover={{ bg: "orange.300" }}>
-                Sign Out
-              </MenuItem>
-            )}
+                <MenuItem onClick={openProfileForm} _hover={{ bg: "orange.300" }}> 
+                  Profile 
+                </MenuItem> 
+                <MenuItem onClick={handleLogout} _hover={{ bg: "orange.300" }}> 
+                  Sign Out 
+                </MenuItem>
           </MenuList>
         </Menu>
+        {/* Profile Modal*/}
+        <ProfileForm isOpen={isOpenProfile} onClose={onCloseProfile} />
+          </>
+        ) : (
+          <>
+            <Button colorScheme="yellow" onClick={openLoginForm}>Login</Button>
+            <Button colorScheme="orange" onClick={openSignUpForm}>Sign Up</Button>
+          </>
+        )}
       </Flex>
 
-      {/* Sign-In Modal */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      {/* Modal */}
+      <Modal isOpen={isOpen} onClose={onClose} isCentered>
         <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Sign In</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Button as={RouterLink} to="/login" colorScheme="blue" w="full" mb="4">
-              Log In
-            </Button>
-            <Button as={RouterLink} to="/signup" colorScheme="green" w="full">
-              Sign Up
-            </Button>
-          </ModalBody>
+        <ModalContent
+          maxW="420px"
+          bg="linear-gradient(to top left, #ffecd2, #fcb69f)"
+          borderRadius="30px"
+          p={{ base: "4", md: "8" }}
+          boxShadow="lg"
+          position="absolute"
+          top="14%"
+        >
+          <ModalHeader position="relative" display="flex" alignItems="center" justifyContent="center" minHeight={{ base: "100px", md: "130px" }}>
+            <AnimatePresence mode="wait">
+              {isSignUp ? (<SignUpForm onClose={onClose} switchToLogin={switchToLogin} />) : (<LoginForm onClose={onClose} switchToSignUp={switchToSignUp} />)}
+            </AnimatePresence>
+          </ModalHeader>
         </ModalContent>
       </Modal>
     </Flex>
