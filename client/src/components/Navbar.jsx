@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Flex,
@@ -26,8 +26,6 @@ import LoginForm from "./LoginForm";
 import SignUpForm from "./SignUpForm";
 import { useAuthStore } from "../store/authStore";
 import ProfileForm from "./ProfileForm";
-import React, { useState, useEffect } from "react";  // Add useEffect here
-
 
 const MotionBox = motion(Box); // For animations
 
