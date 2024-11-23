@@ -8,7 +8,7 @@ import {
     ModalBody 
 } from '@chakra-ui/react';
 import LoginForm from "./LoginForm";
-import SignUpForm from "./SIgnUpForm";
+import SignUpForm from "./SignUpForm";
 
 const AuthModal = ({ isOpen, onClose }) => {
     const [isLogin, setIsLogin] = useState(true);
