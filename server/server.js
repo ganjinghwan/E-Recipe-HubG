@@ -5,14 +5,11 @@ import recipeRoutes from './routes/recipes.js';
 import authRoutes from './routes/auth.js';
 import cookieParser from 'cookie-parser';
 import path from "path";
-import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const __dirname = path.resolve();
-
-app.use(cors({origin: 'http://localhost:5173', credentials: true}));
 
 
 app.use(express.json()); // allows us to accepts JSON data in the req.body
