@@ -1,4 +1,5 @@
-import { Navigate } from "react-router-dom";
+import React from "react"; // Ensure React is imported
+import { Navigate } from "react-router-dom"; // Ensure Navigate is imported
 import { useToast } from "@chakra-ui/react";
 import { useEffect } from "react";
 
@@ -7,7 +8,6 @@ function ProtectedRoute({ isAuthenticated, children }) {
 
   useEffect(() => {
     if (!isAuthenticated) {
-      // Show a toast message
       toast({
         title: "Unauthorized",
         description: "Please sign in to access this page.",
@@ -21,10 +21,10 @@ function ProtectedRoute({ isAuthenticated, children }) {
 
   // Redirect unauthenticated users to the home page
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/" replace={true} />;
   }
 
-  // Render the protected component for authenticated users
+  // Render the protected content for authenticated users
   return children;
 }
 
