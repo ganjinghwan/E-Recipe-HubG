@@ -21,7 +21,7 @@ export const useStoreRecipe = create((set) => ({
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(newRecipe)
-            })
+            });
             const data = await res.json();
             set((state) => ({ recipes: [...state.recipes, data.data] }));
             return { success: true, message: 'Recipe created successfully.' };

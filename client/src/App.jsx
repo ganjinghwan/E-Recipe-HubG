@@ -9,6 +9,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LoadingSpinner from './components/LoadingSpinner';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import { useAuthStore } from './store/authStore';
+import ProtectedRoute from './routeconfig/ProtectedRoute';
 import { useEffect } from 'react';
 
 function App() {
@@ -26,15 +27,32 @@ function App() {
 
   return (
     <Box minH="100vh">
-          <Navbar />
-          <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/recipes" element={<Recipes />} /> 
-              <Route path="/about" element={<About />} />
-              <Route path="/verify-email" element={<EmailVerificationPage/>}/>
-              <Route path="/forgot-password" element={<ForgotPasswordPage />}/>
-              <Route path="/reset-password/:token" element={<ResetPasswordPage />}/>
-          </Routes>
+      <Navbar />
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<HomePage />} />
+        <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/recipes"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Recipes />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <About />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </Box>
   );
 }

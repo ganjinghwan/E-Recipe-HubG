@@ -30,10 +30,11 @@ const recipeSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    // user: {
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: 'User'
-    // }
+    user_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    }
 },{
     timestamps: true
 });

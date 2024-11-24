@@ -3,30 +3,39 @@ import mongoose from 'mongoose';
 
 export const getRecipes = async (req, res) => {
     try{
-        const recipe = await Recipe.find();
+        const userId = req.userId;
+        const recipe = await Recipe.find({ user_id: userId });
         res.status(200).json({ success: true, data: recipe });
     }catch(error){
-        console.log("Failed to fetch recipes", error.message);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
 
 export const createRecipe = async (req, res) => {
     const recipe = req.body;
-
+    const userId = req.userId; 
     if(!recipe.title || !recipe.ingredients || !recipe.instructions || !recipe.prepTime || !recipe.category || !recipe.image) {
         return res.status(409).json({ success: false, message: 'All fields are required' });
     }
 
-   const newRecipe = new Recipe(recipe);
+    try {
+        const newRecipe = new Recipe({
+            ...recipe,           // Spread existing recipe data
+            user_id: userId        // Add user ID to recipe
+        });
 
-   try{
-       await newRecipe.save();
-       res.status(201).json({ success: true, message: 'Recipe created successfully', data: newRecipe });
-   }catch(error){
-       console.error("Failed to create recipe", error.message);
-       res.status(500).json({ success: false, message: 'Server Error' });
-    
+        await newRecipe.save();
+        res.status(201).json({ 
+            success: true, 
+            message: 'Recipe created successfully', 
+            data: newRecipe, 
+        });
+    } catch(error) {
+        console.error("Failed to create recipe", error.message);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Server22 Error' 
+        });
     }
 }
 
