@@ -73,6 +73,20 @@ const Recipes = () => {
       return false;
     }
   };
+
+  const isValidYoutubeUrl = (url) => {
+    try {
+      const parsedUrl = new URL(url);
+      // Check if hostname is YouTube or YouTube Shortened URL
+      const isYouTube = parsedUrl.hostname === "www.youtube.com" || parsedUrl.hostname === "youtu.be";
+      // Additional validation for required parameters
+      const hasVideoId = parsedUrl.searchParams.has("v") || parsedUrl.hostname === "youtu.be";
+      return isYouTube && hasVideoId;
+    } catch (e) {
+      return false;
+    }
+  };
+  
   
 
   useEffect(() => {
@@ -390,9 +404,10 @@ const Recipes = () => {
                   aria-label="Video"
                   colorScheme="red"
                   onClick={() => {
-                    if (!selectedFood?.video) {
+                    if (!selectedFood?.video || !isValidYoutubeUrl(selectedFood.video)) {
                       toast({
-                        title: "No video",
+                        title: "Invalid or missing video link.",
+                        description: "Please provide a valid YouTube link.",
                         status: "warning",
                         duration: 3000,
                         isClosable: true,
