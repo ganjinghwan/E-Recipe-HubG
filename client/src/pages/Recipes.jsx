@@ -28,6 +28,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  useBreakpointValue 
 } from "@chakra-ui/react";
 import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube} from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
@@ -57,6 +58,8 @@ const Recipes = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [updatedRecipe, setUpdatedRecipe] = useState(selectedFood);
   const toast = useToast();
+  const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
+
   const getImageSrc = (image) => {
     return isValidUrl(image) ? image : "https://i.pinimg.com/originals/88/4f/6b/884f6bbb75ed5e1446d3b6151b53b3cf.gif";
   };
@@ -325,7 +328,7 @@ const Recipes = () => {
       <Grid
         templateColumns={{ base: "1fr", md: "2fr 1fr" }}
         templateRows={{ base: "auto", md: "auto auto" }}
-        gap={10}
+        gap={{ base: 4, md: 10 }}
         w="90%"
         maxW="1200px"
         // border = "3px solid white"
@@ -336,8 +339,8 @@ const Recipes = () => {
                 // border = "3px solid black"
                 >
             <Center
-              w="300px"
-              h="300px"
+              w={{ base: "200px", md: "300px" }}
+              h={{ base: "200px", md: "300px" }}
               overflow="hidden"
               borderRadius="50%"
               border="3px solid white"
@@ -369,7 +372,7 @@ const Recipes = () => {
                 marginTop="20px"
                 marginLeft="30px"
                 >
-                <Text fontSize="4xl" fontWeight="bold">
+                <Text fontSize={{ base: "2xl", md: "4xl" }} fontWeight="bold">
                   {selectedFood?.title?.toUpperCase()}
                 </Text>
                 <Tooltip label="Add to favorites">
@@ -383,16 +386,21 @@ const Recipes = () => {
                 />
                 </Tooltip>
               </HStack>
-              <HStack marginLeft="30px" alignItems="center" marginBottom="10px"  >
+              <HStack 
+                marginLeft="30px" 
+                alignItems="center" 
+                marginBottom="10px"  
+              >
                 <FaClock size="20px" />
-                <Text fontSize="md" fontWeight="medium">
+                <Text fontSize={{ base: "sm", md: "md" }} fontWeight="medium">
                   {selectedFood?.prepTime}mins
                 </Text>
               </HStack>
               <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
                 <Tooltip label="Create">
                 <IconButton
-                  icon={<FaPlus />}
+                  size={iconButtonSize}
+                  icon={<FaPlus/>}
                   aria-label="Create"
                   colorScheme="teal"
                   onClick={() => handleIconClick("create")}
@@ -400,7 +408,8 @@ const Recipes = () => {
                 </Tooltip>
                 <Tooltip label="Video">
                 <IconButton
-                  icon={<FaYoutube />}
+                  size={iconButtonSize}
+                  icon={<FaYoutube/>}
                   aria-label="Video"
                   colorScheme="red"
                   onClick={() => {
@@ -419,8 +428,9 @@ const Recipes = () => {
                   }}
                 />
                 </Tooltip>
-                <Tooltip label="Update">
+                <Tooltip label="Update"  >
                 <IconButton
+                  size={iconButtonSize}
                   icon={<FaEdit />}
                   aria-label="Update"
                   colorScheme="yellow"
@@ -429,6 +439,7 @@ const Recipes = () => {
                 </Tooltip>
                 <Tooltip label="Delete">
                 <IconButton
+                  size={iconButtonSize}
                   icon={<FaTrash />}
                   aria-label="Delete"
                   colorScheme="orange"
@@ -437,47 +448,20 @@ const Recipes = () => {
                 </Tooltip>
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
-              
-                {/* Category selection dropdown */}
-                {/* <Select 
-                  defaultValue="All"
-                  value={selectedCategory} 
-                  onChange={(e) => setSelectedCategory(e.target.value.toLowerCase())}
-                  width="180px"
-                  border="3px solid"
-                >
-                  
-                  {categories.map((category) => (
-                    <option key={category} value={category.toLowerCase()}>
-                      {category}
-                    </option>
-                  ))}
-                  
-                </Select> */}
                 <Menu>
-                  <MenuButton as={Button} rightIcon={<FaChevronDown />} width="180px" border="2px solid">
+                  <MenuButton as={Button} rightIcon={<FaChevronDown />} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
                     {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} {/* Display selected category */}
                   </MenuButton>
-                  <MenuList maxH="100px" overflowY="auto"> {/* Set scrollable dropdown content */}
+                  <MenuList maxH="100px" minW={{ base: "150px", md: "180px" }} overflowY="auto"> {/* Set scrollable dropdown content */}
                     {categories.map((category) => (
-                      <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}>
+                      <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}
+                        fontSize={{ base: "sm", md: "md" }}
+                      >
                         {category.charAt(0).toUpperCase() + category.slice(1)}
                       </MenuItem>
                     ))}
                   </MenuList>
                 </Menu>
-                {/* <Menu>
-                  <MenuButton as={Button} width="200px" border="3px solid">
-                    {selectedCategory || 'All'}
-                  </MenuButton>
-                  <MenuList maxH="150px" overflowY="auto">
-                    {categories.map((category) => (
-                      <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}>
-                        {category}
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                </Menu> */}
               </HStack>
             </VStack>
           </Flex>
@@ -490,10 +474,10 @@ const Recipes = () => {
         >
           <Box 
             bg="white" 
-            p={4} 
+            p={{ base: 2, md: 4 }}
             borderRadius="md" 
             shadow="md" 
-            maxH="300px"
+            maxH={{ base: "150px", md: "300px" }}
           >
             {/* Tab Navigation */}
             <Flex justify="space-around" mb={4}>
@@ -502,6 +486,7 @@ const Recipes = () => {
                 colorScheme={activeTab === "Ingredients" ? "orange" : "gray"}
                 onClick={() => setActiveTab("Ingredients")}
                 borderBottom={activeTab === "Ingredients" ? "3px solid orange" : "none"}
+                fontSize={{ base: "sm", md: "md" }}
               >
                 Ingredients
               </Button>
@@ -510,6 +495,7 @@ const Recipes = () => {
                 colorScheme={activeTab === "Instruction" ? "orange" : "gray"}
                 onClick={() => setActiveTab("Instruction")}
                 borderBottom={activeTab === "Instruction" ? "3px solid orange" : "none"}
+                fontSize={{ base: "sm", md: "md" }}
               >
                 Instructions
               </Button>
@@ -517,12 +503,13 @@ const Recipes = () => {
 
             {/* Scrollable Content */}
             <Box 
-              maxH="230px" 
+              maxH={{ base: "100px", md: "230px" }} 
               overflowY="auto" 
-              padding="10px" 
+              padding={{ base: "8px", md: "10px" }}
               border="1px solid lightgray" 
               borderRadius="md"
               textAlign="left"
+              fontSize={{ base: "sm", md: "md" }}
             >
               {activeTab === "Ingredients" ? (
               <VStack align="start">
@@ -560,7 +547,7 @@ const Recipes = () => {
             pos="relative"
             overflow="hidden"
             w="100%"
-            h="150px"
+            h={{ base: "130px", md: "150px" }}
             borderRadius="md"
             // border="3px solid red"
           >
@@ -569,7 +556,7 @@ const Recipes = () => {
               icon={<FaChevronLeft />} 
               onClick={handleScrollLeft}
               pos="absolute"
-              left="10px"
+              left={{ base: "5px", md: "10px" }}
               bg="transparent"
               color="black"
               boxShadow="md"
@@ -577,6 +564,7 @@ const Recipes = () => {
               aria-label="Scroll Left"
               _hover={{ bg: "gray.200" }}
               isDisabled={carouselIndex === 0} 
+              size={{ base: "sm", md: "md" }}
             />
             <Flex
               as="div"
@@ -584,9 +572,9 @@ const Recipes = () => {
               position="relative"
               overflow="hidden"
               w="full"
-              gap={10}
-              pl="60px"
-              pr="60px"
+              gap={{ base: 6, md: 10 }}
+              pl={{ base: "45px", md: "60px" }}
+              pr={{ base: "45px", md: "60px" }}
               transition="transform 0.5s ease-in-out"
               // transform={`translateX(-${carouselIndex * 1}px)`} // Smooth transition
             >
@@ -635,7 +623,7 @@ const Recipes = () => {
               icon={<FaChevronRight />} // Use the React Icon component here
               onClick={handleScrollRight}
               pos="absolute"
-              right="10px"
+              right={{ base: "5px", md: "10px" }}
               bg="transparent"
               color= "black"
               boxShadow="md"
@@ -643,6 +631,7 @@ const Recipes = () => {
               aria-label="Scroll Right"
               _hover={{ bg: "gray.200" }}
               isDisabled={carouselIndex + 5 >= filteredRecipes.length} // Disable if at end
+              size={{ base: "sm", md: "md" }}
             />
           </Flex>
         </GridItem>
