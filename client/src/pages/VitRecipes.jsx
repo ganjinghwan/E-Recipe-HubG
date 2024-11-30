@@ -113,25 +113,29 @@ const VisitorPage = () => {
 
   useEffect(() => {
     if (selectedUser && recipes.length > 0) {
-      // Filter recipes for the selected user
-      const userRecipes = recipes.filter((recipe) => recipe.user_id === selectedUser);
-  
-      // Set the first recipe from the selected user if available
-      if (userRecipes.length > 0) {
-        setSelectedFood(userRecipes[0]);
-      } else {
-        setSelectedFood(null); // No recipes for this user
-      }
-  
-      // Get unique categories from this user's recipes
-      const uniqueCategories = Array.from(
-        new Set(
-          userRecipes.map((recipe) => recipe.category.toLowerCase())
-        )
-      ).map(capitalize);
-      setCategories(["All", ...uniqueCategories]);
+        // Filter recipes for the selected user
+        const userRecipes = recipes.filter((recipe) => recipe.user_id === selectedUser);
+
+        // Check if the current `selectedFood` is still valid
+        const isCurrentSelectedValid = userRecipes.some(
+            (recipe) => recipe._id === selectedFood?._id
+        );
+
+        if (!isCurrentSelectedValid) {
+            // If current `selectedFood` is invalid, set the first recipe or null
+            setSelectedFood(userRecipes.length > 0 ? userRecipes[0] : null);
+        }
+
+        // Get unique categories from this user's recipes
+        const uniqueCategories = Array.from(
+            new Set(
+                userRecipes.map((recipe) => recipe.category.toLowerCase())
+            )
+        ).map(capitalize);
+        setCategories(["All", ...uniqueCategories]);
     }
-  }, [selectedUser, recipes]);
+}, [selectedUser, recipes, selectedFood]);
+
   
 
   const filteredByUser = selectedUser
@@ -261,6 +265,11 @@ const VisitorPage = () => {
         if (!response.success) {
             throw new Error(response.message);
         }
+
+        setSelectedFood((prev) => ({
+          ...prev,
+          comments: [...(prev.comments || []), comment], // Add the new comment
+      }));
 
         toast({
             title: "Comment added successfully",
