@@ -1,4 +1,5 @@
 import {create} from 'zustand';
+import { addComment } from '../../../server/controllers/recipeController';
 
 export const useStoreRecipe = create((set) => ({
     recipes: [],
@@ -34,6 +35,12 @@ export const useStoreRecipe = create((set) => ({
         set({ recipes: data.data });
     },
 
+    fetchAllRecipes: async () => {
+        const res = await fetch("/api/recipesinfo/all");
+        const data = await res.json();
+        set({ recipes: data.data });
+    },
+
 
 
     deleteRecipes: async (rid) => {
@@ -60,6 +67,21 @@ export const useStoreRecipe = create((set) => ({
             
             set((state) => ({ recipes: state.recipes.map((recipe) => recipe._id === rid ? data.data : recipe) }));
             return { success: true, message: 'Recipe updated successfully.' };
+    },
+
+    addComment: async (rid,comment) => {
+        const res = await fetch(`/api/recipesinfo/${rid}/comment`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(comment)
+            })
+            const data = await res.json();
+            if(!data.success) return { success: false, message: data.message };
+            
+            set((state) => ({ recipes: state.recipes.map((recipe) => recipe._id === rid ? data.data : recipe) }));
+            return { success: true, message: 'Comment added successfully.' };
     }
 
 }));

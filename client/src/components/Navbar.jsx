@@ -117,6 +117,9 @@ const Navbar = () => {
         <ChakraLink as={RouterLink} to="/recipes" fontSize="lg" _hover={{ color: "orange.300" }}>
           Recipes
         </ChakraLink>
+        <ChakraLink as={RouterLink} to="/visitors" fontSize="lg" _hover={{ color: "orange.300" }}>
+          VitRecipe
+        </ChakraLink>
       </Flex>
 
       {/* Hamburger Menu for Smaller Screens */}
@@ -172,6 +175,16 @@ const Navbar = () => {
               onClick={toggleMobileMenu}
             >
               Recipes
+            </ChakraLink>
+            <ChakraLink
+              as={RouterLink}
+              to="/visitors"
+              display="block"
+              py="2"
+              _hover={{ color: "orange.300" }}
+              onClick={toggleMobileMenu}
+            >
+              ViTRecipe
             </ChakraLink>
           </Box>
         )}

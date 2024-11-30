@@ -4,11 +4,23 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 export const useAuthStore = create((set) => ({
     user: null,
+    users:[],
     isAuthenticated: false,
     errors: null,
     isLoading: false,
     isCheckingAuth: true,
     message: null,
+
+    fetchUser: async () => {
+        try {
+            const res = await axios.get("/api/auth/fetch-user");
+            set({ users: res.data.data }); 
+            console.log("Fetched users:", res.data.data);
+        } catch (error) {
+            console.error("Failed to fetch users:", error);
+        }
+    },
+    
 
     login: async (email, password) => {
         set({ isLoading: true, error: null });

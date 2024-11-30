@@ -34,7 +34,23 @@ const recipeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
-    }
+    },
+    comments: [
+        {
+            user: {
+                type: String, // Username
+                required: true
+            },
+            text: {
+                type: String,
+                required: true
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 },{
     timestamps: true
 });

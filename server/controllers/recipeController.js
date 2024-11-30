@@ -11,6 +11,15 @@ export const getRecipes = async (req, res) => {
     }
 }
 
+export const getAllRecipes = async (req, res) => {
+    try{
+        const recipe = await Recipe.find({ });
+        res.status(200).json({ success: true, data: recipe });
+    }catch(error){
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+}
+
 export const createRecipe = async (req, res) => {
     const recipe = req.body;
     const userId = req.userId; 
@@ -70,6 +79,38 @@ export const deleteRecipe =async (req, res) => {
     }catch(error){
         console.log("Failed to delete recipe", error.message);
         console.error("Failed to delete recipe", error.message);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+}
+
+
+export const addComment = async (req, res) => {
+    const {id} = req.params;
+    const {user, text} = req.body;
+
+    if(!mongoose.Types.ObjectId.isValid(id)){
+        return res.status(404).json({ success: false, message: 'Invalid Recipe ID' });
+    }
+
+    try{
+        const recipe = await Recipe.findById(id);
+
+        if(!recipe){
+            return res.status(404).json({ success: false, message: 'Recipe not found' });
+        }
+
+        const newComment = {
+            user,
+            text,
+            date: new Date(), // Add the current date
+        };
+
+        recipe.comments.push(newComment);
+        await recipe.save();
+
+        res.status(200).json({ success: true, message: 'Comment added successfully', data: recipe });
+    }catch(error){
+        console.log("Failed to add comment", error.message);
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 }

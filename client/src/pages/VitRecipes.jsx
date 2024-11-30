@@ -13,6 +13,7 @@ import {
   HStack,
   Input,
   Textarea,
+  Select,
   Center,
   useDisclosure,
   Modal,
@@ -30,33 +31,36 @@ import {
   MenuItem,
   useBreakpointValue 
 } from "@chakra-ui/react";
-import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube} from "react-icons/fa";
+import { FaHeart, FaComment, FaFlag, FaClock, FaYoutube, FaUser} from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
+import { useAuthStore } from "../store/authStore";
 
-const Recipes = () => {
+const VisitorPage = () => {
+  const { user } = useAuthStore(); // Access current user info
+  const { fetchUser, users} = useAuthStore();
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [tempUserName, setTempUserName] = useState("");
+
+
+  const [showCommentModal, setShowCommentModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [commentText, setCommentText] = useState("");
+  const [reportTitle, setReportTitle] = useState("");
+  const [reportReason, setReportReason] = useState("");
+  
+
   const [selectedFood, setSelectedFood] = useState(null);
   const [animationState, setAnimationState] = useState("");
   const [activeTab, setActiveTab] = useState("Instruction");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [favoriteFoods, setFavoriteFoods] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [activeModal, setActiveModal] = useState("");
-  const [newRecipe, setNewRecipe] = useState({
-    title: "",
-    ingredients: [],
-    instructions: [],
-    prepTime: "",
-    category: "",
-    image: "",
-    video: "",
-  });
-  const {createRecipe, deleteRecipes, updateRecipes} = useStoreRecipe();
-  const {fetchRecipes, recipes} = useStoreRecipe();
+  const {fetchAllRecipes, recipes, addComment} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [updatedRecipe, setUpdatedRecipe] = useState(selectedFood);
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
 
@@ -89,43 +93,57 @@ const Recipes = () => {
       return false;
     }
   };
-  
+
+
+  useEffect(() => {
+    if (showModal) {
+        // console.log("Before fetch, users:", users); // Initial state
+        fetchUser();
+        // console.log("After fetch, users:", users); // Check if users are updated
+    }
+  }, [showModal, fetchUser]);
   
 
   useEffect(() => {
-    fetchRecipes().then(() => {
+    fetchAllRecipes().then(() => {
       setSelectedCategory("all"); // Set category to "All" after fetching recipes
     });
-  }, [fetchRecipes]);
-  
-
-  // useEffect(() => {
-  //   fetchRecipes();
-  // }, [fetchRecipes]);
+  }, [fetchAllRecipes]);
 
 
   useEffect(() => {
-    if (recipes.length > 0) {
-      setSelectedFood(recipes[0]); // Set the first recipe as the initial selected food
-
-      // Get unique categories from recipes
+    if (selectedUser && recipes.length > 0) {
+      // Filter recipes for the selected user
+      const userRecipes = recipes.filter((recipe) => recipe.user_id === selectedUser);
+  
+      // Set the first recipe from the selected user if available
+      if (userRecipes.length > 0) {
+        setSelectedFood(userRecipes[0]);
+      } else {
+        setSelectedFood(null); // No recipes for this user
+      }
+  
+      // Get unique categories from this user's recipes
       const uniqueCategories = Array.from(
         new Set(
-          recipes.map((recipe) => recipe.category.toLowerCase())
+          userRecipes.map((recipe) => recipe.category.toLowerCase())
         )
       ).map(capitalize);
       setCategories(["All", ...uniqueCategories]);
-
     }
-  }, [recipes]);
+  }, [selectedUser, recipes]);
+  
 
+  const filteredByUser = selectedUser
+  ? recipes.filter((recipe) => recipe.user_id === selectedUser) // Match by ID
+  : recipes;
 
-  const filteredRecipes =
-    selectedCategory === "all"
-      ? recipes
-      : recipes.filter(
-          (recipe) => recipe.category.toLowerCase() === selectedCategory
-        );
+  const filteredRecipes = selectedCategory === "all"
+  ? filteredByUser
+  : filteredByUser.filter(
+      (recipe) => recipe.category.toLowerCase() === selectedCategory
+    );
+
 
   const handleFoodSelection = (food) => {
     // console.log("Clicked Food111:", food);
@@ -174,107 +192,125 @@ const Recipes = () => {
     );
   };
 
-  const handleIconClick = (action) => {
+  const handleUserSelection = () => {
+    const user = users.find((user) => user.name === tempUserName); // Match user by name
+    console.log("Selected User:", user);
 
-    if (action === "update") {
-      setUpdatedRecipe(selectedFood); // Ensure `updatedRecipe` is set
+    if (!user) {
+      toast({
+        title: "User Not Found",
+        description: `${tempUserName} is not recognized.`,
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
     }
 
-    setActiveModal(action);
-    onOpen();
-  };
+    const selectedRecipes = recipes.filter((recipe) => recipe.user_id === user._id);
+    // console.log("Recipe user_id format after:", recipes.map((recipe) => recipe.user_id));
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewRecipe((prevRecipe) => ({
-      ...prevRecipe,
-      [name]: name === "ingredients" || name === "instructions"
-        ? value
-            .split(name === "ingredients" ? "," : "\n")
-            .map((i) => i.trimStart()) // Trims only leading whitespace, keeping spaces within words intact
-        : value,
-    }));
+    if (selectedRecipes.length === 0) {
+      toast({
+        title: "No Recipes Found",
+        description: `${tempUserName} has not created any recipes.`,
+        status: "info",
+        duration: 3000,
+        isClosable: true,
+        position: "top",
+      });
+      return; // Don't close the modal if no recipes exist
+    }
+  
+    setSelectedUser(user._id); // Store user ID instead of name
+    setSelectedFood(selectedRecipes[0]);// Set the first recipe from this user
+    setSelectedCategory("all"); // Reset category to "All" when a new user is selected
+    setShowModal(false);
   };
   
-
-  const handleAddRecipe = async () => {
-    const {success,message} = await createRecipe(newRecipe);
-    console.log(newRecipe);
-    if (!success) {
-      toast({
-        title:"Error",
-        description: message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-      });
-    } else {
-      toast({
-        title:"Success",
-        description: message,
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-      });
+   const handleIconClick = (type) => {
+    if (type === "comments") {
+      setShowCommentModal(true);
+    } else if (type === "report") {
+      setShowReportModal(true);
     }
-    setNewRecipe({
-      title: "",
-      ingredients: [],
-      instructions: [],
-      prepTime: "",
-      category: "",
-      image: "",
-      video: "",
+  };
+
+  const handleSubmitComment = async () => {
+    if (!commentText.trim()) {
+        toast({
+            title: "Comment is empty",
+            description: "Please enter a valid comment.",
+            status: "warning",
+            duration: 2000,
+            isClosable: true,
+        });
+        return;
+    }
+
+    const comment = {
+        user: user.name, // Dynamically fetch the current user's name
+        text: commentText,
+        date: new Date().toISOString(), // Include the current date
+    };
+
+    try {
+        const response = await addComment(selectedFood._id, comment);
+
+        if (!response.success) {
+            throw new Error(response.message);
+        }
+
+        toast({
+            title: "Comment added successfully",
+            status: "success",
+            duration: 2000,
+            isClosable: true,
+        });
+
+        setCommentText("");
+        setShowCommentModal(false);
+    } catch (error) {
+        console.error("Failed to add comment:", error);
+        toast({
+            title: "Failed to add comment",
+            description: error.message || "An unexpected error occurred.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+        });
+        setCommentText("");
+    }
+};
+
+
+  const handleSubmitReport = () => {
+    if (!reportTitle.trim() || !reportReason.trim()) {
+      toast({
+        title: "Incomplete Report",
+        description: "Please fill in both the title and reason.",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
+    // Submit the report (API call or add to reports data)
+    toast({
+      title: "Report submitted",
+      description: "Your report has been sent to the moderator.",
+      status: "success",
+      duration: 2000,
+      isClosable: true,
     });
-    onClose();
-  };
 
-  const handleDeleteRecipe = async (rid) => {
-   const {success,message} = await deleteRecipes(rid);
-   if (!success) {
-     toast({
-       title:"Error",
-       description: message,
-       status: "error",
-       duration: 5000,
-       isClosable: true,
-     });
-   } else {
-     toast({
-       title:"Success",
-       description: message,
-       status: "success",
-       duration: 5000,
-       isClosable: true,
-     });
-   }
-   onClose();
+    setReportTitle("");
+    setReportReason("");
+    setShowReportModal(false);
   };
 
 
-  const handleUpdateRecipe = async (rid,updatedRecipe) => {
-    const {success,message} = await updateRecipes(rid,updatedRecipe);
-    if (!success) {
-      toast({
-        title:"Error",
-        description: message,
-        status: "error",
-        duration: 3500,
-        isClosable: true,
-      });
-    } else {
-      toast({
-        title:"Success",
-        description: message,
-        status: "success",
-        duration: 3500,
-        isClosable: true,
-      });
-      setSelectedFood(updatedRecipe);
-      
-    }
-    onClose();
-  };
 
   return (
     <Flex
@@ -311,20 +347,21 @@ const Recipes = () => {
         `}
       </style>
 
-      {recipes.length === 0 ? (
-        // Show message if no recipes exist
+      {!selectedUser ? (
         <Center>
-          <VStack spacing={4} bg="rgba(255, 255, 255, 0.8)" p={4} borderRadius="md">
-            <Text fontSize="xl" fontWeight="bold">
-              There are no recorded food recipes yet.
+         <VStack spacing={4} bg="rgba(255, 255, 255, 0.8)" p={4} borderRadius="md">
+          <Text fontSize="xl" fontWeight="bold">
+             {user ? `Hello, ${user.name}!` : "Welcome, Visitor!"}
             </Text>
-            <Link color="blue.500" onClick={() => handleIconClick("create")}>
-              Create a new recipe
+            <Text fontSize="xl" fontWeight="light">
+              Please choose a user/chef to view their recipes.
+            </Text>
+            <Link color="blue.500" onClick={() => setShowModal(true)}>
+              Choose Chef/User
             </Link>
           </VStack>
         </Center>
       ) : (
-        // Show main recipe content if recipes exist
       <Grid
         templateColumns={{ base: "1fr", md: "2fr 1fr" }}
         templateRows={{ base: "auto", md: "auto auto" }}
@@ -386,6 +423,10 @@ const Recipes = () => {
                 />
                 </Tooltip>
               </HStack>
+              <Text marginLeft="30px" fontSize="md" fontWeight="semibold" color="gray.600">
+                Author: {users.find((u) => u._id === selectedUser)?.name || "Unknown"}
+
+            </Text>
               <HStack 
                 marginLeft="30px" 
                 alignItems="center" 
@@ -397,15 +438,30 @@ const Recipes = () => {
                 </Text>
               </HStack>
               <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
-                <Tooltip label="Create">
-                <IconButton
-                  size={iconButtonSize}
-                  icon={<FaPlus/>}
-                  aria-label="Create"
-                  colorScheme="teal"
-                  onClick={() => handleIconClick("create")}
-                />
+                
+
+                {/* Comments IconButton */}
+                <Tooltip label="Comments">
+                    <IconButton
+                    size={iconButtonSize}
+                    icon={<FaComment />}
+                    aria-label="Add Comment"
+                    colorScheme="teal"
+                    onClick={() => handleIconClick("comments")}
+                    />
                 </Tooltip>
+
+                {/* Report IconButton */}
+                <Tooltip label="Report Recipe">
+                    <IconButton
+                    size={iconButtonSize}
+                    icon={<FaFlag />}
+                    aria-label="Report Recipe"
+                    colorScheme="orange"
+                    onClick={() => handleIconClick("report")}
+                    />
+                </Tooltip>
+
                 <Tooltip label="Video">
                 <IconButton
                   size={iconButtonSize}
@@ -428,24 +484,20 @@ const Recipes = () => {
                   }}
                 />
                 </Tooltip>
-                <Tooltip label="Update"  >
-                <IconButton
-                  size={iconButtonSize}
-                  icon={<FaEdit />}
-                  aria-label="Update"
-                  colorScheme="yellow"
-                  onClick={() => handleIconClick("update")}
-                />
+
+
+                {/* Author Selection IconButton */}
+                <Tooltip label="Select Author">
+                    <IconButton
+                        size={iconButtonSize}
+                        icon={<FaUser />}
+                        aria-label="Select Author"
+                        colorScheme="blue"
+                        onClick={() => setShowModal(true)} // Opens the modal for author selection
+                    />
                 </Tooltip>
-                <Tooltip label="Delete">
-                <IconButton
-                  size={iconButtonSize}
-                  icon={<FaTrash />}
-                  aria-label="Delete"
-                  colorScheme="orange"
-                  onClick={() => handleIconClick("delete")}
-                />
-                </Tooltip>
+
+
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
                 <Menu>
@@ -552,6 +604,9 @@ const Recipes = () => {
                         <li key={index}>
                           <Text fontWeight="medium">{comment.user}:</Text> {/* User's name */}
                           <Text ml={4}>{comment.text}</Text> {/* Comment text */}
+                          <Text fontSize="sm" color="gray.500" ml={4}>
+                            {new Date(comment.date).toLocaleString()} {/* Comment date */}
+                          </Text>
                         </li>
                       ))
                     ) : (
@@ -664,176 +719,102 @@ const Recipes = () => {
       </Grid>
       )}
 
-        {/* CRUD Icon Section */}
-        {/* <GridItem 
-          colSpan={{ base: 2, md: 2 }} 
-          rowSpan={{ base: 1, md: 1 }}
-          display = "flex"
-          justifyContent="left"
-          position="absolute"
-          bottom="20"
-          w="100%"
-          marginLeft="250px"
-        > */}
 
-      {/* Modal for CRUD actions */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      {/* Modal for choosing a user/chef */}
+      <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
         <ModalOverlay />
-        <ModalContent
-          bg="rgba(255, 255, 255, 0.6)" // Semi-transparent modal background
-          boxShadow="lg"
-          border="1px solid grey"
-        > 
-          <ModalHeader>
-            {activeModal === "create" && "Create New Recipe"}
-            {activeModal === "update" && "Update Recipe"}
-            {activeModal === "delete" && "Delete Recipe"}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-          {["create", "update"].includes(activeModal) && (
-            <VStack spacing={4} align="stretch">
-              <Input
-                placeholder="Title"
-                name="title"
-                value={activeModal === "update" ? updatedRecipe?.title || "" : newRecipe.title}
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    : handleInputChange(e)
-                }
-              />
-              <Textarea
-                placeholder="Ingredients (comma-separated)"
-                name="ingredients"
-                value={
-                  activeModal === "update"
-                    ? updatedRecipe?.ingredients.join(",") || ""
-                    : newRecipe.ingredients.join(",")
-                }
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value.split(","),
-                      }))
-                    : handleInputChange(e)
-                }
-              />
-              <Textarea
-                placeholder="Instructions (one per line)"
-                name="instructions"
-                value={
-                  activeModal === "update"
-                    ? updatedRecipe?.instructions.join("\n") || ""
-                    : newRecipe.instructions.join("\n")
-                }
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value.split("\n"),
-                      }))
-                    : handleInputChange(e)
-                }
-              />
-              <Input
-                placeholder="Time Needed (minutes)"
-                type="number"
-                name="prepTime"
-                value={activeModal === "update" ? updatedRecipe?.prepTime || "" : newRecipe.prepTime}
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    : handleInputChange(e)
-                }
-              />
-              <Input
-                placeholder="Category"
-                name="category"
-                value={activeModal === "update" ? updatedRecipe?.category || "" : newRecipe.category}
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    : handleInputChange(e)
-                }
-              />
-              <Input
-                placeholder="Image URL"
-                name="image"
-                value={activeModal === "update" ? updatedRecipe?.image || "" : newRecipe.image}
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    : handleInputChange(e)
-                }
-              />
-              <Input
-                placeholder="Video URL [optional]"
-                name="video"
-                value={activeModal === "update" ? updatedRecipe?.video || "" : newRecipe.video}
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    : handleInputChange(e)
-                }
-              />
-            </VStack>
-          )}
-
-            {activeModal === "delete" && (
-              <Text>Are you sure you want to delete{" "}
-              <Text as="span" fontWeight="bold">
-                "{selectedFood?.title}"
-              </Text>{" "}
-              recipe?
-              </Text>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            {activeModal === "delete" ? (
-              <>
-                <Button colorScheme="red" mr={3} onClick={() => handleDeleteRecipe(selectedFood?._id)} >
-                  Delete
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </>
-            ) : ["create", "update"].includes(activeModal) ? (
-              <>
-                <Button
-                  colorScheme="blue"
-                  mr={3}
-                  onClick={
-                    activeModal === "create"
-                      ? handleAddRecipe
-                      : () => handleUpdateRecipe(selectedFood?._id, updatedRecipe)
-                  }
+        <ModalContent>
+            <ModalHeader>Select an Author</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+            {users.length > 0 ? (
+                <Select
+                placeholder="Select an author"
+                value={tempUserName}
+                onChange={(e) => setTempUserName(e.target.value)}
                 >
-                  {activeModal === "create" ? "Submit" : "Confirm"}
-                </Button>
-                <Button onClick={onClose}>Cancel</Button>
-              </>
-            ) : null}
-          </ModalFooter>
+                {users.map((user) => (
+                    <option key={user._id?.$oid || user.name} value={user.name}>
+                    {user.name}
+                    </option>
+                ))}
+                </Select>
+            ) : (
+                <Text>Loading Usernames...</Text> // Error handling when no usernames are available
+            )}
+            </ModalBody>
+            <ModalFooter>
+            <Button onClick={() => setShowModal(false)} mr={3}>
+                Cancel
+            </Button>
+            <Button
+                onClick={handleUserSelection}
+                colorScheme="blue"
+                isDisabled={!tempUserName} // Disable Confirm if no user is selected
+            >
+                Confirm
+            </Button>
+            </ModalFooter>
         </ModalContent>
-      </Modal>
+        </Modal>
+
+        {/* Comment Modal */}
+        <Modal isOpen={showCommentModal} onClose={() => setShowCommentModal(false)}>
+            <ModalOverlay />
+            <ModalContent>
+            <ModalHeader>Add a Comment</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+                <Textarea
+                placeholder="Enter your comment here..."
+                value={commentText}
+                onChange={(e) => setCommentText(e.target.value)}
+                />
+            </ModalBody>
+            <ModalFooter>
+                <Button colorScheme="blue" onClick={handleSubmitComment}>
+                Submit
+                </Button>
+                <Button variant="ghost" onClick={() => setShowCommentModal(false)}>
+                Cancel
+                </Button>
+            </ModalFooter>
+            </ModalContent>
+        </Modal>
+
+        {/* Report Modal */}
+        <Modal isOpen={showReportModal} onClose={() => setShowReportModal(false)}>
+            <ModalOverlay />
+            <ModalContent>
+            <ModalHeader>Report Recipe</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+                <VStack spacing={4}>
+                <Input
+                    placeholder="Report Title"
+                    value={reportTitle}
+                    onChange={(e) => setReportTitle(e.target.value)}
+                />
+                <Textarea
+                    placeholder="Reason for reporting"
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                />
+                </VStack>
+            </ModalBody>
+            <ModalFooter>
+                <Button colorScheme="red" onClick={handleSubmitReport}>
+                Submit Report
+                </Button>
+                <Button variant="ghost" onClick={() => setShowReportModal(false)}>
+                Cancel
+                </Button>
+            </ModalFooter>
+            </ModalContent>
+        </Modal>
+
     </Flex>
   );
 };
 
-export default Recipes;
+export default VisitorPage;
