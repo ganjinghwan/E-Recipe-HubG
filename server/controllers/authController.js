@@ -18,18 +18,31 @@ export const getAllUser = async (req, res) => {
 }
 
 export const signup = async (req, res) => {
-    const {email, password, name} = req.body;
+    const {email, password, name, role} = req.body;
 
     try {
-        if (!email || !password || !name) {
-            return res.status(400).json({ message: 'Please fill in all fields' });
+        if (!email || !password || !name || !role) {
+            return res.status(400).json({ message: ['Please fill in all fields'] });
         }
+
+        const errors = [];
 
         const userAlreadyExists = await User.findOne({ email });
         console.log("userAlreadyExists", userAlreadyExists);
 
+        const repeatedUsername = await User.findOne({ name });
+        console.log("repeatedUsername", repeatedUsername);
+
         if (userAlreadyExists) {
-            return res.status(400).json({ success: false,message: 'User already exists' });
+            errors.push("Email has already registered");
+        }
+
+        if (repeatedUsername) {
+            errors.push ("Username already exists");
+        }
+
+        if (errors.length > 0) {
+            return res.status(400).json({ success: false, message: errors });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -37,6 +50,7 @@ export const signup = async (req, res) => {
         const user = new User({ email, 
                                 password: hashedPassword, 
                                 name,
+                                role,
                                 verificationToken,
                                 verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000 //24 hours
                             });
@@ -58,7 +72,7 @@ export const signup = async (req, res) => {
         });
 
     } catch(error) {
-        res.status(400).json({ success: false, message: error.message });
+        res.status(400).json({ success: false, message: [error.message] });
     }
 };
 

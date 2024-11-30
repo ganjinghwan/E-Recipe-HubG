@@ -38,14 +38,15 @@ export const useAuthStore = create((set) => ({
         }
     },
 
-    signup: async (email, password, name) => {
+    signup: async (email, password, name, role) => {
         set({ isLoading: true, error: null });
         try {
-            const response = await axios.post(`/api/auth/signup`, { email, password, name });
+            const response = await axios.post(`/api/auth/signup`, { email, password, name, role });
             set ({ user: response.data.user, isAuthenticated: true, isLoading: false });
         } catch (error) {
-            set({ error: error.message.data.message || "Error signing up", isLoading: false });
-            throw error;
+            set({isLoading: false });
+            const errorMessage = error.response?.data?.message || [error.message];
+            throw { response: { data: { messages: errorMessage } } };
         }
     },
     
@@ -110,5 +111,10 @@ export const useAuthStore = create((set) => ({
             });
             throw error;
         }
-    }
+    },
+
+    resetState: () =>  {
+        console.log("Reset state called");
+        set ({ isLoading: false, error: null});
+    },
 }));

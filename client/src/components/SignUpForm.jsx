@@ -7,6 +7,8 @@ import {
   Input,
   FormErrorMessage,
   Button,
+  HStack,
+  useToast,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -16,6 +18,7 @@ import sandwich from "../pic/sandwich.png";
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import toast from "react-hot-toast";
 
 const MotionImage = motion(Box);
 
@@ -24,11 +27,13 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("");
   const [localError, setLocalError] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const navigate = useNavigate();
-  const { signup, error: authError } = useAuthStore();
+  const toast = useToast();
+  const { signup, error: authError, resetState } = useAuthStore();
 
   const validateFields = () => {
     const errorHandling = {};
@@ -47,6 +52,9 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
     if (password !== confirmPassword && password !== "") {
       errorHandling.confirmPassword = "Passwords do not match";
     }
+    if (!role) {
+      errorHandling.role = "Please choose a role";
+    }
     
     setLocalError(errorHandling);
     return errorHandling;
@@ -63,19 +71,61 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
     }
 
     try {
-      await signup(email, password, name);
+      await signup(email, password, name, role);
+      toast({
+        position: "bottom",
+        title: "Sign-up successful",
+        description: "Please check your email for verification instructions.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      })
       navigate("/verify-email");
       onClose();
     } catch (signupError) {
-      console.error("Sign-up error:", signupError);
+      const messages = signupError.response?.data?.messages || ["An unexpected error occured"];
+  
+      messages.forEach((message) => {
+        toast({
+          position: "bottom",
+          title: "Sign-up failed",
+          description: message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        });
+      });
+  
+      clearForm();
     }
+  };
+
+  const handleSwitchToLogin = () => {
+    resetState();
+    switchToLogin();
+  }
+
+  const clearForm = () => {
+    setName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    setRole("");
+    setLocalError({});
+    setHasSubmitted(false);
   };
 
   useEffect(() => {
     if (hasSubmitted) {
       validateFields();
     }
-  }, [name, email, password, confirmPassword, hasSubmitted]);
+  }, [name, email, password, confirmPassword, role, hasSubmitted]);
+
+  const roleOptions = [
+    { label: "Guest", value: "guest" },
+    { label: "User", value: "user" },
+    { label: "Event Organizer", value: "event-organizer" },
+  ]
 
   return (
     <Box position="relative" mt="120px" p="4" zIndex="2">
@@ -167,9 +217,28 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
           {localError.confirmPassword && <FormErrorMessage>{localError.confirmPassword}</FormErrorMessage>}
           {authError && <FormErrorMessage>{authError}</FormErrorMessage>}
         </FormControl>
+
+        <FormControl isInvalid={!!localError.role} mb="4" mt="4">
+          <FormLabel>Select Your Role</FormLabel>
+          <HStack justifyContent={"center"}>
+            {roleOptions.map((option) => (
+              <Button
+                key={option.value}
+                onClick={() => setRole(option.value)}
+                variant={role === option.value ? "solid" : "outline"}
+                colorScheme={role === option.value ? "teal" : "gray"}
+              >
+                {option.label}
+              </Button>
+            ))}
+          </HStack>
+          {localError.role && <FormErrorMessage>{localError.role}</FormErrorMessage>}
+        </FormControl>
+        
         <Button type="submit" colorScheme="blue" width="100%">
           Sign Up
         </Button>
+
 
         <Text 
          mt = {4}
@@ -186,7 +255,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             cursor="pointer" 
             _hover={{ textDecoration: "underline" }}
           > 
-            <Link onClick={switchToLogin}> 
+            <Link onClick={handleSwitchToLogin}> 
               Login here 
             </Link>
           </Box>
