@@ -34,7 +34,7 @@ const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // For hamburger menu
   const [isSignUp, setIsSignUp] = useState(false);
-  const { isAuthenticated, logout } = useAuthStore();
+  const { isAuthenticated, logout, user } = useAuthStore();
   const { isOpen: isOpenProfile, onOpen: onOpenProfile, onClose: onCloseProfile } = useDisclosure();
   const location = useLocation();
 
@@ -114,12 +114,18 @@ const Navbar = () => {
         <ChakraLink as={RouterLink} to="/about" fontSize="lg" _hover={{ color: "orange.300" }}>
           About
         </ChakraLink>
+        {/* Role based links */}
+        {user?.role === "cook" && (
         <ChakraLink as={RouterLink} to="/recipes" fontSize="lg" _hover={{ color: "orange.300" }}>
           Recipes
         </ChakraLink>
-        <ChakraLink as={RouterLink} to="/visitors" fontSize="lg" _hover={{ color: "orange.300" }}>
-          VitRecipe
-        </ChakraLink>
+        )}
+        {user?.role === "guest" && (
+          <ChakraLink as={RouterLink} to="/visitors" fontSize="lg" _hover={{ color: "orange.300" }}>
+            VRecipe
+          </ChakraLink>
+        )}
+        
       </Flex>
 
       {/* Hamburger Menu for Smaller Screens */}
@@ -166,6 +172,7 @@ const Navbar = () => {
             >
               About
             </ChakraLink>
+            {user?.role === "cook" && (
             <ChakraLink
               as={RouterLink}
               to="/recipes"
@@ -176,16 +183,19 @@ const Navbar = () => {
             >
               Recipes
             </ChakraLink>
-            <ChakraLink
-              as={RouterLink}
-              to="/visitors"
-              display="block"
-              py="2"
-              _hover={{ color: "orange.300" }}
-              onClick={toggleMobileMenu}
-            >
-              ViTRecipe
-            </ChakraLink>
+            )}
+            {user?.role === "guest" && (
+              <ChakraLink
+                as={RouterLink}
+                to="/visitors"
+                display="block"
+                py="2"
+                _hover={{ color: "orange.300" }}
+                onClick={toggleMobileMenu}
+              >
+                VRecipe
+              </ChakraLink>
+            )}
           </Box>
         )}
       </Box>
