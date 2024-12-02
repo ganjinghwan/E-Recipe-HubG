@@ -123,7 +123,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
 
   const roleOptions = [
     { label: "Guest", value: "guest" },
-    { label: "User", value: "user" },
+    { label: "Cook", value: "cook" },
     { label: "Event Organizer", value: "event-organizer" },
   ]
 
