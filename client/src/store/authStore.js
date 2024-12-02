@@ -4,20 +4,20 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 export const useAuthStore = create((set) => ({
     user: null,
-    users:[],
+    cooks:[],
     isAuthenticated: false,
     errors: null,
     isLoading: false,
     isCheckingAuth: true,
     message: null,
 
-    fetchUser: async () => {
+    fetchCook: async () => {
         try {
-            const res = await axios.get("/api/auth/fetch-user");
-            set({ users: res.data.data }); 
-            console.log("Fetched users:", res.data.data);
+            const res = await axios.get("/api/auth/fetch-cook");
+            set({ cooks: res.data.data }); 
+            console.log("Fetched cooks:", res.data.data);
         } catch (error) {
-            console.error("Failed to fetch users:", error);
+            console.error("Failed to fetch cooks:", error);
         }
     },
     

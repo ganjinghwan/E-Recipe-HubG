@@ -39,7 +39,7 @@ import { useAuthStore } from "../store/authStore";
 
 const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
-  const { fetchUser, users} = useAuthStore();
+  const { fetchCook, cooks} = useAuthStore();
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tempUserName, setTempUserName] = useState("");
@@ -97,11 +97,11 @@ const VisitorPage = () => {
 
   useEffect(() => {
     if (showModal) {
-        // console.log("Before fetch, users:", users); // Initial state
-        fetchUser();
-        // console.log("After fetch, users:", users); // Check if users are updated
+        // console.log("Before fetch, cooks:", cooks); // Initial state
+        fetchCook();
+        // console.log("After fetch, cooks:", cooks); // Check if cooks are updated
     }
-  }, [showModal, fetchUser]);
+  }, [showModal, fetchCook]);
   
 
   useEffect(() => {
@@ -197,7 +197,7 @@ const VisitorPage = () => {
   };
 
   const handleUserSelection = () => {
-    const user = users.find((user) => user.name === tempUserName); // Match user by name
+    const user = cooks.find((user) => user.name === tempUserName); // Match user by name
     console.log("Selected User:", user);
 
     if (!user) {
@@ -433,7 +433,7 @@ const VisitorPage = () => {
                 </Tooltip>
               </HStack>
               <Text marginLeft="30px" fontSize="md" fontWeight="semibold" color="gray.600">
-                Author: {users.find((u) => u._id === selectedUser)?.name || "Unknown"}
+                Author: {cooks.find((u) => u._id === selectedUser)?.name || "Unknown"}
 
             </Text>
               <HStack 
@@ -495,14 +495,14 @@ const VisitorPage = () => {
                 </Tooltip>
 
 
-                {/* Author Selection IconButton */}
-                <Tooltip label="Select Author">
+                {/* Cook Selection IconButton */}
+                <Tooltip label="Select Cook">
                     <IconButton
                         size={iconButtonSize}
                         icon={<FaUser />}
-                        aria-label="Select Author"
+                        aria-label="Select Cook"
                         colorScheme="blue"
-                        onClick={() => setShowModal(true)} // Opens the modal for author selection
+                        onClick={() => setShowModal(true)} // Opens the modal for Cook selection
                     />
                 </Tooltip>
 
@@ -733,16 +733,16 @@ const VisitorPage = () => {
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
         <ModalOverlay />
         <ModalContent>
-            <ModalHeader>Select an Author</ModalHeader>
+            <ModalHeader>Select a Cook</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
-            {users.length > 0 ? (
+            {cooks.length > 0 ? (
                 <Select
-                placeholder="Select an author"
+                placeholder="Select a Cook"
                 value={tempUserName}
                 onChange={(e) => setTempUserName(e.target.value)}
                 >
-                {users.map((user) => (
+                {cooks.map((user) => (
                     <option key={user._id?.$oid || user.name} value={user.name}>
                     {user.name}
                     </option>
