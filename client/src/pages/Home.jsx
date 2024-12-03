@@ -12,8 +12,12 @@ import {
 } from '@chakra-ui/react';
 import homeBackground from '../pic/dine.jpg';
 import { Link as RouterLink } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
 const Home = () => {
+  const {user} = useAuthStore(); 
+
+
   return (
     <Flex
       direction="column"
@@ -65,7 +69,7 @@ const Home = () => {
         >
           From Breakfast to Dinner, We Have You Covered
         </Text>
-
+        {user?.role === 'cook' && (
         <Button
           as={RouterLink}
           to="/recipes"
@@ -81,6 +85,24 @@ const Home = () => {
         >
           Get Cooking Now
         </Button>
+        )}
+        {user?.role === 'guest' && (
+        <Button
+          as={RouterLink}
+          to="/visitors"
+          size="lg"
+          colorScheme="orange"
+          borderRadius="full"
+          boxShadow="md"
+          _hover={{
+            transform: 'scale(1.05)',
+            boxShadow: 'lg',
+          }}
+          transition="all 0.3s"
+        >
+          Get Cooking Now
+        </Button>
+        )}
       </Flex>
     </Flex>
   );
