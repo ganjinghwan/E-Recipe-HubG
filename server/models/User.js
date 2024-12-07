@@ -17,7 +17,7 @@ const userSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ["guest", "cook", "event-organizer"],
+        enum: ["guest", "cook", "event-organizer", "moderator"],
         default: ""
     },
     lastLogin: {
