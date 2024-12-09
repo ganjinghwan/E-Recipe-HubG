@@ -28,4 +28,4 @@ const eventOrganizerSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("EventOrganizer", eventOrganizerSchema);
+export const EventOrganizer = mongoose.model("EventOrganizer", eventOrganizerSchema);

@@ -20,4 +20,4 @@ const cookSchema = new mongoose.Schema({
     }
 });
 
-export default mongoose.model("Cook", cookSchema);
+export const Cook = mongoose.model("Cook", cookSchema);

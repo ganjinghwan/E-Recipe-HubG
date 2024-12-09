@@ -8,10 +8,6 @@ export const createCookInformation = async (req, res) => {
     const { specialty, experience } = req.body;
 
     try {
-        if (!specialty || !experience) {
-            return res.status(400).json({ success: false, message: ["All fields are required"] });
-        }
-
         const cookID = await User.findOne(req.user._id);
 
         if (!cookID) {

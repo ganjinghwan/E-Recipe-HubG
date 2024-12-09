@@ -4,6 +4,6 @@ import { createOrgnizationInformation } from '../controllers/eventOrgController.
 
 const router = express.Router();
 
-router.post("/create-Org-information", verifyToken, createOrgnizationInformation);
+router.post("/create-EventOrg-information", verifyToken, createOrgnizationInformation);
 
 export default router;

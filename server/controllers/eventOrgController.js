@@ -8,10 +8,6 @@ export const createOrgnizationInformation = async (req, res) => {
     const { orgName, orgDescription, orgContact, orgLocation } = req.body;
 
     try {
-        if (!orgName || !orgDescription || !orgContact || !orgLocation) {
-            return res.status(400).json({ success: false, message: ["All fields are required"] });
-        }
-
         const eventOrganizerID = await User.findOne(req.user._id);
 
         if (!eventOrganizerID) {
