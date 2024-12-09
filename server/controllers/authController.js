@@ -46,13 +46,14 @@ export const signup = async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const verificationToken = Math.floor(Math.random() * 1000000 + 50000).toString();
+        //ensure the verification code is 6 digits long
+        const verificationToken = Math.floor(100000 + Math.random() * 900000).toString(); 
         const user = new User({ email, 
                                 password: hashedPassword, 
                                 name,
                                 role,
                                 verificationToken,
-                                verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000 //24 hours
+                                verificationTokenExpiresAt: Date.now() + 15 * 60 * 1000 //15 minutes
                             });
 
         await user.save();
@@ -165,7 +166,7 @@ export const forgotPassword = async (req, res) => {
         await user.save();
 
         //send reset password email
-        await sendResetPasswordEmail(user.email, `${process.env.CLIENT_URL}/reset-password/${resetToken}`);
+        await sendResetPasswordEmail(user.email, `localhost:5173/reset-password/${resetToken}`);
 
         res.status(200).json({
             success: true,

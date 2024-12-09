@@ -28,6 +28,40 @@ export const VERIFICATION_EMAIL_TEMPLATE = `
 </html>
 `;
 
+export const WELCOME_EMAIL_TEMPLATE = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>E-Recipe-Hub</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(to right, #4CAF50, #45a049); padding: 20px; text-align: center;">
+    <h1 style="color: white; margin: 0;">Welcome to E-Recipe-Hub!</h1>
+  </div>
+  <div style="background-color: #f9f9f9; padding: 20px; border-radius: 0 0 5px 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+    <p>Hello {username},</p>
+    <p>Welcome to E-Recipe-Hub! We're thrilled to have you join our community of food enthusiasts and culinary explorers.</p>
+    <p>At E-Recipe-Hub, you'll discover a vast collection of recipes, cooking tips, and a community of like-minded individuals who share your passion for cooking and baking.</p>
+    <p>Here's what you can do next:</p>
+    <ul>
+      <li>Explore new and trending recipes.</li>
+      <li>Share your own recipes with the community.</li>
+      <li>Save your favorite recipes.</li>
+      <li>Join our events and connect with other food lovers.</li>
+    </ul>
+    <p>If you have any questions or need assistance, our support team is here to help you. Feel free to reach out at any time.</p>
+    <p>Happy cooking!</p>
+    <p>Best regards,<br>E-Recipe-Hub Team</p>
+  </div>
+  <div style="text-align: center; margin-top: 20px; color: #888; font-size: 0.8em;">
+    <p>This is an automated message, please do not reply to this email.</p>
+  </div>
+</body>
+</html>
+`;
+
 export const PASSWORD_RESET_SUCCESS_TEMPLATE = `
 <!DOCTYPE html>
 <html lang="en">
