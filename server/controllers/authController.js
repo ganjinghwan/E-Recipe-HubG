@@ -2,7 +2,7 @@ import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
-import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail } from "../nodemailer/emails.js";
+import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail } from "../nodemailer/emailService.js";
 import dotenv from "dotenv";
 
 dotenv.config();
