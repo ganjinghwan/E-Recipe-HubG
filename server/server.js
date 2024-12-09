@@ -3,6 +3,9 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import recipeRoutes from './routes/recipes.js';
 import authRoutes from './routes/auth.js';
+import cookRoutes from './routes/cook_rt.js';
+import organizerRoutes from './routes/eventOrg_rt.js';
+import guestRoutes from './routes/guest_rt.js'
 import cookieParser from 'cookie-parser';
 import path from "path";
 
@@ -17,6 +20,11 @@ app.use(cookieParser()); // allows up to parse incoming cookies
 
 app.use("/api/recipesinfo", recipeRoutes);
 app.use("/api/auth", authRoutes);
+
+//Roles
+app.use("/api/cooks", cookRoutes);
+app.use("/api/eventOrganizer", organizerRoutes);
+app.use("/api/guest", guestRoutes);
 
 
 // console.log(process.env.MONGO_URI);
