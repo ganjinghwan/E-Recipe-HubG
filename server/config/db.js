@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { authCleanUpUnverifiedUsers } from "../utils/authCleanUp.js";
 
 export const connectDB = async () => {
     try {
@@ -7,6 +8,8 @@ export const connectDB = async () => {
             // useUnifiedTopology: true,
         });
         console.log(`MongoDB Connected: ${conn.connection.host}`);
+        authCleanUpUnverifiedUsers();
+        setInterval(authCleanUpUnverifiedUsers, 60 * 1000); // Run every minute
     } catch (error) {
         console.error(`Error: ${error.message}`);
         process.exit(1); // Exit the process with failure

@@ -33,8 +33,9 @@ export const useAuthStore = create((set) => ({
                 isLoading: false,
             });
         } catch (error) {
-            set({ error: error.response.data.message || "Error logging in", isLoading: false });
-            throw error;
+            set({ isLoading: false });
+            const errorMessage = error.response?.data?.message || [error.message];
+            throw { response: { data: { messages: errorMessage } } };
         }
     },
 
@@ -42,7 +43,7 @@ export const useAuthStore = create((set) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await axios.post(`/api/auth/signup`, { email, password, name, role });
-            set ({ user: response.data.user, isAuthenticated: true, isLoading: false });
+            set ({ user: response.data.user, isAuthenticated: false, isLoading: false });
         } catch (error) {
             set({isLoading: false });
             const errorMessage = error.response?.data?.message || [error.message];

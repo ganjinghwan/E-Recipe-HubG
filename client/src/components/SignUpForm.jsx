@@ -18,7 +18,6 @@ import sandwich from "../pic/sandwich.png";
 import PasswordStrengthMeter from "./PasswordStrengthMeter";
 import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import toast from "react-hot-toast";
 
 const MotionImage = motion(Box);
 
@@ -28,7 +27,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [role, setRole] = useState("");
-  const [localError, setLocalError] = useState({});
+  const [signUpFormError, setSignUpFormError] = useState({});
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const navigate = useNavigate();
@@ -56,7 +55,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
       errorHandling.role = "Please choose a role";
     }
     
-    setLocalError(errorHandling);
+    setSignUpFormError(errorHandling);
     return errorHandling;
   };
 
@@ -111,7 +110,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
     setPassword("");
     setConfirmPassword("");
     setRole("");
-    setLocalError({});
+    setSignUpFormError({});
     setHasSubmitted(false);
   };
 
@@ -171,7 +170,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
           Welcome to our E-Recipe Hub! <br />
           Sign up here to get started.
         </Text>
-        <FormControl isInvalid={!!localError.name} mb="4">
+        <FormControl isInvalid={!!signUpFormError.name} mb="4">
           <FormLabel>Username</FormLabel>
           <Input
             type="text"
@@ -179,10 +178,10 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
-          {localError.name && <FormErrorMessage>{localError.name}</FormErrorMessage>}
+          {signUpFormError.name && <FormErrorMessage>{signUpFormError.name}</FormErrorMessage>}
         </FormControl>
         
-        <FormControl isInvalid={!!localError.email} mb="4">
+        <FormControl isInvalid={!!signUpFormError.email} mb="4">
           <FormLabel>Email</FormLabel>
           <Input
             type="email"
@@ -190,10 +189,10 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
           />
-          {localError.email && <FormErrorMessage>{localError.email}</FormErrorMessage>}
+          {signUpFormError.email && <FormErrorMessage>{signUpFormError.email}</FormErrorMessage>}
         </FormControl>
 
-        <FormControl isInvalid={!!localError.password} mb="4">
+        <FormControl isInvalid={!!signUpFormError.password} mb="4">
           <FormLabel>Password</FormLabel>
           <Input
             type="password"
@@ -201,12 +200,12 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          {localError.password && <FormErrorMessage>{localError.password}</FormErrorMessage>}
+          {signUpFormError.password && <FormErrorMessage>{signUpFormError.password}</FormErrorMessage>}
         </FormControl>
 
         <PasswordStrengthMeter password={password} />
 
-        <FormControl isInvalid={!!localError.confirmPassword} mb="4">
+        <FormControl isInvalid={!!signUpFormError.confirmPassword} mb="4">
           <FormLabel>Confirm Password</FormLabel>
           <Input
             type="password"
@@ -214,11 +213,11 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
-          {localError.confirmPassword && <FormErrorMessage>{localError.confirmPassword}</FormErrorMessage>}
+          {signUpFormError.confirmPassword && <FormErrorMessage>{signUpFormError.confirmPassword}</FormErrorMessage>}
           {authError && <FormErrorMessage>{authError}</FormErrorMessage>}
         </FormControl>
 
-        <FormControl isInvalid={!!localError.role} mb="4" mt="4">
+        <FormControl isInvalid={!!signUpFormError.role} mb="4" mt="4">
           <FormLabel>Select Your Role</FormLabel>
           <HStack justifyContent={"center"}>
             {roleOptions.map((option) => (
@@ -232,7 +231,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
               </Button>
             ))}
           </HStack>
-          {localError.role && <FormErrorMessage>{localError.role}</FormErrorMessage>}
+          {signUpFormError.role && <FormErrorMessage>{signUpFormError.role}</FormErrorMessage>}
         </FormControl>
         
         <Button type="submit" colorScheme="blue" width="100%">

@@ -7,6 +7,7 @@ import {
   Input,
   FormErrorMessage,
   Button,
+  useToast,
 } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import cookbook from "../pic/cookbook.png";
@@ -21,9 +22,10 @@ const MotionImage = motion(Box);
 const LoginForm = ({onClose, switchToSignUp}) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState("");
+  const [loginFormError, setLoginFormError] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
+  const toast = useToast();
   const { login, isLoading, error } = useAuthStore();
 
   const validateFields = () => {
@@ -36,7 +38,7 @@ const LoginForm = ({onClose, switchToSignUp}) => {
       errorHandling.password = "Password is required";
     }
     
-    setFormError(errorHandling);
+    setLoginFormError(errorHandling);
     return errorHandling;
   };
 
@@ -51,12 +53,31 @@ const LoginForm = ({onClose, switchToSignUp}) => {
 
     try {
       await login(email, password);
-      setFormError({}); // Clear error if valid
-      console.log("Login successful:", { email, password });
+      setLoginFormError({}); // Clear error if valid
+      toast({
+        position: "bottom",
+        title: "Login successful",
+        description: "You have successfully logged in.",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      })
       onClose();
-    } catch (err) {
-      console.error("Login failed:", err);
-      setFormError({ message: "Invalid credentials" });
+    } catch (loginError) {
+      const messages = loginError.response?.data?.messages || ["An unexpected error occured"];
+
+      messages.forEach((message) => {
+        toast({
+          position: "bottom",
+          title: "Login failed", 
+          description: message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        }) ;
+      });
+
+      clearForm();
     }
   };
 
@@ -65,6 +86,13 @@ const LoginForm = ({onClose, switchToSignUp}) => {
       validateFields();
     }
   },[email, password]);
+
+  const clearForm = () => {
+    setEmail("");
+    setPassword("");
+    setLoginFormError({});
+    setHasSubmitted(false);
+  }
 
   return (
     <Box position="relative" mt="120px" p="4" zIndex="2">
@@ -113,7 +141,7 @@ const LoginForm = ({onClose, switchToSignUp}) => {
           Login here to continue.
         </Text>
 
-        <FormControl isInvalid={!!formError.email} mb="4">
+        <FormControl isInvalid={!!loginFormError.email} mb="4">
           <FormLabel>Email</FormLabel>
           <Input
             type="email"
@@ -121,10 +149,10 @@ const LoginForm = ({onClose, switchToSignUp}) => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
           />
-          {formError.email && <FormErrorMessage>{formError.email}</FormErrorMessage>}
+          {loginFormError.email && <FormErrorMessage>{loginFormError.email}</FormErrorMessage>}
         </FormControl>
 
-        <FormControl isInvalid={!!formError.password} mb="4">
+        <FormControl isInvalid={!!loginFormError.password} mb="4">
           <FormLabel>Password</FormLabel>
           <Input
             type="password"
@@ -132,7 +160,7 @@ const LoginForm = ({onClose, switchToSignUp}) => {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
           />
-          {formError.password && <FormErrorMessage>{formError.password}</FormErrorMessage>}
+          {loginFormError.password && <FormErrorMessage>{loginFormError.password}</FormErrorMessage>}
         </FormControl>
 
         <Box justify="space-between" align="center" mb={2} opacity={0.8} display={"flex"}>
@@ -155,7 +183,7 @@ const LoginForm = ({onClose, switchToSignUp}) => {
               marginBottom: "8px",
             }}
           >
-            {formError.message}
+            {loginFormError.message}
           </p>
         )}   
 

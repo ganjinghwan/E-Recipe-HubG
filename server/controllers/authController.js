@@ -25,7 +25,7 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: ['Please fill in all fields'] });
         }
 
-        const errors = [];
+        const SignUpErrors = [];
 
         const userAlreadyExists = await User.findOne({ email });
         console.log("userAlreadyExists", userAlreadyExists);
@@ -34,15 +34,15 @@ export const signup = async (req, res) => {
         console.log("repeatedUsername", repeatedUsername);
 
         if (userAlreadyExists) {
-            errors.push("Email has already registered");
+            SignUpErrors.push("Email has already registered");
         }
 
         if (repeatedUsername) {
-            errors.push ("Username already exists");
+            SignUpErrors.push ("Username already exists");
         }
 
-        if (errors.length > 0) {
-            return res.status(400).json({ success: false, message: errors });
+        if (SignUpErrors.length > 0) {
+            return res.status(400).json({ success: false, message: SignUpErrors });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -58,11 +58,8 @@ export const signup = async (req, res) => {
 
         await user.save();
 
-        //jsonwebtoken
-        generateTokenAndSetCookie(res, user._id);
-
         await sendVerificationEmail(user.email, verificationToken);
-
+        
         res.status(201).json({ 
             success: true, 
             message: 'User created successfully',
@@ -71,7 +68,7 @@ export const signup = async (req, res) => {
                 password: undefined,
             },
         });
-
+        
     } catch(error) {
         res.status(400).json({ success: false, message: [error.message] });
     }
@@ -79,20 +76,24 @@ export const signup = async (req, res) => {
 
 export const verifyEmail = async (req, res) => {
     const {code} = req.body;
-
+    
     try {
         const user = await User.findOne({ 
             verificationToken: code, 
             verificationTokenExpiresAt: { $gt: Date.now() }
         });
-
+        
         if (!user) {
             return res.status(400).json({ success: false, message: 'Invalid or expired verification code' });
         }
-
+        
         user.isVerified = true;
         user.verificationToken = undefined;
         user.verificationTokenExpiresAt = undefined;
+
+        //jsonwebtoken
+        generateTokenAndSetCookie(res, user._id);
+
         await user.save();
 
         await sendWelcomeEmail(user.email, user.name);
@@ -115,14 +116,29 @@ export const login = async (req, res) => {
     const {email, password} = req.body;
     
     try {
+        if (!email || !password) {
+            return res.status(400).json({ success: false, message: ["Please fill in all fields"]});
+        }
+
+        const LoginErrors = [];
+
         const user = await User.findOne({ email });
 
         if(!user) {
-            return res.status(400).json({ success: false, message: "Invalid credentials" });
+            return res.status(400).json({ success: false, message: ["Invalid credentials"] });
         }
+
+        if (!user.isVerified) {
+            LoginErrors.push("Email has been registered but has not been verified. Try again later");
+        }
+
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
-            return res.status(400).json({ success: false, message: "Wrong password, please try again" });
+            LoginErrors.push("Wrong password, please try again");
+        }
+
+        if (LoginErrors.length > 0) {
+            return res.status(400).json({ success: false, message: LoginErrors });
         }
 
         generateTokenAndSetCookie(res, user._id);
@@ -139,8 +155,7 @@ export const login = async (req, res) => {
             }
         })
     } catch (error) {
-        console.log("Failed to login", error.message);
-        res.status(400).json({ success: false, message: error.message });
+        res.status(400).json({ success: false, message: [error.message] });
     }
 };
 
