@@ -8,13 +8,17 @@ export const createOrgnizationInformation = async (req, res) => {
     const { orgName, orgDescription, orgContact, orgLocation } = req.body;
 
     try {
-        const eventOrganizerID = await User.findOne(req.user._id);
+        const eventOrganizerID = await User.findById(req.user._id);
 
         if (!eventOrganizerID) {
             return res.status(404).json({ success: false, message: ["Event organization not found"] });
         }
 
         const eventOrgError = [];
+
+        if (eventOrganizerID.role !== "eventOrganizer") {
+            eventOrgError.push("User is not an event organizer");
+        }
 
         const eventOrgNameRepeat = await EventOrganizer.findOne({ organizationName: orgName });
         console.log("Repeated event organization name", eventOrgNameRepeat);
@@ -35,11 +39,12 @@ export const createOrgnizationInformation = async (req, res) => {
         }
         
         const eventOrgInfo = new EventOrganizer({
-            user_id: eventOrganizerID,
+            user_id: eventOrganizerID._id,
             organizationName: orgName,
-            description: orgDescription,
-            contactNumber: orgContact,
-            location: orgLocation,
+            organizationDescription: orgDescription,
+            organizationContact: orgContact,
+            organizationLocation: orgLocation,
+            events_list: [],
         });
         await eventOrgInfo.save();
 

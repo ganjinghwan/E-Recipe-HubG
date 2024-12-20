@@ -32,7 +32,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
 
   const navigate = useNavigate();
   const toast = useToast();
-  const { signup, error: authError, resetState } = useAuthStore();
+  const { signup, error: authError, resetState, isLoading } = useAuthStore();
 
   const validateFields = () => {
     const errorHandling = {};
@@ -234,7 +234,13 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
           {signUpFormError.role && <FormErrorMessage>{signUpFormError.role}</FormErrorMessage>}
         </FormControl>
         
-        <Button type="submit" colorScheme="blue" width="100%">
+        <Button 
+          type="submit" 
+          colorScheme="blue" 
+          width="100%"
+          isLoading={isLoading}
+          loadingText="Signing Up..."
+        >
           Sign Up
         </Button>
 

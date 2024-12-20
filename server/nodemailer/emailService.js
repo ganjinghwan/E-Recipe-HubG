@@ -1,7 +1,7 @@
 import { PASSWORD_RESET_REQUEST_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, WELCOME_EMAIL_TEMPLATE } from "./emailTemplate.js";
 import transporter from "./nodemailer.config.js";
 
-export const sendVerificationEmail = async (email, verificationToken) => {
+  export const sendVerificationEmail = async (email, verificationToken) => {
     try {
       const response = await transporter.sendMail({
         from: {
@@ -16,7 +16,11 @@ export const sendVerificationEmail = async (email, verificationToken) => {
       console.log("Verification email sent successfully", response);
     } catch (error) {
       console.error("Error sending verification email:", error.message);
-      throw new Error(`Error sending verification email: ${error.message}`);
+      if (error.message.includes('5.1.1')) {
+        throw new Error("Invalid email address");
+      } else {
+        throw new Error(`Error sending verification email: ${error.message}`);
+      }
     }
   };
 

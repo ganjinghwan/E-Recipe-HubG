@@ -4,6 +4,7 @@ import crypto from "crypto";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail } from "../nodemailer/emailService.js";
 import dotenv from "dotenv";
+import { verifyEmailSMTP } from "../nodemailer/emailVerify.js";
 
 dotenv.config();
 
@@ -25,16 +26,31 @@ export const signup = async (req, res) => {
             return res.status(400).json({ message: ['Please fill in all fields'] });
         }
 
-        const SignUpErrors = [];
+        try {
+            const isEmailValid = await verifyEmailSMTP(email);
+            if (!isEmailValid) {
+                return res.status(400).json({ success: false, message: ["Invalid email address. Please provide a valid email."]});
+            }
+        } catch (error) {
+            return res.status(400).json({ success: false, message: ["Error validating email address. Please try again later."]});
+        }
 
+        const SignUpErrors = [];
+        
         const userAlreadyExists = await User.findOne({ email });
         console.log("userAlreadyExists", userAlreadyExists);
+
+        const unverifiedUser = await User.findOne({ email, isVerified: false });
 
         const repeatedUsername = await User.findOne({ name });
         console.log("repeatedUsername", repeatedUsername);
 
         if (userAlreadyExists) {
             SignUpErrors.push("Email has already registered");
+        }
+
+        if (unverifiedUser) {
+            return res.status(400).json({ success: false, message: ["Looks like your email is not been verified, please register again 15 minutes later"]});
         }
 
         if (repeatedUsername) {
@@ -70,7 +86,7 @@ export const signup = async (req, res) => {
         });
         
     } catch(error) {
-        res.status(400).json({ success: false, message: [error.message] });
+        return res.status(400).json({ success: false, message: [error.message] });
     }
 };
 
@@ -129,7 +145,7 @@ export const login = async (req, res) => {
         }
 
         if (!user.isVerified) {
-            LoginErrors.push("Email has been registered but has not been verified. Try again later");
+            return res.status(400).json({ success: false, message: ["Email has been registered but has not been verified. Please try again later"]});
         }
 
         const isValidPassword = await bcrypt.compare(password, user.password);
@@ -167,6 +183,11 @@ export const logout = async (req, res) => {
 export const forgotPassword = async (req, res) => {
     const {email} = req.body;
     try {
+        const isEmailValid = await verifyEmailSMTP(email);
+        if (!isEmailValid) {
+            return res.status(400).json({ success: false, message: "Invalid email address"});
+        }
+
         const user = await User.findOne({ email });
 
         if(!user) {

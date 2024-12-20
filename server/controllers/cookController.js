@@ -8,7 +8,7 @@ export const createCookInformation = async (req, res) => {
     const { specialty, experience } = req.body;
 
     try {
-        const cookID = await User.findOne(req.user._id);
+        const cookID = await User.findById(req.user._id);
 
         if (!cookID) {
             return res.status(404).json({ success: false, message: ["Cook not found"] });
@@ -25,7 +25,7 @@ export const createCookInformation = async (req, res) => {
         }
 
         const cookInfo = new Cook({
-            user_id: cookID,
+            user_id: cookID._id,   
             specialty,
             experience,
         });
