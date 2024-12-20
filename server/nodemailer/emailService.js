@@ -1,4 +1,4 @@
-import { PASSWORD_RESET_REQUEST_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, WELCOME_EMAIL_TEMPLATE } from "./emailTemplate.js";
+import { PASSWORD_RESET_REQUEST_TEMPLATE, VERIFICATION_EMAIL_TEMPLATE, PASSWORD_RESET_SUCCESS_TEMPLATE, WELCOME_EMAIL_TEMPLATE, UPDATE_PROFILE_CONFIRMATION_TEMPLATE } from "./emailTemplate.js";
 import transporter from "./nodemailer.config.js";
 
   export const sendVerificationEmail = async (email, verificationToken) => {
@@ -81,3 +81,22 @@ import transporter from "./nodemailer.config.js";
       throw new Error(`Error sending password reset success email: ${error.message}`);
     }
   };
+
+  export const sendUpdateConfirmationEmail = async (email, verificationCode) => {
+    try {   
+      const response = await transporter.sendMail({
+        from: {
+          name: "E-Recipe-Hub",
+          address: "masomaticdev@gmail.com",
+        },
+        to: email,
+        subject: "Please verify for an update",
+        html: UPDATE_PROFILE_CONFIRMATION_TEMPLATE.replace("{verificationCode}", verificationCode),
+      });
+
+      console.log("Update Confirmation Email sent successfully", response);
+    } catch (error) {
+        console.error("Error sending update confirmation email", error.message);
+        throw new Error(`Error sending update confirmation email: ${error.message}`);
+    }
+}

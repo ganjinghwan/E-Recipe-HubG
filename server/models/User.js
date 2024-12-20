@@ -20,6 +20,10 @@ const userSchema = new mongoose.Schema({
         enum: ["guest", "cook", "event-organizer", "moderator"],
         default: ""
     },
+    phoneNumber: {
+        type: String,
+        default: ""
+    },
     lastLogin: {
         type: Date,
         default: Date.now
@@ -30,6 +34,9 @@ const userSchema = new mongoose.Schema({
     },
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
+    tempName: String,
+    tempPassword: String,
+    tempPhoneNumber: String,
     verificationToken: String,
     verificationTokenExpiresAt: Date,
 }, {timestamps: true});

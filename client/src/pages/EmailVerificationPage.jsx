@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Box, Text, Input, Button, Flex } from "@chakra-ui/react";
+import { Box, Text, Input, Button, Flex, useToast } from "@chakra-ui/react";
 import { useAuthStore } from "../store/authStore";
 import kitchen from "../pic/kitchen-benchtop-materials.jpg";
-import toast from "react-hot-toast";
 import React from "react";
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
   const inputRefs = useRef([]);
+  const toast = useToast();
   const navigate = useNavigate();
 
   const { error, isLoading, verifyEmail } = useAuthStore();
@@ -52,7 +52,6 @@ const EmailVerificationPage = () => {
     const verificationCode = code.join("");
     try {
       await verifyEmail(verificationCode);
-      navigate("/");
       toast({
         title: "Success",
         description: "Email verified successfully",
@@ -60,6 +59,7 @@ const EmailVerificationPage = () => {
         duration: 3000,
         isClosable: true,
       });
+      navigate("/");
     } catch (error) {
       console.log(error);
     }

@@ -2,7 +2,7 @@ import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
-import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail } from "../nodemailer/emailService.js";
+import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail, sendUpdateConfirmationEmail } from "../nodemailer/emailService.js";
 import dotenv from "dotenv";
 import { verifyEmailSMTP } from "../nodemailer/emailVerify.js";
 
@@ -183,9 +183,13 @@ export const logout = async (req, res) => {
 export const forgotPassword = async (req, res) => {
     const {email} = req.body;
     try {
-        const isEmailValid = await verifyEmailSMTP(email);
-        if (!isEmailValid) {
-            return res.status(400).json({ success: false, message: "Invalid email address"});
+        try {
+            const isEmailValid = await verifyEmailSMTP(email);
+            if (!isEmailValid) {
+                return res.status(400).json({ success: false, message: "Invalid email address. Please provide a valid email."});
+            }
+        } catch (error) {
+            return res.status(400).json({ success: false, message: "Error validating email address. Please try again later."});
         }
 
         const user = await User.findOne({ email });
@@ -267,3 +271,126 @@ export const checkAuth = async (req, res) => {
         res.status(400).json({ success: false, message: error.message });
     }
 }
+
+export const updateProfile = async (req, res) => {
+    const { name, password, phone } = req.body;
+
+    try {
+        if (!name && !password && !phone) {
+            return res.status(400).json({ message: ['Please fill in any of the fields to update']});
+        }
+
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(400).json({ message: ['User not found'] });
+        }
+
+        const updatedError = [];
+
+        if (name) {
+            if (name === user.name) {
+                updatedError.push("Same username, please choose a different one");
+            } else {
+                const usernameRepeat = await User.findOne({ name });
+                if (usernameRepeat && usernameRepeat._id.toString() !== user._id.toString()) {
+                    updatedError.push("Username already exists");
+                } else {
+                    user.tempName = name;
+                }
+            }
+        }
+
+        if (password) {
+            const passwordRepeat = await bcrypt.compare(password, user.password);
+            if (passwordRepeat) {
+                updatedError.push("Password is the same as before");
+            } else {
+                user.tempPassword = await bcrypt.hash(password, 10);
+            }
+        }
+
+        if (phone) {
+            if (phone === user.phoneNumber) {
+                updatedError.push("Same phone number, please choose a different one");
+            } else {
+                const phoneRepeat = await User.findOne({ phoneNumber: phone });
+                if (phoneRepeat && phoneRepeat._id.toString() !== user._id.toString()) {
+                    updatedError.push("Phone number already exists");
+                } else {
+                    user.tempPhoneNumber = phone;
+                }
+            }
+        }
+
+        if (updatedError.length > 0) {
+            return res.status(400).json({ success: false, message: updatedError });
+        }
+
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        user.verificationToken = verificationCode;
+        user.verificationTokenExpiresAt = Date.now() + 15 * 60 * 1000; // 15 minutes from now
+
+        await user.save();
+        await sendUpdateConfirmationEmail(user.email, verificationCode);
+
+        res.status(200).json({
+            success: true,
+            message: "Profile update requested. Please verify via email.",
+            user: {
+                ...user._doc,
+                password: undefined,
+            },
+        });
+    } catch (error) {
+        res.status(400).json({ success: false, message: [error.message] });
+    }
+};
+
+
+export const verifyUpdate = async (req, res) => {
+    const { code } = req.body;
+
+    try {
+        const user = await User.findOne({
+            verificationToken: code,
+            verificationTokenExpiresAt: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired verification code' });
+        }
+
+        if (user.tempName) {
+            user.name = user.tempName;
+        }
+
+        if (user.tempPassword) {
+            user.password = user.tempPassword;
+        }
+
+        if (user.tempPhoneNumber) {
+            user.phoneNumber = user.tempPhoneNumber;
+        }
+
+        user.verificationToken = undefined;
+        user.verificationTokenExpiresAt = undefined;
+        user.tempName = undefined;
+        user.tempPassword = undefined;
+        user.tempPhoneNumber = undefined;
+
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Profile updated successfully',
+            user: {
+                ...user._doc,
+                password: undefined,
+            },
+        });
+    } catch (error) {
+        console.log("Failed to verify update:", error.message);
+        res.status(400).json({ success: false, message: error.message });
+    }
+};

@@ -12,6 +12,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import { useAuthStore } from './store/authStore';
 import ProtectedRoute from './routeconfig/ProtectedRoute';
 import { useEffect } from 'react';
+import UpdateVerificationPage from './pages/UpdateVerificationPage';
 
 function App() {
 
@@ -35,6 +36,7 @@ function App() {
         <Route path="/verify-email" element={<EmailVerificationPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
+        <Route path="/verify-update" element={<UpdateVerificationPage />} />
 
         {/* Protected Routes */}
         <Route

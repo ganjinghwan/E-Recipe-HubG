@@ -20,7 +20,7 @@ const ForgotPasswordPage = () => {
       setIsSubmitted(true);
       toast({
         title: "Success",
-        description: `If an account exists for ${email}, you will receive a password reset link shortly.`,
+        description: `Please check your email for password reset instructions.`,
         status: "success",
         duration: 5000,
         isClosable: true,

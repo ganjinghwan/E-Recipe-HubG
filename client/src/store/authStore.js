@@ -118,4 +118,28 @@ export const useAuthStore = create((set) => ({
         console.log("Reset state called");
         set ({ isLoading: false, error: null});
     },
+
+    updateProfile: async (name, password, phone) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.post(`/api/auth/update-profile`, { name, password, phone });
+            set({ user: response.data.user, isLoading: false });
+        } catch (error) {
+            set({ isloading: false });
+            const errorMessage = error.response?.data?.message || [error.message];
+            throw { response: { data: { messages: errorMessage } } };
+        }
+    }, 
+
+    verifyUpdate: async (code) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.post(`/api/auth/verify-update`, {code});
+            set({ user: response.data.user, isAuthenticated: true, isLoading: false });
+            return response.data;
+        } catch (error) {
+            set({ error: error.response.data.message || "Error verifying update", isLoading: false });
+            throw error;
+        }
+    },
 }));

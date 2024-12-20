@@ -11,76 +11,198 @@ import {
   Button,
   Image,
   Flex,
+  Input,
+  useToast,
 } from "@chakra-ui/react";
 import { useAuthStore } from "../store/authStore";
 import { formatDate } from "../utils/date";
+import defaultAvatar from "../pic/avatar.png";
+import UpdateProfileForm from "./UpdateProfileForm";
+
 
 const ProfileForm = ({ isOpen, onClose }) => {
-  const {user} = useAuthStore();
+  console.log('isOpen: ', isOpen);
+  console.log('onClose: ', onClose);
+  const {user, isUploadingPicture, uploadProfilePicture} = useAuthStore();
+  const [selectedImg, setSelectedImg] = useState(null);
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+
+  const toast = useToast();
+
+  useEffect(() => {
+    if (!isOpen) {
+      setIsUpdatingProfile(false);
+    }
+  }, [isOpen]);
+
+  const handleImageUpload = async (e) => {
+
+    const file = e.target.files[0];
+
+    if (!file) {
+      return;
+    }
+
+    //Validate image type
+    const validImageTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!validImageTypes.includes(file.type)) {
+      toast({
+        position: "bottom",
+        title: "Invalid image type",
+        description: "Please upload a JPEG, PNG, GIF, or WebP image.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.readAsDataURL(file);
+
+    reader.onload = async () => {
+      const base64Image = reader.result;
+      setSelectedImg(base64Image);
+
+      try {
+        await uploadProfilePicture({ profilePicture: base64Image });
+        toast({
+          position: "bottom",
+          title: "Profile picture uploaded successfully",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        })
+      } catch (error) {
+        toast({
+          position: "bottom",
+          title: "Fail to upload profile picture",
+          description: error.message,
+          status: "error",
+          duration: 5000,
+          isClosable: true,
+        })
+      }
+    };
+  };
+
+  if (!user) {
+    return null;
+  }
+
+  const handleSwitchToUpdateProfile = () => {
+    setIsUpdatingProfile(true);
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
       <ModalContent
-        maxW={{base: "90%", sm: "80%", md: "60%", lg: "50%"}}
+        maxW={{base: "100%", sm: "80%", md: "60%", lg: "50%"}}
         maxH={"90vh"}
         overflowY={"auto"}
       >
-        <ModalHeader>Profile</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody>
-        <Flex
-            direction={{ base: "column", md: "row" }}
-            align="center"
-            gap={4}
-          >
-            {/* Profile Picture */}
-            <Image
-              borderRadius="full"
-              boxSize="150px"
-              src={user.profilePicture || "/default-avatar.png"} // Default image fallback
-              alt={`${user.name}'s profile picture`}
-              border="2px solid"
-              borderColor="purple.200"
-            />
-
-            {/* User Details */}
-            <Box flex="1">
-              <Box
-                bg="purple.100"
-                p="4"
-                borderRadius="md"
-                fontWeight="bold"
-                fontSize="xl"
-                textAlign="center"
+        {isUpdatingProfile ? (
+          <UpdateProfileForm
+            isOpen={isOpen}
+            onClose={onClose}
+            switchToProfile={() => setIsUpdatingProfile(false)}
+          />
+        ) : (
+          <>
+            <ModalHeader>Profile</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+            <Flex
+                direction={{ base: "column", md: "row" }}
+                align={"center"}
+                gap={4}
+                textAlign={"center"}
               >
-                Welcome, {user.name}
-              </Box>
-              <Box bg="blue.100" p="4" borderRadius="md" mt="4">
-                This is your Username: {user.name} <br />
-                This is your Email: {user.email}
-              </Box>
-              <Box bg="green.100" p="4" borderRadius="md" mt="4">
-                Account activity:
-                <br />
-                <span style={{ fontWeight: "bold" }}>Joined at: </span>
-                {new Date(user.createdAt).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
-                <br />
-                <span style={{ fontWeight: "bold" }}>Last login: </span>
-                {formatDate(user.lastLogin)}
-              </Box>
-            </Box>
-          </Flex>
-        </ModalBody>
-        <ModalFooter>
-          <Button colorScheme="blue" mr={3} onClick={onClose}>
-            Close
-          </Button>
-        </ModalFooter>
+
+                <Box textAlign="center">
+                  {/* Profile Picture */}
+                  <Image
+                    borderRadius="full"
+                    boxSize="220px"
+                    src={user.profilePicture || selectedImg || defaultAvatar} // Default image fallback
+                    alt={`${user.name}'s profile picture`}
+                    border="2px solid"
+                    borderColor="purple.200"
+                    mb={4} // Add margin-bottom for spacing
+                  />
+                  
+                  {/* Upload Button */}
+                  <Box position="relative" display="inline-block">
+                    <Button
+                      as="label"
+                      htmlFor="avatar-upload"
+                      colorScheme="purple"
+                      size="sm"
+                      isDisabled={isUploadingPicture}
+                    >
+                      {isUploadingPicture ? "Uploading..." : "Upload Profile Picture"}
+                    </Button>
+                    <Input
+                      type="file"
+                      id="avatar-upload"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      display="none"
+                      isDisabled={isUploadingPicture}
+                    />
+                  </Box>
+                </Box>
+
+                {/* User Details */}
+                <Box flex="1">
+                  <Box
+                    bg="purple.100"
+                    p="4"
+                    borderRadius="md"
+                    fontWeight="bold"
+                    fontSize="xl"
+                    textAlign="center"
+                  >
+                    Welcome, {user.name}
+                  </Box>
+                  <Box bg="blue.100" p="4" borderRadius="md" mt="4">
+                    Username: {user.name} <br />
+                    Email: {user.email} <br />
+                    Role: {user.role} <br />
+                    {user.phoneNumber ? `Phone Number: ${user.phoneNumber}` : "Looks like you don't have phone number yet!"}
+                  </Box>
+
+                  <Box bg="green.100" p="4" borderRadius="md" mt="4">
+                    Account activity:
+                    <br />
+                    <span style={{ fontWeight: "bold" }}>Joined at: </span>
+                    {new Date(user.createdAt).toLocaleDateString("en-US", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                    <br />
+                    <span style={{ fontWeight: "bold" }}>Last login: </span>
+                    {formatDate(user.lastLogin)}
+                  </Box>
+                </Box>
+              </Flex>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme ="red" mr={3}>
+                Delete Account
+              </Button>
+              <Button colorScheme="green" mr={3} onClick={handleSwitchToUpdateProfile}>
+                Update Profile
+              </Button>
+              <Button colorScheme="yellow" mr={3} onClick={onClose}>
+                Close
+              </Button>
+            </ModalFooter>
+          </>
+        )}
       </ModalContent>
     </Modal>
   );
