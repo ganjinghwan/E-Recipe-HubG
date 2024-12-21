@@ -40,7 +40,11 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
 
     const navigate = useNavigate();
     const toast = useToast();
-    const { updateProfile } = useAuthStore();
+    const { user, updateProfile } = useAuthStore();
+
+    if (!user) {
+        return null;
+    }
 
     const validateFields = () => {
         const errorHandling = {};
@@ -135,6 +139,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                   fontSize="md"
                   fontWeight="bold"
                   textAlign="center"
+                  mb="8"
                 >
                   You can update your profile here. Please fill in the desired fields that you want to update.
                 </Text>
@@ -160,7 +165,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                   />
                 </FormControl>
       
-                <FormControl isInvalid={!!updateError.newPassword} mb="4">
+                <FormControl isInvalid={!!updateError.newPassword} mb="6">
                   <FormLabel>New Password</FormLabel>
                   <Input
                     type="password"
@@ -175,7 +180,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
       
                 <PasswordStrengthMeter password={newPassword} />
       
-                <FormControl isInvalid={!!updateError.newConfirmPassword} mb="4">
+                <FormControl isInvalid={!!updateError.newConfirmPassword} mb="4" mt="6">
                   <FormLabel>Confirm New Password</FormLabel>
                   <Input
                     type="password"
@@ -187,6 +192,48 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                     <FormErrorMessage>{updateError.newConfirmPassword}</FormErrorMessage>
                   )}
                 </FormControl>
+
+                <Text
+                  fontSize="2xl"
+                  fontWeight="bold"
+                  textAlign="left"
+                  mt="8"
+                  mb="2"
+                  color={"blue.500"}
+                >
+                  Role Info
+                </Text>
+
+                <Text 
+                  mb="2"
+                  fontSize={"lg"}
+                  fontWeight={"bold"}
+                  color={"purple.500"}
+                  textDecoration={"underline"}
+                >
+                  Your role is {user.role}
+                </Text>
+
+                {user && user.role === "cook" && (
+                  <>
+                    <FormControl mb="4">
+                      <FormLabel>Specialty</FormLabel>
+                      <Input
+                        type="text"
+                        placeholder="Please enter your specialty"
+                      />
+                    </FormControl>
+
+                    <FormControl mb="4">
+                      <FormLabel>Years of Experience</FormLabel>
+                      <Input
+                        type="number"
+                        placeholder="Please enter your years of experience"
+                        onWheel={(e) => e.target.blur()} //Prevent scrolling
+                      />
+                    </FormControl>
+                  </>
+                )}
               </Box>
             </ModalBody>
       

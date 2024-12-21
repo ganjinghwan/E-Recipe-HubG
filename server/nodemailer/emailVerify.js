@@ -1,75 +1,53 @@
 import dns from 'dns';
-import net from 'net';
+import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 export const verifyEmailSMTP = async (email) => {
-  // Extract and check if there is a domain in email address
-  const domain = email.split("@")[1];
+  const domain = email.split('@')[1];
 
-  if (!domain) {
-    throw new Error("Invalid email address format");
-  }
-
-  //return new promise for async
-  return new Promise((resolve, reject) => {
-    // Resolve DNS MX (Mail Exchange) records for domain
-    dns.resolveMx(domain, (err, addresses) => {
-      //If error or no MX records, return false
-      if (err || addresses.length === 0) {
-        console.error(`No MX records found for ${domain}`);
-        return resolve(false);
-      }
-
-      // Use the highest priority MX record
-      addresses.sort((a, b) => a.priority - b.priority);
-      // Takes highest priority MX record exchange value
-      const mailServer = addresses[0].exchange;
-
-      // Create network connetion to mail server port 25 (SMTP port)
-      const socket = net.createConnection(25, mailServer);
-      // Response from mail server
-      let response = '';
-      let step = 0;
-
-      // Listens data from mail server
-      socket.on('data', (data) => {
-        // Convert data to String and append into response
-        response += data.toString();
-
-        // Handle server responses based on the current step
-        if (step === 0 && response.includes('220')) {
-          socket.write(`EHLO ${process.env.SMTP_HOST}\r\n`); // Introduce ourselves
-          step++;
-        } else if (step === 1 && response.includes('250')) {
-          socket.write(`MAIL FROM:<${process.env.SMTP_USER}>\r\n`); // Specify sender email
-          step++;
-        } else if (step === 2 && response.includes('250')) {
-          socket.write(`RCPT TO:<${email}>\r\n`); // Verify recipient email
-          step++;
-        } else if (step === 3) {
-          if (response.includes('250')) {
-            resolve(true); // Email is valid
-          } else if (response.includes('550')) {
-            resolve(false); // Email does not exist
-          } else {
-            resolve(false); // Other error
-          }
-          socket.end(); // Terminate connection
+  // Check MX records
+  try {
+    const addresses = await new Promise((resolve, reject) => {
+      dns.resolveMx(domain, (err, addresses) => {
+        if (err || addresses.length === 0) {
+          return reject(new Error('No MX records found'));
         }
-      });
-
-      // Handle errors during connection with the mail server
-      socket.on('error', (err) => {
-        console.error(`SMTP error: ${err.message}`);
-        resolve(false);
-      });
-
-      // Handle connection close
-      socket.on('end', () => {
-        console.log('SMTP connection ended');
+        resolve(addresses);
       });
     });
-  });
+
+    // Select the highest priority MX record
+    const mailServer = addresses[0].exchange;
+
+    // Create SMTP connection
+    const transporter = nodemailer.createTransport({
+      host: mailServer,
+      port: 587,  // Port 587 is commonly used for SMTP submission
+      secure: false, // Use STARTTLS for security
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false, // Allow self-signed certificates if needed
+      }
+    });
+
+    // Set a timeout for the connection attempt
+    transporter.verify((error, success) => {
+      if (error) {
+        console.error('Error connecting to mail server:', error);
+        return false;
+      }
+      console.log('Successfully connected to the mail server');
+      return true;
+    });
+    
+    return true;
+  } catch (error) {
+    console.error(`Error verifying email: ${error.message}`);
+    return false; // Return false if there was an error
+  }
 };
