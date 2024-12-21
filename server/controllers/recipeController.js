@@ -11,6 +11,23 @@ export const getRecipes = async (req, res) => {
     }
 }
 
+export const getRecipeById = async (req, res) => {
+    const { id } = req.params;
+    if(!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ success: false, message: 'Invalid Recipe ID' });
+    }
+    try{
+        const recipe = await Recipe.findById(id);
+        if(!recipe) {
+            return res.status(404).json({ success: false, message: 'Recipe not found' });
+        }
+        res.status(200).json({ success: true, data: recipe });
+    }catch(error){
+        console.error("Error fetching recipe by ID:", error);
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+}
+
 export const getAllRecipes = async (req, res) => {
     try{
         const recipe = await Recipe.find({ });
@@ -114,3 +131,52 @@ export const addComment = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
+
+export const addRate = async (req, res) => {
+    const { id } = req.params; // Recipe ID
+    const { userId, rating } = req.body; // User rating input
+
+    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ success: false, message: "Invalid IDs provided." });
+      }
+
+    try {
+        const recipe = await Recipe.findById(id);
+        if (!recipe) {
+            return res.status(404).json({ success: false, message: "Recipe not found" });
+        }
+
+        const existingRating = recipe.ratings.find((r) => r.user.toString() === userId);
+        if (existingRating) {
+          return res.status(400).json({ success: false, message: "You have already rated this recipe." });
+        }
+
+        // Ensure that rating is a number and within a valid range (e.g., 1 to 5) 
+        const parsedRating = parseFloat(rating); 
+        if (isNaN(parsedRating) || parsedRating < 1 || parsedRating > 5) { 
+            return res.status(400).json({ success: false, message: "Invalid rating value." 
+            });
+        }
+
+        recipe.ratings.push({ user: userId, rating: parsedRating });
+
+        // Calculate the new average rating
+        const totalRatings = recipe.ratings.reduce((sum, r) => sum + r.rating, 0);
+        const averageRating = parseFloat((totalRatings / recipe.ratings.length).toFixed(1)); // Precise to 1 decimal
+
+        // Update the average rating in the database
+        recipe.AveRating = averageRating;
+
+        await recipe.save();
+
+        return res.status(200).json({
+            success: true,
+            message: "Rating added successfully.",
+            data: { recipe, averageRating },
+          });
+          
+        } catch (error) {
+          console.error("Error adding rating:", error);
+          return res.status(500).json({ success: false, message: "Internal Server Error." });
+        }
+};

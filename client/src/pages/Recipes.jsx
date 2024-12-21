@@ -30,7 +30,7 @@ import {
   MenuItem,
   useBreakpointValue 
 } from "@chakra-ui/react";
-import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube} from "react-icons/fa";
+import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube, FaStar} from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
@@ -395,6 +395,33 @@ const Recipes = () => {
                 />
                 </Tooltip>
               </HStack>
+
+              {/* Rate IconButton */}
+              <HStack 
+                marginLeft="30px" 
+                alignItems="center" 
+                marginBottom="10px"
+              > 
+                <Text fontSize={{ base: "sm", md: "md", lg: "lg" }} fontWeight="medium">
+                  {selectedFood?.AveRating ? selectedFood.AveRating : "No Yet Rated"}
+                </Text>
+                <Tooltip label="Rate Recipe">
+                  <Box
+                    as="button"
+                    size="25px"
+                    backgroundColor="red"
+                    borderRadius="full"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    onClick={() => handleIconClick("rate")}
+                  >
+                    <FaStar size="20px" color="gold" />
+                  </Box>
+                </Tooltip>
+                
+              </HStack>
+
               <HStack 
                 marginLeft="30px" 
                 alignItems="center" 
@@ -405,6 +432,8 @@ const Recipes = () => {
                   {selectedFood?.prepTime}mins
                 </Text>
               </HStack>
+             
+              
               <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
                 <Tooltip label="Create">
                 <IconButton

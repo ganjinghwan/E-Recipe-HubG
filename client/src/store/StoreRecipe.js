@@ -40,6 +40,30 @@ export const useStoreRecipe = create((set) => ({
         set({ recipes: data.data });
     },
 
+    fetchRecipeById: async (rid) => {
+        try {
+            const res = await fetch(`/api/recipesinfo/${rid}`);
+            const data = await res.json();
+    
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+    
+            // Optionally add the fetched recipe to the store if necessary
+            set((state) => ({
+                recipes: state.recipes.some((recipe) => recipe._id === rid)
+                    ? state.recipes.map((recipe) => recipe._id === rid ? data.data : recipe)
+                    : [...state.recipes, data.data],
+            }));
+    
+            return { success: true, data: data.data };
+        } catch (error) {
+            console.error("Error fetching recipe by ID:", error);
+            return { success: false, message: "Failed to fetch recipe." };
+        }
+    },
+    
+
 
 
     deleteRecipes: async (rid) => {
@@ -81,6 +105,28 @@ export const useStoreRecipe = create((set) => ({
             
             set((state) => ({ recipes: state.recipes.map((recipe) => recipe._id === rid ? data.data : recipe) }));
             return { success: true, message: 'Comment added successfully.' };
-    }
+    },
+
+    addRate: async (rid, rateData) => {
+        const res = await fetch(`/api/recipesinfo/${rid}/rate`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(rateData),
+        });
+      
+        const data = await res.json();
+        if (!data.success) return { success: false, message: data.message };
+      
+        set((state) => ({
+          recipes: state.recipes.map((recipe) =>
+            recipe._id === rid ? { ...recipe, ratings: data.data.ratings } : recipe
+          ),
+        }));
+      
+        return { success: true, message: "Rating added successfully." };
+      },
+      
 
 }));

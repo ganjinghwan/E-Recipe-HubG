@@ -31,11 +31,12 @@ import {
   MenuItem,
   useBreakpointValue 
 } from "@chakra-ui/react";
-import { FaHeart, FaComment, FaFlag, FaClock, FaYoutube, FaUser} from "react-icons/fa";
+import { FaHeart, FaComment, FaFlag, FaClock, FaYoutube, FaUser, FaStar} from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
+import StarRatings from "react-star-ratings";
 
 const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
@@ -47,6 +48,8 @@ const VisitorPage = () => {
 
   const [showCommentModal, setShowCommentModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showRateModal, setShowRateModal] = useState(false);
+  const [rating, setRating] = useState(0);
   const [commentText, setCommentText] = useState("");
   const [reportTitle, setReportTitle] = useState("");
   const [reportReason, setReportReason] = useState("");
@@ -58,7 +61,7 @@ const VisitorPage = () => {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [favoriteFoods, setFavoriteFoods] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const {fetchAllRecipes, recipes, addComment} = useStoreRecipe();
+  const {fetchAllRecipes, recipes, addComment, addRate, fetchRecipeById} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
   const toast = useToast();
@@ -238,6 +241,8 @@ const VisitorPage = () => {
       setShowCommentModal(true);
     } else if (type === "report") {
       setShowReportModal(true);
+    } else if (type === "rate") {
+      setShowRateModal(true);
     }
   };
 
@@ -291,7 +296,7 @@ const VisitorPage = () => {
         });
         setCommentText("");
     }
-};
+  };
 
 
   const handleSubmitReport = () => {
@@ -317,6 +322,76 @@ const VisitorPage = () => {
     setReportTitle("");
     setReportReason("");
     setShowReportModal(false);
+  };
+
+
+  const changeRating = (newRating) => {
+    setRating(newRating);
+  };
+
+  useEffect(() => {
+    if(showRateModal) {
+      setRating(0);
+    }
+  }, [showRateModal]);
+
+  useEffect(() => {
+    const fetchRecipeData = async () => {
+      try {
+        const response = await fetchRecipeById(selectedFood._id); // Fetch full recipe data, including updated AveRating
+        if (response.success) {
+          setSelectedFood(response.data); // Sync state with the latest data from the backend
+        }
+      } catch (error) {
+        console.error("Failed to fetch updated recipe data:", error);
+      }
+    };
+  
+    if (showRateModal === false) {
+      fetchRecipeData(); // Fetch updated data when the modal closes
+    }
+  }, [showRateModal]);
+  
+
+  const handleSubmitRate = async () => {
+    if (!rating) {
+      toast({
+        title: "Incomplete Rating",
+        description: "Please select a rating.",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+      });
+      return;
+    }
+  
+    const recipeId = selectedFood._id;
+    const userId = user._id;
+  
+    try {
+      const response = await addRate(recipeId, { userId, rating });
+      if (!response.success) {
+        throw new Error(response.message);
+      }
+  
+      toast({
+        title: "Rating submitted",
+        description: "Thank you for your rating.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+      });
+      setShowRateModal(false);
+    } catch (error) {
+      console.error("Failed to submit rating:", error);
+      toast({
+        title: "Failed to submit rating",
+        description: error.message || "An unexpected error occurred.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+      });
+    }
   };
 
 
@@ -434,8 +509,34 @@ const VisitorPage = () => {
               </HStack>
               <Text marginLeft="30px" fontSize="md" fontWeight="semibold" color="gray.600">
                 Author: {cooks.find((u) => u._id === selectedUser)?.name || "Unknown"}
-
             </Text>
+
+            {/* Rate IconButton */}
+              <HStack 
+                marginLeft="30px" 
+                alignItems="center" 
+                marginBottom="10px"
+              > 
+                <Text fontSize={{ base: "sm", md: "md", lg: "lg" }} fontWeight="medium">
+                  {selectedFood?.AveRating ? selectedFood.AveRating : "No Yet Rated"}
+                </Text>
+                <Tooltip label="Rate Recipe">
+                  <Box
+                    as="button"
+                    size="25px"
+                    backgroundColor="red"
+                    borderRadius="full"
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                    onClick={() => handleIconClick("rate")}
+                  >
+                    <FaStar size="20px" color="gold" />
+                  </Box>
+                </Tooltip>
+                
+              </HStack>
+
               <HStack 
                 marginLeft="30px" 
                 alignItems="center" 
@@ -766,6 +867,35 @@ const VisitorPage = () => {
             </ModalFooter>
         </ModalContent>
         </Modal>
+
+        {/* Rate Modal */}
+        <Modal isOpen={showRateModal} onClose={() => setShowRateModal(false)}>
+            <ModalOverlay />
+            <ModalContent>
+            <ModalHeader>Rate Recipe</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <StarRatings
+                rating={rating}
+                starRatedColor="gold"
+                changeRating={changeRating}
+                numberOfStars={5}
+                name="recipeRating"
+                starDimension="30px"
+                starSpacing="5px"
+              />
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" onClick= {handleSubmitRate} >
+                Submit
+              </Button>
+              <Button variant="ghost" onClick={() => setShowRateModal(false)}>
+                Cancel
+                </Button>
+            </ModalFooter>
+            </ModalContent>
+        </Modal>
+
 
         {/* Comment Modal */}
         <Modal isOpen={showCommentModal} onClose={() => setShowCommentModal(false)}>

@@ -35,6 +35,23 @@ const recipeSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    ratings: [
+        {
+            user:{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+                required: true
+            },
+            rating: {
+                type: Number,
+                required: true
+            },
+        },
+    ],
+    AveRating: { 
+        type: Number, 
+        default: 0 
+    },
     comments: [
         {
             user: {
