@@ -64,11 +64,13 @@ const Recipes = () => {
     return isValidUrl(image) ? image : "https://i.pinimg.com/originals/88/4f/6b/884f6bbb75ed5e1446d3b6151b53b3cf.gif";
   };
 
-  const truncateText = (text, wordLimit) => {
+  const truncateText = (text, charLimit) => {
     if (!text) return ""; // Handle null or undefined text
-    const words = text.split(" ");
-    return words.length > wordLimit ? `${words.slice(0, wordLimit).join(" ")}...` : text;
+    return text.length > charLimit
+      ? `${text.slice(0, charLimit)}...` // Truncate by characters and add ellipsis
+      : text; // Return the full text if within the limit
   };
+  
   
 
   const capitalize = (str) => {
@@ -380,7 +382,7 @@ const Recipes = () => {
                 marginLeft="30px"
                 >
                 <Text fontSize={{ base: "2xl", md: "4xl" }} fontWeight="bold">
-                  {selectedFood?.title?.toUpperCase()}
+                  {truncateText(selectedFood?.title?.toUpperCase(), 12)}
                 </Text>
                 <Tooltip label="Add to favorites">
                 <IconButton
@@ -646,7 +648,7 @@ const Recipes = () => {
                       borderRadius="full"
                       boxSize="85px"
                     />
-                    <Text>{truncateText(food.title, 8)}</Text>
+                    <Text>{truncateText(food.title, 7)}</Text>
                   </VStack>
                 ))}
             </Flex>
