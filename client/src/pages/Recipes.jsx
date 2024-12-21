@@ -396,7 +396,7 @@ const Recipes = () => {
                 </Tooltip>
               </HStack>
 
-              {/* Rate IconButton */}
+              {/* Rate Icon*/}
               <HStack 
                 marginLeft="30px" 
                 alignItems="center" 
@@ -405,7 +405,7 @@ const Recipes = () => {
                 <Text fontSize={{ base: "sm", md: "md", lg: "lg" }} fontWeight="medium">
                   {selectedFood?.AveRating ? selectedFood.AveRating : "No Yet Rated"}
                 </Text>
-                <Tooltip label="Rate Recipe">
+                <Tooltip label=" Recipe Rating">
                   <Box
                     as="button"
                     size="25px"
@@ -414,7 +414,6 @@ const Recipes = () => {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
-                    onClick={() => handleIconClick("rate")}
                   >
                     <FaStar size="20px" color="gold" />
                   </Box>
