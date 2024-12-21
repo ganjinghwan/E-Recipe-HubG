@@ -38,7 +38,7 @@ export const verifyEmailSMTP = async (email) => {
     // Set a timeout for the connection attempt
     transporter.verify((error, success) => {
       if (error) {
-        console.error('Error connecting to mail server:', error);
+        console.log('Email validation expired', error)
         return false;
       }
       console.log('Successfully connected to the mail server');

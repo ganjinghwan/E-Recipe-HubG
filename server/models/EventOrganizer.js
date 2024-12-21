@@ -1,30 +1,30 @@
 import mongoose from "mongoose";
 
 const eventOrganizerSchema = new mongoose.Schema({
-    user_id: {
+    event_org_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
     },
     organizationName: {
         type: String,
-        required: true
+        required: false
     },
     organizationDescription: {
         type: String,
-        required: true
+        required: false
     },
     organizationContact: {
         type: String,
-        required: true
+        required: false
     },
     organizationLocation: {
         type: String,
-        required: true
+        required: false
     },
     events_list: {
         type: Array,
-        required: true
+        required: false
     }
 });
 

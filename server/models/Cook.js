@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const cookSchema = new mongoose.Schema({
-    user_id: {
+    cook_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
