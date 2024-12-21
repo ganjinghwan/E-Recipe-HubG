@@ -64,6 +64,13 @@ const Recipes = () => {
     return isValidUrl(image) ? image : "https://i.pinimg.com/originals/88/4f/6b/884f6bbb75ed5e1446d3b6151b53b3cf.gif";
   };
 
+  const truncateText = (text, wordLimit) => {
+    if (!text) return ""; // Handle null or undefined text
+    const words = text.split(" ");
+    return words.length > wordLimit ? `${words.slice(0, wordLimit).join(" ")}...` : text;
+  };
+  
+
   const capitalize = (str) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
   };
@@ -639,7 +646,7 @@ const Recipes = () => {
                       borderRadius="full"
                       boxSize="85px"
                     />
-                    <Text>{food.title}</Text>
+                    <Text>{truncateText(food.title, 8)}</Text>
                   </VStack>
                 ))}
             </Flex>
