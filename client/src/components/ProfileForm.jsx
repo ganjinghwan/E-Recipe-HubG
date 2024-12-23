@@ -209,16 +209,20 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     />
                   </Tooltip>
                   
-                  <Tooltip label="Update Role Information">
-                    <IconButton
-                      size={iconButtonSize}
-                      icon={<FaPencilAlt />}
-                      aria-label="Update Role Information"
-                      colorScheme="blue"
-                      mr={3}
-                      onClick={() => setActiveView("updateRole")}
-                    />
-                  </Tooltip>
+                  {user && (user.role === "cook" || user.role === "event-organizer") && (
+                   <>
+                    <Tooltip label="Update Role Information">
+                      <IconButton
+                        size={iconButtonSize}
+                        icon={<FaPencilAlt />}
+                        aria-label="Update Role Information"
+                        colorScheme="blue"
+                        mr={3}
+                        onClick={() => setActiveView("updateRole")}
+                      />
+                    </Tooltip>
+                   </> 
+                  )}
                 </Box>
 
                 {/* User Details Section */}
