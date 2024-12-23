@@ -148,7 +148,11 @@ export const addRate = async (req, res) => {
 
         const existingRating = recipe.ratings.find((r) => r.user.toString() === userId);
         if (existingRating) {
-          return res.status(400).json({ success: false, message: "You have already rated this recipe." });
+        return res.status(400).json({ 
+            success: false, 
+            message: `You have already rated this recipe with ${existingRating.rating} star(s).`,
+            previousRating: existingRating.rating, // Include the previous rating in the response
+         });
         }
 
         // Ensure that rating is a number and within a valid range (e.g., 1 to 5) 

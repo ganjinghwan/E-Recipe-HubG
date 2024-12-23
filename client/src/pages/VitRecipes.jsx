@@ -384,9 +384,14 @@ const VisitorPage = () => {
       setShowRateModal(false);
     } catch (error) {
       console.error("Failed to submit rating:", error);
+
+      const errorMessage = error.response?.previousRating
+      ? `${error.message} You previously rated this recipe with ${error.response.previousRating} star(s).`
+      : error.message || "An unexpected error occurred.";
+
       toast({
         title: "Failed to submit rating",
-        description: error.message || "An unexpected error occurred.",
+        description: errorMessage,
         status: "error",
         duration: 2000,
         isClosable: true,

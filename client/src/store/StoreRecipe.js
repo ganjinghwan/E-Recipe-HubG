@@ -117,7 +117,9 @@ export const useStoreRecipe = create((set) => ({
         });
       
         const data = await res.json();
-        if (!data.success) return { success: false, message: data.message };
+        if (!data.success) {
+            return { success: false, message: data.message, previousRating: data.previousRating };
+        }
       
         set((state) => ({
           recipes: state.recipes.map((recipe) =>
