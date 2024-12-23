@@ -1,4 +1,6 @@
 import {create} from 'zustand';
+import { useAuthStore } from "../store/authStore";
+
 
 export const useStoreRecipe = create((set) => ({
     recipes: [],
@@ -133,24 +135,58 @@ export const useStoreRecipe = create((set) => ({
 
 
       fetchFavoriteRecipes: async () => {
-        const res = await fetch("/api/cooks/favorites"); // Adjust the endpoint as needed
-        const data = await res.json();
+        const { user } = useAuthStore.getState(); // Get the current user from the auth store
+        let endpoint;
     
-        if (data.success) {
-            set({ favoriteRecipes: data.data });
-            return data; // Explicitly return the data for external usage
+        // Determine the endpoint based on the user's role
+        if (user?.role === "guest") {
+            endpoint = "/api/guests/Gfavorites";
+        } else if (user?.role === "cook") {
+            endpoint = "/api/cooks/favorites";
+        } else if (user?.role === "event-organizer") {
+            endpoint = "/api/eventorg/EOfavorites";
+        } else {
+            console.error("Unknown user role or user is not authenticated");
+            return { success: false, data: [] };
         }
-        return { success: false, data: [] }; // Return fallback if fetching fails
-      },
+    
+        try {
+            // Fetch data from the determined endpoint
+            const res = await fetch(endpoint);
+            const data = await res.json();
+    
+            if (data.success) {
+                set({ favoriteRecipes: data.data });
+                return data; // Explicitly return the data for external usage
+            }
+    
+            return { success: false, data: [] }; // Fallback for failure
+        } catch (error) {
+            console.error("Error fetching favorite recipes:", error);
+            return { success: false, data: [] }; // Fallback for network or other errors
+        }
+    },
+    
     
 
     toggleFavorite: async (rid) => {
+        const { user } = useAuthStore.getState(); // Get the current user from the auth store
+        if (!user) {
+            console.error("User not authenticated");
+            return { success: false, message: "User not authenticated" };
+        }
+
+        const { role: userRole } = user; // Extract user role and ID
+
+        console.log("RID passed to toggleFavorite:", rid);
+        console.log("User Role:", userRole);
+
         const res = await fetch("/api/recipesinfo/togglefav", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ rid }),
+            body: JSON.stringify({ rid, userRole }),
         });
 
         const data = await res.json();

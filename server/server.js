@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
 import recipeRoutes from './routes/recipes.js';
 import authRoutes from './routes/auth.js';
+import guestRoutes from './routes/guest_rt.js';
 import cookRoutes from './routes/cook_rt.js';
 import organizerRoutes from './routes/eventOrg_rt.js';
 import cookieParser from 'cookie-parser';
@@ -21,6 +22,7 @@ app.use("/api/recipesinfo", recipeRoutes);
 app.use("/api/auth", authRoutes);
 
 //Roles
+app.use("/api/guests", guestRoutes);
 app.use("/api/cooks", cookRoutes);
 app.use("/api/eventorg", organizerRoutes);
 

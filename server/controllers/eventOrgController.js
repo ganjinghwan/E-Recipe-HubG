@@ -109,3 +109,23 @@ export const updateEventOrganizerInformation = async (req, res) => {
         res.status(500).json({ success: false, message: [error.message] });
     }
 };
+
+
+
+    export const getEOFavoriteRecipes = async (req, res) => {    
+        const userId = req.userId;
+
+    try {
+        const eventOrg = await EventOrganizer.findOne({ event_org_id: userId }).populate('favouriteRecipes');
+        
+        if (!eventOrg) {
+            return res.status(404).json({ success: false, message: "EventOrganizer not found" });
+        }
+
+        // `favouriteRecipes` is already populated with full recipe details
+        res.status(200).json({ success: true, data: eventOrg.favouriteRecipes });
+    } catch (error) {
+        console.error("Error fetching favorite recipes:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};

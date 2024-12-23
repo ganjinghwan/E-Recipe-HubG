@@ -61,6 +61,7 @@ const VisitorPage = () => {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [favoriteFoods, setFavoriteFoods] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const { fetchFavoriteRecipes, favoriteRecipes, toggleFavorite } = useStoreRecipe();
   const {fetchAllRecipes, recipes, addComment, addRate, fetchRecipeById} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -170,23 +171,56 @@ const VisitorPage = () => {
       }, 1000);
     }
   };
+
+  /* ******************************************Favourite Recipes****************************************** */
+
+  useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetchFavoriteRecipes();
   
+          if (response.success) {
+            // Map the favorite recipes to their IDs and update `setFavoriteFoods`
+            setFavoriteFoods(response.data.map((recipe) => recipe._id));
+          } else {
+            console.error("Failed to fetch favorite recipes:", response.message);
+          }
+        } catch (error) {
+          console.error("Error fetching favorite recipes:", error);
+        }
+      };
+  
+      fetchData();
+    }, [fetchFavoriteRecipes, setFavoriteFoods]);
 
 
-  const handleToggleFavorite = (foodId) => {
-    const isFavorite = favoriteFoods.includes(foodId);
-    setFavoriteFoods((prevFavorites) =>
-      isFavorite
-        ? prevFavorites.filter((id) => id !== foodId)
-        : [...prevFavorites, foodId]
-    );
-
-    toast({
-      title: isFavorite ? "Unsaved" : "Saved as Favourite",
-      status: isFavorite ? "warning" : "success",
-      duration: 2000,
-      isClosable: true,
-    });
+    const handleToggleFavorite = async (foodId) => {
+      const isFavorite = favoriteFoods.includes(foodId);
+      //console.log ("********foodID pass to handleToggleFavorite**********",foodId);
+      const { success, message } = await toggleFavorite(foodId);
+  
+      if (success) {
+          setFavoriteFoods((prevFavorites) =>
+              isFavorite
+                  ? prevFavorites.filter((id) => id !== foodId) // Remove from favorites
+                  : [...prevFavorites, foodId] // Add to favorites
+          );
+  
+          toast({
+              title: message,
+              status: isFavorite ? "warning" : "success",
+              duration: 2000,
+              isClosable: true,
+          });
+      } else {
+          toast({
+              title: "Failed to update favorite",
+              status: "error",
+              duration: 2000,
+              isClosable: true,
+          });
+      }
+      setSelectedFood(selectedFood);
   };
 
   const handleScrollLeft = () => {
@@ -516,8 +550,8 @@ const VisitorPage = () => {
                   marginLeft= "4px"
                   size="sm"
                   icon={<FaHeart/>}
-                  onClick={() => handleToggleFavorite(selectedFood?.id)}
-                  colorScheme={favoriteFoods.includes(selectedFood?.id) ? "red" : "gray"}
+                  onClick={() => handleToggleFavorite(selectedFood?._id)}
+                  colorScheme={favoriteFoods.includes(selectedFood?._id) ? "red" : "gray"}
                 />
                 </Tooltip>
               </HStack>

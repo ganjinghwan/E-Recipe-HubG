@@ -6,10 +6,10 @@ const guestSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    favouriteRecipes: {
-        type: Array,
-        required: false
-    }
+    favouriteRecipes: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Recipe",
+        }],
     
 });
 

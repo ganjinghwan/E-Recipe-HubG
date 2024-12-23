@@ -26,6 +26,10 @@ const eventOrganizerSchema = new mongoose.Schema({
         type: Array,
         required: false
     },
+    favouriteRecipes: [{
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Recipe",
+            }],
     updateResetTimeAt: Date,
 }, {timestamps: true});
 
