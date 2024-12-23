@@ -4,10 +4,28 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const createCookInformation = async (req, res) => {
-    const { specialty, experience } = req.body;
-
+export const getCookInformation = async (req, res) => {
     try {
+        const cookID = await User.findById(req.user._id);
+        const cookInfo = await Cook.findOne({ cook_id: cookID._id });
+
+        if (!cookInfo) {
+            return res.status(404).json({ success: false, message: ["Cook information not found"] });
+        }
+
+        res.json({ cook: cookInfo });
+    } catch (error) {
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+}
+export const updateCookInformation = async (req, res) => {
+    const { specialty, experience } = req.body;
+    
+    try {
+        if (!specialty && !experience) {
+            return res.status(400).json({ success: false, message: ["Specialty and experience are required"] });
+        }
+
         const cookID = await User.findById(req.user._id);
 
         if (!cookID) {
@@ -20,27 +38,62 @@ export const createCookInformation = async (req, res) => {
             cookError.push("User is not a cook");
         }
 
+        const cookInfo = await Cook.findOne({ cook_id: cookID._id });
+
+        if (cookInfo.updateResetTimeAt && cookInfo.updateResetTimeAt > Date.now()) {
+            const updateResetTime = new Date(cookInfo.updateResetTimeAt).toLocaleString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            });
+
+            return res.status(400).json({ success: false, message: ["Cook information update is on cooldown. Please try again later. You can reset at " + updateResetTime] });
+        }
+
+        if (!cookInfo) {
+            cookError.push("Cook information not found");
+        } 
+        
+        if(specialty) {
+            if (specialty === cookInfo.specialty) {
+                cookError.push("Specialty is the same as before. Please put a new one.");
+            } else {
+                cookInfo.specialty = specialty;
+            }
+        }
+
+        if(experience) {
+            if (Number(experience) === cookInfo.experience) {
+                cookError.push("Years of experience is the same as before. Please put a new one.");
+            } else if (experience < 0) {
+                cookError.push("Years of experience cannot be negative.");
+            } else {
+                cookInfo.experience = experience;
+            }
+        }
+
+        // Role update cooldown time
+        cookInfo.updateResetTimeAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+
         if (cookError.length > 0) {
             return res.status(400).json({ success: false, message: cookError });
         }
-
-        const cookInfo = new Cook({
-            user_id: cookID._id,   
-            specialty,
-            experience,
-        });
-
+        
         await cookInfo.save();
         
         res.status(200).json({
             success: true,
-            message: "Cook information created successfully",
+            message: "Cook information updated successfully",
             cookInfo: {
                 ...cookInfo._doc,
             },
         });
     } catch (error) {
-        console.log("Failed to create cook information", error.message);
+        console.log("Failed to update cook information", error.message);
         res.status(500).json({ success: false, message: [error.message] });
     }
 };

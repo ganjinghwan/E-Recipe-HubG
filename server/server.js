@@ -22,7 +22,7 @@ app.use("/api/auth", authRoutes);
 
 //Roles
 app.use("/api/cooks", cookRoutes);
-app.use("/api/eventOrganizer", organizerRoutes);
+app.use("/api/eventorg", organizerRoutes);
 
 
 // console.log(process.env.MONGO_URI);

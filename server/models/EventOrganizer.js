@@ -25,7 +25,8 @@ const eventOrganizerSchema = new mongoose.Schema({
     events_list: {
         type: Array,
         required: false
-    }
-});
+    },
+    updateResetTimeAt: Date,
+}, {timestamps: true});
 
 export const EventOrganizer = mongoose.model("EventOrganizer", eventOrganizerSchema);

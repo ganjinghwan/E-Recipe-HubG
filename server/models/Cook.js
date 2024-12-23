@@ -17,7 +17,8 @@ const cookSchema = new mongoose.Schema({
     rating: {
         type: Number,
         required: false
-    }
-});
+    },
+    updateResetTimeAt: Date,
+}, {timestamps: true});
 
 export const Cook = mongoose.model("Cook", cookSchema);
