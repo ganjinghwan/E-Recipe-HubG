@@ -335,8 +335,11 @@ const VisitorPage = () => {
     }
   }, [showRateModal]);
 
+
   useEffect(() => {
     const fetchRecipeData = async () => {
+      if (!selectedFood) return; // Ensure a recipe is selected before fetching data
+  
       try {
         const response = await fetchRecipeById(selectedFood._id); // Fetch full recipe data, including updated AveRating
         if (response.success) {
@@ -347,10 +350,16 @@ const VisitorPage = () => {
       }
     };
   
-    if (showRateModal === false) {
-      fetchRecipeData(); // Fetch updated data when the modal closes
-    }
-  }, [showRateModal]);
+    // Set an interval to fetch data every 10 seconds
+    const interval = setInterval(() => {
+      fetchRecipeData();
+    }, 10000); // 10 seconds
+  
+    // Cleanup: clear the interval when the component unmounts or `selectedFood` changes
+    return () => clearInterval(interval);
+  }, [selectedFood, fetchRecipeById]);
+  
+  
   
 
   const handleSubmitRate = async () => {

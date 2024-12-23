@@ -17,7 +17,11 @@ const cookSchema = new mongoose.Schema({
     rating: {
         type: Number,
         required: false
-    }
+    },
+    favouriteRecipes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Recipe",
+    }],
 });
 
 export const Cook = mongoose.model("Cook", cookSchema);

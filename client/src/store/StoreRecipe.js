@@ -2,6 +2,7 @@ import {create} from 'zustand';
 
 export const useStoreRecipe = create((set) => ({
     recipes: [],
+    favoriteRecipes:[],
     setRecipes: (recipes) => set({ recipes }),
     createRecipe: async (newRecipe) =>{
         console.log("Recipe being sent:", newRecipe);
@@ -129,6 +130,45 @@ export const useStoreRecipe = create((set) => ({
       
         return { success: true, message: "Rating added successfully." };
       },
+
+
+      fetchFavoriteRecipes: async () => {
+        const res = await fetch("/api/cooks/favorites"); // Adjust the endpoint as needed
+        const data = await res.json();
+    
+        if (data.success) {
+            set({ favoriteRecipes: data.data });
+            return data; // Explicitly return the data for external usage
+        }
+        return { success: false, data: [] }; // Return fallback if fetching fails
+      },
+    
+
+    toggleFavorite: async (rid) => {
+        const res = await fetch("/api/recipesinfo/togglefav", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ rid }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            set((state) => ({
+                favoriteRecipes: data.favouriteRecipes,
+                recipes: state.recipes.map((recipe) =>
+                    recipe._id === rid
+                        ? { ...recipe, isFavorite: data.favouriteRecipes.includes(rid) }
+                        : recipe
+                ),
+            }));
+        }
+    
+        return { success: data.success, message: data.message };
+    },
+    
       
 
 }));

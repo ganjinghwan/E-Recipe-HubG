@@ -247,7 +247,7 @@ const Navbar = () => {
 
 
         {/* Favorites Link */}
-        <ChakraLink as={RouterLink} to="/favorites" fontSize="lg" _hover={{ color: "orange.300" }}>
+        <ChakraLink as={RouterLink} to="/favourite" fontSize="lg" _hover={{ color: "orange.300" }}>
           <i className="fas fa-heart"></i>
         </ChakraLink>
 

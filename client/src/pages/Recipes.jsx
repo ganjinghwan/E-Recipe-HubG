@@ -52,7 +52,8 @@ const Recipes = () => {
     image: "",
     video: "",
   });
-  const {createRecipe, deleteRecipes, updateRecipes} = useStoreRecipe();
+  const {createRecipe, deleteRecipes, updateRecipes, fetchRecipeById, toggleFavorite} = useStoreRecipe();
+  const { fetchFavoriteRecipes, favoriteRecipes } = useStoreRecipe();
   const {fetchRecipes, recipes} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -99,6 +100,28 @@ const Recipes = () => {
     }
   };
   
+   useEffect(() => {
+      const fetchRecipeData = async () => {
+        if (!selectedFood) return; // Ensure a recipe is selected before fetching data
+    
+        try {
+          const response = await fetchRecipeById(selectedFood._id); // Fetch full recipe data, including updated AveRating
+          if (response.success) {
+            setSelectedFood(response.data); // Sync state with the latest data from the backend
+          }
+        } catch (error) {
+          console.error("Failed to fetch updated recipe data:", error);
+        }
+      };
+    
+      // Set an interval to fetch data every 10 seconds
+      const interval = setInterval(() => {
+        fetchRecipeData();
+      }, 10000); // 10 seconds
+    
+      // Cleanup: clear the interval when the component unmounts or `selectedFood` changes
+      return () => clearInterval(interval);
+    }, [selectedFood, fetchRecipeById]);
   
 
   useEffect(() => {
@@ -106,11 +129,6 @@ const Recipes = () => {
       setSelectedCategory("all"); // Set category to "All" after fetching recipes
     });
   }, [fetchRecipes]);
-  
-
-  // useEffect(() => {
-  //   fetchRecipes();
-  // }, [fetchRecipes]);
 
 
   useEffect(() => {
@@ -154,24 +172,56 @@ const Recipes = () => {
       }, 1000);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetchFavoriteRecipes();
+
+        if (response.success) {
+          // Map the favorite recipes to their IDs and update `setFavoriteFoods`
+          setFavoriteFoods(response.data.map((recipe) => recipe._id));
+        } else {
+          console.error("Failed to fetch favorite recipes:", response.message);
+        }
+      } catch (error) {
+        console.error("Error fetching favorite recipes:", error);
+      }
+    };
+
+    fetchData();
+  }, [fetchFavoriteRecipes, setFavoriteFoods]);
   
 
-
-  const handleToggleFavorite = (foodId) => {
+  const handleToggleFavorite = async (foodId) => {
     const isFavorite = favoriteFoods.includes(foodId);
-    setFavoriteFoods((prevFavorites) =>
-      isFavorite
-        ? prevFavorites.filter((id) => id !== foodId)
-        : [...prevFavorites, foodId]
-    );
 
-    toast({
-      title: isFavorite ? "Unsaved" : "Saved as Favourite",
-      status: isFavorite ? "warning" : "success",
-      duration: 2000,
-      isClosable: true,
-    });
-  };
+    const { success, message } = await toggleFavorite(foodId);
+
+    if (success) {
+        setFavoriteFoods((prevFavorites) =>
+            isFavorite
+                ? prevFavorites.filter((id) => id !== foodId) // Remove from favorites
+                : [...prevFavorites, foodId] // Add to favorites
+        );
+
+        toast({
+            title: message,
+            status: isFavorite ? "warning" : "success",
+            duration: 2000,
+            isClosable: true,
+        });
+    } else {
+        toast({
+            title: "Failed to update favorite",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+        });
+    }
+    setSelectedFood(selectedFood);
+};
+
 
   const handleScrollLeft = () => {
     setCarouselIndex((prevIndex) => Math.max(prevIndex - 1, 0));
@@ -390,8 +440,8 @@ const Recipes = () => {
                   marginLeft= "4px"
                   size="sm"
                   icon={<FaHeart/>}
-                  onClick={() => handleToggleFavorite(selectedFood?.id)}
-                  colorScheme={favoriteFoods.includes(selectedFood?.id) ? "red" : "gray"}
+                  onClick={() => handleToggleFavorite(selectedFood?._id)}
+                  colorScheme={favoriteFoods.includes(selectedFood?._id) ? "red" : "gray"}
                 />
                 </Tooltip>
               </HStack>

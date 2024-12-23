@@ -5,6 +5,7 @@ import Recipes from './pages/Recipes';
 import About from './pages/About';
 import Navbar from './components/Navbar';
 import Visitors from './pages/VitRecipes';
+import Favourite from './pages/Favourite';
 import EmailVerificationPage from './pages/EmailVerificationPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -60,6 +61,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <Visitors />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/favourite"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <Favourite />
             </ProtectedRoute>
           }
         />

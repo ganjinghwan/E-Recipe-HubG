@@ -1,4 +1,5 @@
 import Recipe from '../models/Recipe.js';
+import {Cook} from '../models/Cook.js';
 import mongoose from 'mongoose';
 
 export const getRecipes = async (req, res) => {
@@ -183,4 +184,48 @@ export const addRate = async (req, res) => {
           console.error("Error adding rating:", error);
           return res.status(500).json({ success: false, message: "Internal Server Error." });
         }
+};
+
+
+export const toggleFavorite = async (req, res) => {
+    const { rid } = req.body; // Recipe ID to toggle
+    const userId = req.userId; // Authenticated user ID
+
+    //console.log("Toggling favorite for recipe ID:", rid);
+    //console.log("User ID:", userId);
+
+    if (!mongoose.Types.ObjectId.isValid(rid)) {
+        console.log ("********Invalid Favourite Recipe ID**********",rid);
+        return res.status(400).json({ success: false, message: "Invalid Recipe ID" });
+    }
+
+    try {
+        const cook = await Cook.findOne({ cook_id: userId });
+        //console.log("CookIDDDDDDD:", cook);
+
+        if (!cook) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        const isFavorite = cook.favouriteRecipes.includes(rid);
+
+        if (isFavorite) {
+            // Remove from favorites
+            cook.favouriteRecipes = cook.favouriteRecipes.filter((favID) => favID.toString() !== rid);
+        } else {
+            // Add to favorites
+            cook.favouriteRecipes.push(rid);
+        }
+
+        await cook.save();
+
+        res.status(200).json({
+            success: true,
+            message: isFavorite ? "Removed from favorites" : "Added to favorites",
+            favouriteRecipes: cook.favouriteRecipes,
+        });
+    } catch (error) {
+        console.error("Error toggling favorite:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
 };

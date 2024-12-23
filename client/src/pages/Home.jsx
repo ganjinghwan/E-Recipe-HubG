@@ -7,7 +7,6 @@ import {
   Heading,
   Text,
   Button,
-  Link,
   useBreakpointValue,
 } from '@chakra-ui/react';
 import homeBackground from '../pic/dine.jpg';
