@@ -67,7 +67,7 @@ const recipeSchema = new mongoose.Schema({
                 default: Date.now
             }
         }
-    ]
+    ],
 },{
     timestamps: true
 });
