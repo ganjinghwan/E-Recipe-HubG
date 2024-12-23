@@ -1,8 +1,5 @@
 import { User } from "../models/User.js";
 import { EventOrganizer } from "../models/EventOrganizer.js";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export const getEventOrganizerInformation = async (req, res) => {
     try {

@@ -1,8 +1,5 @@
 import { User } from "../models/User.js";
 import { Cook } from "../models/Cook.js";
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export const getCookInformation = async (req, res) => {
     try {

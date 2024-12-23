@@ -3,13 +3,10 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail, sendUpdateConfirmationEmail } from "../nodemailer/emailService.js";
-import dotenv from "dotenv";
 import { verifyEmailSMTP } from "../nodemailer/emailVerify.js";
 import { Cook } from "../models/Cook.js";
 import { EventOrganizer } from "../models/EventOrganizer.js";
 import { Guest } from "../models/Guest.js";
-
-dotenv.config();
 
 
 export const getAllCook = async (req, res) => {
