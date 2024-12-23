@@ -125,7 +125,7 @@ export const useAuthStore = create((set) => ({
             const response = await axios.post(`/api/auth/update-profile`, { name, password, phone });
             set({ user: response.data.user, isLoading: false });
         } catch (error) {
-            set({ isloading: false });
+            set({ isLoading: false });
             const errorMessage = error.response?.data?.message || [error.message];
             throw { response: { data: { messages: errorMessage } } };
         }

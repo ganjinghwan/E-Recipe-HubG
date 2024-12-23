@@ -415,6 +415,27 @@ export const verifyUpdate = async (req, res) => {
 
         await user.save();
 
+        /*if (user.role === "cook") {
+            const cookInfo = await Cook.findOne({ cook_id: user._id });
+
+            if (!cookInfo) {
+                return res.status(400).json({ success: false, message: 'Cook information not found' });
+            }
+
+            if (cookInfo.tempSpecialty) {
+                cookInfo.specialty = cookInfo.tempSpecialty;
+            }
+
+            if (cookInfo.tempExperience) {
+                cookInfo.experience = cookInfo.tempExperience;
+            }
+
+            cookInfo.tempSpecialty = undefined;
+            cookInfo.tempExperience = undefined;
+
+            await cookInfo.save();
+        }*/
+
         res.status(200).json({
             success: true,
             message: 'Profile updated successfully',

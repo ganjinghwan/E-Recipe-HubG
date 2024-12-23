@@ -20,7 +20,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogContent,
-    AlertDialogOverlay 
+    AlertDialogOverlay, 
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
@@ -40,7 +40,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
 
     const navigate = useNavigate();
     const toast = useToast();
-    const { user, updateProfile } = useAuthStore();
+    const { user, updateProfile, isLoading } = useAuthStore();
 
     if (!user) {
         return null;
@@ -102,9 +102,9 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
     };
 
     const handleSwitchToProfile = () => {
-        clearForm();
+        clearForm();       
         if (switchToProfile) {
-            switchToProfile();
+          switchToProfile();
         }
     };
 
@@ -148,7 +148,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                   <FormLabel>New Username</FormLabel>
                   <Input
                     type="text"
-                    placeholder="Please enter your new username"
+                    placeholder="Enter your new username here"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
                   />
@@ -158,7 +158,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                   <FormLabel>New Phone Number</FormLabel>
                   <Input
                     type="number"
-                    placeholder="Please enter your new phone number"
+                    placeholder="Enter your new phone number here"
                     value={newPhoneNumber}
                     onChange={(e) => setNewPhoneNumber(e.target.value)}
                     onWheel={(e) => e.target.blur()} //Prevent scrolling
@@ -169,7 +169,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                   <FormLabel>New Password</FormLabel>
                   <Input
                     type="password"
-                    placeholder="Please enter your new password"
+                    placeholder="Enter your new password here"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                   />
@@ -192,58 +192,21 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                     <FormErrorMessage>{updateError.newConfirmPassword}</FormErrorMessage>
                   )}
                 </FormControl>
-
-                <Text
-                  fontSize="2xl"
-                  fontWeight="bold"
-                  textAlign="left"
-                  mt="8"
-                  mb="2"
-                  color={"blue.500"}
-                >
-                  Role Info
-                </Text>
-
-                <Text 
-                  mb="2"
-                  fontSize={"lg"}
-                  fontWeight={"bold"}
-                  color={"purple.500"}
-                  textDecoration={"underline"}
-                >
-                  Your role is {user.role}
-                </Text>
-
-                {user && user.role === "cook" && (
-                  <>
-                    <FormControl mb="4">
-                      <FormLabel>Specialty</FormLabel>
-                      <Input
-                        type="text"
-                        placeholder="Please enter your specialty"
-                      />
-                    </FormControl>
-
-                    <FormControl mb="4">
-                      <FormLabel>Years of Experience</FormLabel>
-                      <Input
-                        type="number"
-                        placeholder="Please enter your years of experience"
-                        onWheel={(e) => e.target.blur()} //Prevent scrolling
-                      />
-                    </FormControl>
-                  </>
-                )}
               </Box>
             </ModalBody>
       
             <ModalFooter>
               <Box display="flex" justifyContent="space-between" width="100%">
-                <Button colorScheme="blue" onClick={() => setIsAlertOpen(true)}>
+                <Button 
+                  colorScheme="blue" 
+                  onClick={() => setIsAlertOpen(true)}
+                  isLoading={isLoading}
+                  loadingText="Updating..."
+                >
                   Update
                 </Button>
                 <Button colorScheme="red" onClick={handleSwitchToProfile}>
-                  Back
+                  Cancel
                 </Button>
               </Box>
             </ModalFooter>

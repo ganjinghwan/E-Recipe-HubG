@@ -172,8 +172,8 @@ const UpdateVerificationPage = () => {
                 <Button
                   type="submit"
                   isLoading={isLoading}
-                  loadingText="Verifying"
-                  disabled={updateCode.some((digit) => !digit)}
+                  loadingText="Verifying..."
+                  disabled={isLoading || updateCode.some((digit) => !digit)}
                   w="full"
                   bgGradient="linear(to-r, green.400, green.600)"
                   color="white"

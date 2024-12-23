@@ -22,6 +22,8 @@ const cookSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Recipe",
     }],
-});
+    updateResetTimeAt: Date,
+}, {timestamps: true});
+
 
 export const Cook = mongoose.model("Cook", cookSchema);

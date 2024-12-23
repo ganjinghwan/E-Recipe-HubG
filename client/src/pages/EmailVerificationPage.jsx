@@ -166,8 +166,8 @@ const EmailVerificationPage = () => {
             <Button
               type="submit"
               isLoading={isLoading}
-              loadingText="Verifying"
-              disabled={code.some((digit) => !digit)}
+              loadingText="Verifying..."
+              disabled={isLoading || code.some((digit) => !digit)}
               w="full"
               bgGradient="linear(to-r, green.400, green.600)"
               color="white"

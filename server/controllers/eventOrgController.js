@@ -4,60 +4,111 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const createOrgnizationInformation = async (req, res) => {
-    const { orgName, orgDescription, orgContact, orgLocation } = req.body;
-
+export const getEventOrganizerInformation = async (req, res) => {
     try {
         const eventOrganizerID = await User.findById(req.user._id);
+        const eventOrganizerInfo = await EventOrganizer.findOne({ event_org_id: eventOrganizerID._id });
 
-        if (!eventOrganizerID) {
+        if (!eventOrganizerInfo) {
+            return res.status(404).json({ success: false, message: ["Event organization information not found"] });
+        }
+
+        res.json({ eventOrganizer: eventOrganizerInfo });
+    } catch (error) {
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+}
+
+export const updateEventOrganizerInformation = async (req, res) => {
+    const { orgName, orgDescription, orgContact, orgLocation } = req.body;
+
+    try { 
+        if (!orgName && !orgDescription && !orgContact && !orgLocation) {
+            return res.status(400).json({ success: false, message: ["Please provide at least one field to update"] });
+        }
+
+        const eventOrgID = await User.findById(req.user._id);
+
+        if (!eventOrgID) {
             return res.status(404).json({ success: false, message: ["Event organization not found"] });
         }
 
         const eventOrgError = [];
 
-        if (eventOrganizerID.role !== "eventOrganizer") {
+        if (eventOrgID.role !== "event-organizer") {
             eventOrgError.push("User is not an event organizer");
         }
 
-        const eventOrgNameRepeat = await EventOrganizer.findOne({ organizationName: orgName });
-        console.log("Repeated event organization name", eventOrgNameRepeat);
+        const eventOrgInfo = await EventOrganizer.findOne({ event_org_id: eventOrgID._id });
 
-        const eventOrgContactRepeat = await EventOrganizer.findOne({ contactNumber: orgContact });
-        console.log("Repeated event organization contact", eventOrgContactRepeat);
+        if (eventOrgInfo.updateResetTimeAt && eventOrgInfo.updateResetTimeAt > Date.now()) {
+            const updateResetTime = new Date(eventOrgInfo.updateResetTimeAt).toLocaleString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            });
 
-        if (eventOrgNameRepeat) {
-            eventOrgError.push("Event organization name already exists. Please registered another name.");
+            return res.status(400).json({ success: false, message: ["Event organization information update is on cooldown. Please try again later. You can reset at " + updateResetTime] });
         }
 
-        if (eventOrgContactRepeat) {
-            eventOrgError.push("Repeated contact number.");
+        if (!eventOrgInfo) {
+            eventOrgError.push("Event organization information not found");
         }
+
+        if (orgName) {
+            if (orgName === eventOrgInfo.organizationName) {
+                eventOrgError.push("Same organization name, please choose a different one");
+            } else {
+                eventOrgInfo.organizationName = orgName;
+            }
+        }
+
+        if (orgDescription) {
+            if (orgDescription === eventOrgInfo.organizationDescription) {
+                eventOrgError.push("Same organization description, please put a new one");
+            } else {
+                eventOrgInfo.organizationDescription = orgDescription;
+            }
+        }
+
+        if (orgContact) {
+            if (orgContact === eventOrgInfo.organizationContact) {
+                eventOrgError.push("Same organization contact, please put a new one");
+            } else {
+                eventOrgInfo.organizationContact = orgContact;
+            }
+        }
+
+        if (orgLocation) {
+            if (orgLocation === eventOrgInfo.organizationLocation) {
+                eventOrgError.push("Same organization location, please put a new one");
+            } else {
+                eventOrgInfo.organizationLocation = orgLocation;
+            }
+        }
+
+        //Role update cooldown time
+        eventOrgInfo.updateResetTimeAt = Date.now() + 5 * 60 * 1000; // 5 minutes
 
         if (eventOrgError.length > 0) {
             return res.status(400).json({ success: false, message: eventOrgError });
         }
-        
-        const eventOrgInfo = new EventOrganizer({
-            user_id: eventOrganizerID._id,
-            organizationName: orgName,
-            organizationDescription: orgDescription,
-            organizationContact: orgContact,
-            organizationLocation: orgLocation,
-            events_list: [],
-        });
+
         await eventOrgInfo.save();
 
         res.status(200).json({
             success: true,
-            message: "Event organization information created successfully",
+            message: "Event organization information updated successfully",
             eventOrgInfo: {
                 ...eventOrgInfo._doc,
             },
-        });
-
+        })
     } catch (error) {
-        console.log("Failed to create event organization information", error.message);
+        console.log("Failed to update event organization information", error.message);
         res.status(500).json({ success: false, message: [error.message] });
     }
 };
