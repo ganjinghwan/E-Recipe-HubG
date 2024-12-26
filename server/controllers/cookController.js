@@ -15,6 +15,45 @@ export const getCookInformation = async (req, res) => {
         res.status(500).json({ success: false, message: [error.message] });
     }
 }
+
+export const newCookInformation = async (req, res) => {
+    const { specialty, experience } = req.body;
+
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: ["User not found"] });
+        }
+
+        if (experience) {
+            if (Number(experience) < 0) {
+                return res.status(400).json({ success: false, message: ["Years of experience cannot be negative"] });
+            }
+        }
+
+        const newCookInfo = new Cook({
+            cook_id: user._id,
+            specialty,
+            experience,
+            rating: 0,
+        });
+
+        await newCookInfo.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Cook Information Created Successfully",
+            newCookInfo: {
+                ...newCookInfo._doc,
+            }
+        });
+    } catch (error) {
+        console.log("Failed to create cook information", error.message);
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+}
+
 export const updateCookInformation = async (req, res) => {
     const { specialty, experience } = req.body;
     

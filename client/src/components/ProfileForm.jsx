@@ -16,6 +16,7 @@ import {
   Tooltip,
   useBreakpointValue,
   IconButton,
+  Stack,
 } from "@chakra-ui/react";
 import { useAuthStore } from "../store/authStore";
 import { useCookStore } from "../store/cookStore";
@@ -187,42 +188,44 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     />
                   </Box>
                   
-                  <Tooltip label="Delete Account">
-                    <IconButton
-                      size={iconButtonSize}
-                      icon={<FaTrash />}
-                      aria-label="Delete Account"
-                      colorScheme="red"
-                      ml={3}
-                      mr={3}
-                    />
-                  </Tooltip>
-
-                  <Tooltip label="Update Profile">
-                    <IconButton
-                      size={iconButtonSize}
-                      icon={<FaEdit />}
-                      aria-label="Update Profile"
-                      colorScheme="green"
-                      onClick={() => setActiveView("updateProfile")}
-                      mr={3}
-                    />
-                  </Tooltip>
-                  
-                  {user && (user.role === "cook" || user.role === "event-organizer") && (
-                   <>
-                    <Tooltip label="Update Role Information">
+                  <Stack mt={4} direction={"row"} justify={"center"} spacing={4}>
+                    <Tooltip label="Delete Account">
                       <IconButton
                         size={iconButtonSize}
-                        icon={<FaPencilAlt />}
-                        aria-label="Update Role Information"
-                        colorScheme="blue"
+                        icon={<FaTrash />}
+                        aria-label="Delete Account"
+                        colorScheme="red"
+                        ml={3}
                         mr={3}
-                        onClick={() => setActiveView("updateRole")}
                       />
                     </Tooltip>
-                   </> 
-                  )}
+
+                    <Tooltip label="Update Profile">
+                      <IconButton
+                        size={iconButtonSize}
+                        icon={<FaEdit />}
+                        aria-label="Update Profile"
+                        colorScheme="green"
+                        onClick={() => setActiveView("updateProfile")}
+                        mr={3}
+                      />
+                    </Tooltip>
+                    
+                    {user && (user.role === "cook" || user.role === "event-organizer") && (
+                    <>
+                      <Tooltip label="Update Role Information">
+                        <IconButton
+                          size={iconButtonSize}
+                          icon={<FaPencilAlt />}
+                          aria-label="Update Role Information"
+                          colorScheme="blue"
+                          mr={3}
+                          onClick={() => setActiveView("updateRole")}
+                        />
+                      </Tooltip>
+                    </> 
+                    )}
+                  </Stack>
                 </Box>
 
                 {/* User Details Section */}

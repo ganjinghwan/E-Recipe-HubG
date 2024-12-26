@@ -5,7 +5,6 @@ import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js
 import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail, sendUpdateConfirmationEmail } from "../nodemailer/emailService.js";
 import { verifyEmailSMTP } from "../nodemailer/emailVerify.js";
 import { Cook } from "../models/Cook.js";
-import { EventOrganizer } from "../models/EventOrganizer.js";
 import { Guest } from "../models/Guest.js";
 
 
@@ -107,28 +106,7 @@ export const verifyEmail = async (req, res) => {
         user.verificationToken = undefined;
         user.verificationTokenExpiresAt = undefined;
     
-    
-        if (user.role === "cook") {
-            const cookInfo = new Cook({
-                cook_id: user._id,
-                specialty: "",
-                experience: "",
-                rating: "",
-            })
-
-            await cookInfo.save();
-        } else if (user.role === "event-organizer") {
-            const eventOrganizerInfo = new EventOrganizer({
-                event_org_id: user._id,
-                organizationName: "",
-                organizationDescription: "",
-                organizationContact: "",
-                organizationLocation: "",
-                events_list: [],
-            })
-
-            await eventOrganizerInfo.save();
-        } else if (user.role === "guest") {
+        if (user.role === "guest") {
             const guestInfo = new Guest({
                 guest_id: user._id,
                 favouriteRecipes: [],
@@ -136,7 +114,6 @@ export const verifyEmail = async (req, res) => {
 
             await guestInfo.save();
         }
-
 
         //jsonwebtoken
         generateTokenAndSetCookie(res, user._id);

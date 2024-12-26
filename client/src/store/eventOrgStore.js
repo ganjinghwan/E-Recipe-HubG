@@ -22,6 +22,22 @@ export const useEventOrgStore = create((set) => ({
         }
     },
 
+    newEventOrganizerInfo: async (orgName, orgDescription, orgContact, orgLocation) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.post('/api/eventorg/new-EventOrg-information', { orgName, orgDescription, orgContact, orgLocation });
+            set({
+                eventOrganizer: response.data.eventOrganizer,
+                error: null,
+                isLoading: false
+            });
+        } catch (error) {
+            set({ isLoading: false });
+            const errorMessage = error.response?.data?.message || [error.message];
+            throw { response: { data: { messages: errorMessage } } };
+        }
+    },
+
     updateEventOrganizerInfo: async (orgName, orgDescription, orgContact, orgLocation) => {
         set({ isLoading: true, error: null });
         try {

@@ -21,6 +21,22 @@ export const useCookStore = create((set) => ({
         }
     },
 
+    newCookInfo: async (specialty, experience) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.post("api/cooks/new-cook-information", { specialty, experience });
+            set({ 
+                cook: response.data.cook,
+                error: null, 
+                isLoading: false 
+            });
+        } catch (error) {
+            set({ isLoading: false });
+            const errorMessage = error.response?.data?.message || [error.message];
+            throw { response: { data: { messages: errorMessage } } };
+        }
+    },
+
     updateCookInfo: async (specialty, experience) => {
         set({ isLoading: true, error: null });
         try {

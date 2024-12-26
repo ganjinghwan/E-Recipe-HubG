@@ -124,10 +124,11 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
     { label: "Guest", value: "guest" },
     { label: "Cook", value: "cook" },
     { label: "Event Organizer", value: "event-organizer" },
+    { label: "Moderator", value: "moderator" },
   ]
 
   return (
-    <Box position="relative" mt="120px" p="4" zIndex="2">
+    <Box position="relative" mt="120px" p="4" zIndex="2" minW={"400px"}>
           <MotionImage
             as="img"
             src={cookbook}

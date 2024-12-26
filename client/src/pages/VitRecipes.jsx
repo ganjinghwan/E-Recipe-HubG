@@ -41,6 +41,9 @@ import StarRatings from "react-star-ratings";
 const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
   const { fetchCook, cooks} = useAuthStore();
+  const { fetchFavoriteRecipes, favoriteRecipes, toggleFavorite } = useStoreRecipe();
+  const {fetchAllRecipes, recipes, addComment, addRate, fetchRecipeById} = useStoreRecipe();
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tempUserName, setTempUserName] = useState("");
@@ -61,10 +64,10 @@ const VisitorPage = () => {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [favoriteFoods, setFavoriteFoods] = useState([]);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const { fetchFavoriteRecipes, favoriteRecipes, toggleFavorite } = useStoreRecipe();
-  const {fetchAllRecipes, recipes, addComment, addRate, fetchRecipeById} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
+
+  
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
 

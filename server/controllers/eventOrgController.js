@@ -16,6 +16,46 @@ export const getEventOrganizerInformation = async (req, res) => {
     }
 }
 
+export const newEventOrganizerInformation = async (req, res) => {
+    const { orgName, orgDescription, orgContact, orgLocation } = req.body;
+
+    try {
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: ["User not found"] });
+        }
+
+        if (!orgName || !orgDescription || !orgContact || !orgLocation) {
+            return res.status(400).json({ success: false, message: ["Please fill in all fields"] });
+        }
+
+        const newEventOrgInfo = new EventOrganizer({
+            event_org_id: user._id,
+            organizationName: orgName,
+            organizationDescription: orgDescription,
+            organizationContact: orgContact,
+            organizationLocation: orgLocation,
+            events_list: [],
+            favouriteRecipes: [],
+        });
+
+        await newEventOrgInfo.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Event Organizer Info Created Successfully",
+            newEventOrgInfo: {
+                ...newEventOrgInfo._doc,
+            }
+
+        });
+    } catch (error) {
+        console.log("Failed to create event organization information", error.message);
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+}
+
 export const updateEventOrganizerInformation = async (req, res) => {
     const { orgName, orgDescription, orgContact, orgLocation } = req.body;
 

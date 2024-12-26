@@ -12,7 +12,7 @@ const EmailVerificationPage = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const { error, isLoading, verifyEmail } = useAuthStore();
+  const { user, error, isLoading, verifyEmail } = useAuthStore();
 
   // Handle input change
   const handleChange = (index, value) => {
@@ -59,7 +59,16 @@ const EmailVerificationPage = () => {
         duration: 3000,
         isClosable: true,
       });
-      navigate("/");
+
+      if(user.role === "event-organizer") {
+        navigate("/new-event-organizer");
+      } else if (user.role === "cook") {
+        navigate("/new-cook");
+      } else if (user.role === "moderator") {
+        navigate("/new-moderator");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       console.log(error);
     }

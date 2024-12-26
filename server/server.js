@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import guestRoutes from './routes/guest_rt.js';
 import cookRoutes from './routes/cook_rt.js';
 import organizerRoutes from './routes/eventOrg_rt.js';
+import moderatorRoutes from './routes/moderator_rt.js'
 import cookieParser from 'cookie-parser';
 import path from "path";
 
@@ -25,6 +26,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/guests", guestRoutes);
 app.use("/api/cooks", cookRoutes);
 app.use("/api/eventorg", organizerRoutes);
+app.use("/api/moderator", moderatorRoutes)
 
 
 // console.log(process.env.MONGO_URI);

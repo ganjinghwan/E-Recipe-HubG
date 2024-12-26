@@ -9,8 +9,7 @@ const guestSchema = new mongoose.Schema({
     favouriteRecipes: [{
             type: mongoose.Schema.Types.ObjectId,
             ref: "Recipe",
-        }],
-    
+        }],   
 });
 
 export const Guest = mongoose.model("Guest", guestSchema);
