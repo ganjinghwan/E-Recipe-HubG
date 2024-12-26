@@ -6,6 +6,8 @@ import About from './pages/About';
 import Navbar from './components/Navbar';
 import Visitors from './pages/VitRecipes';
 import Favourite from './pages/Favourite';
+import ModeratorPg from './pages/ModeratorPg';
+
 import EmailVerificationPage from './pages/EmailVerificationPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -69,6 +71,14 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <Favourite />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/moderatorpg"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ModeratorPg />
             </ProtectedRoute>
           }
         />
