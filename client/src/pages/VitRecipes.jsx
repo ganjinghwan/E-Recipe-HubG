@@ -44,6 +44,7 @@ const VisitorPage = () => {
   const { fetchFavoriteRecipes, favoriteRecipes, toggleFavorite } = useStoreRecipe();
   const {fetchAllRecipes, recipes, addComment, addRate, fetchRecipeById} = useStoreRecipe();
 
+
   const [selectedUser, setSelectedUser] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tempUserName, setTempUserName] = useState("");
@@ -56,8 +57,6 @@ const VisitorPage = () => {
   const [commentText, setCommentText] = useState("");
   const [reportTitle, setReportTitle] = useState("");
   const [reportReason, setReportReason] = useState("");
-  
-
   const [selectedFood, setSelectedFood] = useState(null);
   const [animationState, setAnimationState] = useState("");
   const [activeTab, setActiveTab] = useState("Instruction");
@@ -66,7 +65,7 @@ const VisitorPage = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
-
+  
   
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
