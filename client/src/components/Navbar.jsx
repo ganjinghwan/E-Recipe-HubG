@@ -285,6 +285,7 @@ const Navbar = () => {
 
 
         {/* Favorites Button */}
+        {(user?.role === "cook" || user?.role === "guest") && (
         <IconButton
             icon={<i className="fas fa-heart"></i>}
             aria-label="Favorite"
@@ -293,6 +294,7 @@ const Navbar = () => {
             variant={isFavorite ? "solid" : ""} // Solid for active, outline for inactive
             _hover={{ color: "orange.300" }}
           />
+        )}
 
         {/* Profile Dropdown */}
         <Menu>
