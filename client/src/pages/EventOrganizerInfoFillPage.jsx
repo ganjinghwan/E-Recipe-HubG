@@ -198,6 +198,8 @@ const EventOrganizerInfoFillPage = () => {
         <Box mt={3}>
           <Text fontSize="xl" fontWeight={"bold"}>
             Welcome Event Organizer! Before continue, please fill all in the information below.
+            <br />
+            Please note that closing this page will count as discard for your account registration.
           </Text>
         </Box>
 
@@ -265,7 +267,7 @@ const EventOrganizerInfoFillPage = () => {
             {newEventOrgError.eventOrganizerLocation && <FormErrorMessage>{newEventOrgError.eventOrganizerLocation}</FormErrorMessage>}
           </FormControl>
 
-          <Box display={"flex"} justifyContent={"space-between"} width={"100%"}>
+          <Box display={"flex"} justifyContent={"flex-end"} width={"100%"}>
             <Button
               type="submit"
               colorScheme="blue"

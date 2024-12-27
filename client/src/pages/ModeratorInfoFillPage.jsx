@@ -160,6 +160,8 @@ const ModeratorInfoFillPage = () => {
         <Box mt={3}>
           <Text fontSize="xl" fontWeight="bold">
             Welcome Moderator! Before continue, please fill in the required information.
+            <br />
+            Please note that closing this page will count as discard for your account registration.
           </Text>
         </Box>
 
@@ -176,7 +178,7 @@ const ModeratorInfoFillPage = () => {
             <FormErrorMessage>{newModeratorError}</FormErrorMessage>
           </FormControl>
 
-          <Box display="flex" justifyContent="space-between" width="100%" mt={4}>
+          <Box display="flex" justifyContent="flex-end" width="100%" mt={4}>
             <Button type="submit" colorScheme="orange" isLoading={isLoading} loadingText="Verifying, please wait...">
               Confirm
             </Button>

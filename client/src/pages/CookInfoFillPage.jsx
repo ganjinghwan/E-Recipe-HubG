@@ -91,6 +91,8 @@ const CookInfoFillPage = () => {
                 <Box mt={3}>
                     <Text fontSize="xl" fontWeight="bold">
                         Welcome Cook! Before continuing, please fill in the information below.
+                        <br />
+                        You can also skip this step and continue to the homepage.
                     </Text>
                 </Box>
                 <Box as="form" mt={4} onSubmit={handleNewCook}>
