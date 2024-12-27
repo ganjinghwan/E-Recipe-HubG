@@ -44,12 +44,12 @@ export const signup = async (req, res) => {
         const repeatedUsername = await User.findOne({ name });
         console.log("repeatedUsername", repeatedUsername);
 
-        if (userAlreadyExists) {
-            SignUpErrors.push("Email has already registered");
-        }
-
         if (unverifiedUser) {
             return res.status(400).json({ success: false, message: ["Looks like your email is not been verified, please register again 15 minutes later"]});
+        }
+
+        if (userAlreadyExists) {
+            SignUpErrors.push("Email has already registered");
         }
 
         if (repeatedUsername) {
@@ -389,27 +389,6 @@ export const verifyUpdate = async (req, res) => {
 
         await user.save();
 
-        /*if (user.role === "cook") {
-            const cookInfo = await Cook.findOne({ cook_id: user._id });
-
-            if (!cookInfo) {
-                return res.status(400).json({ success: false, message: 'Cook information not found' });
-            }
-
-            if (cookInfo.tempSpecialty) {
-                cookInfo.specialty = cookInfo.tempSpecialty;
-            }
-
-            if (cookInfo.tempExperience) {
-                cookInfo.experience = cookInfo.tempExperience;
-            }
-
-            cookInfo.tempSpecialty = undefined;
-            cookInfo.tempExperience = undefined;
-
-            await cookInfo.save();
-        }*/
-
         res.status(200).json({
             success: true,
             message: 'Profile updated successfully',
@@ -420,6 +399,25 @@ export const verifyUpdate = async (req, res) => {
         });
     } catch (error) {
         console.log("Failed to verify update:", error.message);
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+export const deleteIncompleteUser = async (req, res) => {
+    try {
+        console.log("Executing user deletion");
+
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        await User.findByIdAndDelete(req.user._id);
+
+        res.status(200).json({ success: true, message: 'Incomplete User deleted successfully' });
+    } catch (error) {
+        console.log("Failed to delete incomplete user:", error.message);
         res.status(400).json({ success: false, message: error.message });
     }
 };

@@ -1,5 +1,5 @@
 import express from 'express';
-import { login, logout, signup, verifyEmail, forgotPassword, resetPassword, checkAuth, getAllCook, updateProfile, verifyUpdate  } from '../controllers/authController.js';
+import { login, logout, signup, verifyEmail, forgotPassword, resetPassword, checkAuth, getAllCook, updateProfile, verifyUpdate, deleteIncompleteUser  } from '../controllers/authController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -14,5 +14,6 @@ router.post("/reset-password/:token", resetPassword);
 router.get("/fetch-cook", getAllCook);
 router.post("/update-profile", verifyToken, updateProfile);
 router.post("/verify-update", verifyUpdate);
+router.delete("/delete-incomplete-user", verifyToken, deleteIncompleteUser)
 
 export default router;

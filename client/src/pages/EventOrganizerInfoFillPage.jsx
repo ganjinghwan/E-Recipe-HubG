@@ -7,6 +7,7 @@ import eventShow from "../pic/event-show.jpg";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { useEventOrgStore } from "../store/eventOrgStore";
+import axios from "axios";
 
 const EventOrganizerInfoFillPage = () => {
   // Event Organizer state
@@ -17,7 +18,8 @@ const EventOrganizerInfoFillPage = () => {
   const [newEventOrgError, setNewEventOrgError] = useState({});
 
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const { user } = useAuthStore();
+  const [hasTyped, setHasTyped] = useState(false);
+
   const { newEventOrganizerInfo, isLoading } = useEventOrgStore();
   
   const images = [
@@ -34,10 +36,6 @@ const EventOrganizerInfoFillPage = () => {
   const navigate = useNavigate();
   const maxCharacters = 250;
 
-  if (!user) {
-    navigate("/");
-  }
-
   useEffect(() => {
     const interval = setInterval(() => {
       setIsFading(true);
@@ -51,20 +49,6 @@ const EventOrganizerInfoFillPage = () => {
 
     return () => clearInterval(interval);
   }, [images.length]);
-
-  
-  const handleDescriptionChange = (e) => {
-    const input = e.target.value;
-    if (input.length <= maxCharacters) {
-      setEventOrganizerDescription(input);
-    } else {
-      return;
-    }
-  };
-  
-  const returnHomepage = () => {
-    navigate("/");
-  }
   
   const validateFields = () => {
     const errorHandling = {};
@@ -92,12 +76,69 @@ const EventOrganizerInfoFillPage = () => {
     }
   }, [eventOrganizerName, eventOrganizerDescription, eventOrganizerContact, eventOrganizerLocation, hasSubmitted]);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Update the state based on the input name
+    if (name === "eventOrganizerDescription" && value.length > maxCharacters) {
+      // Prevent further input
+      return;
+    }
+
+    switch (name) {
+      case "eventOrganizerName":
+        setEventOrganizerName(value);
+        break;
+        case "eventOrganizerDescription":
+          setEventOrganizerDescription(value);
+          break;
+      case "eventOrganizerContact":
+        setEventOrganizerContact(value);
+        break;
+      case "eventOrganizerLocation":
+        setEventOrganizerLocation(value);
+        break;
+        default:
+          break;
+    }
+        
+    if (!hasTyped && value.trim().length > 0) {
+      setHasTyped(true);
+    }
+  };
+      
+  useEffect(() => {
+    const handleBeforeUnload = async (e) => {
+      // Only delete if the user has started typing but has not submitted
+      // Or if user does not type anything and does not submit
+      if ((!hasTyped && !hasSubmitted) || (hasTyped && !hasSubmitted)) {
+        try {
+          //Send delete request to server
+          await axios.delete ("/api/auth/delete-incomplete-user");
+          console.log("Incomplete user deleted successfully");
+        } catch (error) {
+          console.error("Failed to delete incomplete user:", error.message);
+        }
+      }
+    };
+
+    // Attach the beforeunload event listener
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasTyped, hasSubmitted]);
+
+
   const handleNewEventOrg = async (e) => {
     e.preventDefault();
     setHasSubmitted(true);
     const errors = validateFields();
 
     if (Object.keys(errors).length > 0) {
+      setHasSubmitted(false);
       return;
     }
 
@@ -127,6 +168,8 @@ const EventOrganizerInfoFillPage = () => {
       });
     
       clearForm();
+      setHasTyped(false);
+      setHasSubmitted(false);
     }
   }
 
@@ -162,11 +205,12 @@ const EventOrganizerInfoFillPage = () => {
           <FormControl isInvalid={!!newEventOrgError.eventOrganizerName} mt={2}>
             <FormLabel>Event Organizer Name</FormLabel>
             <Input
+              name="eventOrganizerName"
               type="text"
               borderColor={"black.500"}
               placeholder="Enter your Event Organizer Name here"
               value={eventOrganizerName}
-              onChange={(e) => setEventOrganizerName(e.target.value)}
+              onChange={handleInputChange}
             />
             {newEventOrgError.eventOrganizerName && <FormErrorMessage>{newEventOrgError.eventOrganizerName}</FormErrorMessage>}
           </FormControl>
@@ -174,10 +218,12 @@ const EventOrganizerInfoFillPage = () => {
           <FormControl isInvalid={!!newEventOrgError.eventOrganizerDescription}mb="2">
             <FormLabel>Organization Description</FormLabel>
             <Textarea
+              name="eventOrganizerDescription"
+              type="text"
               borderColor={"black.500"}
               placeholder="Enter your new organization description here (maximum 250 characters)"
               value={eventOrganizerDescription}
-              onChange={handleDescriptionChange}
+              onChange={handleInputChange}
               height={"160px"}
               maxH={"160px"}
               minH={"160px"}
@@ -192,11 +238,12 @@ const EventOrganizerInfoFillPage = () => {
           <FormControl isInvalid={!!newEventOrgError.eventOrganizerContact} mb="2">
             <FormLabel>Organization Contact</FormLabel>
             <Input
+              name="eventOrganizerContact"
               type="number"
               borderColor={"black.500"}
               placeholder="Enter your new organization contact here"
               value={eventOrganizerContact}
-              onChange={(e) => setEventOrganizerContact(e.target.value)}
+              onChange={handleInputChange}
               onWheel={(e) => e.target.blur()} // Prevent scrolling from messing with numbers
             />
             {newEventOrgError.eventOrganizerContact && <FormErrorMessage>{newEventOrgError.eventOrganizerContact}</FormErrorMessage>}
@@ -205,10 +252,11 @@ const EventOrganizerInfoFillPage = () => {
           <FormControl isInvalid={!!newEventOrgError.eventOrganizerLocation} mb="4">
             <FormLabel>Organization Location</FormLabel>
             <Textarea 
+              name="eventOrganizerLocation"
               borderColor={"black.500"}
               placeholder="Enter your new organization location here"
               value={eventOrganizerLocation}
-              onChange={(e) => setEventOrganizerLocation(e.target.value)}
+              onChange={handleInputChange}
               height={"70px"}
               maxH={"70px"}
               minH={"70px"}
@@ -218,13 +266,6 @@ const EventOrganizerInfoFillPage = () => {
           </FormControl>
 
           <Box display={"flex"} justifyContent={"space-between"} width={"100%"}>
-            <Button
-              colorScheme="red"
-              onClick={returnHomepage}
-            >
-              Return to Homepage
-            </Button>
-
             <Button
               type="submit"
               colorScheme="blue"

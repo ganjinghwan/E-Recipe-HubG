@@ -12,7 +12,6 @@ const CookInfoFillPage = () => {
     const [cookSpecialty, setCookSpecialty] = useState("");
     const [cookExperience, setCookExperience] = useState("");
     const [hasSubmitted, setHasSubmitted] = useState(false);
-    const { user } = useAuthStore();
     const { newCookInfo, isLoading } = useCookStore();
 
     const images = [
@@ -27,12 +26,6 @@ const CookInfoFillPage = () => {
 
     const toast = useToast();
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (!user) {
-            navigate("/");
-        }
-    }, [user, navigate]);
 
 
     useEffect(() => {
@@ -126,7 +119,7 @@ const CookInfoFillPage = () => {
 
                     <Box display="flex" justifyContent="space-between" width="100%" mt={4}>
                         <Button colorScheme="red" onClick={() => navigate("/")}>
-                            Return to Homepage
+                            Skip
                         </Button>
                         <Button
                             type="submit"

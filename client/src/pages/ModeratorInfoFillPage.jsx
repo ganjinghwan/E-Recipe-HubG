@@ -17,11 +17,13 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const ModeratorInfoFillPage = () => {
   const [moderatorKey, setModeratorKey] = useState("");
   const [newModeratorError, setNewModeratorError] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [hasTyped, setHasTyped] = useState(false);
 
   const { user } = useAuthStore();
   const { confirmModerator, isLoading } = useModeratorStore();
@@ -40,12 +42,6 @@ const ModeratorInfoFillPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
-
-  useEffect(() => {
     const interval = setInterval(() => {
       setIsFading(true);
 
@@ -58,9 +54,6 @@ const ModeratorInfoFillPage = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-  const returnHomepage = () => {
-    navigate("/");
-  };
 
   const validateFields = () => {
     let error = "";
@@ -77,12 +70,45 @@ const ModeratorInfoFillPage = () => {
     }
   }, [moderatorKey, hasSubmitted]);
 
+  const handleInputChange = (e) => {
+    const { value } = e.target;
+    setModeratorKey(value);
+
+    if (!hasTyped && value.trim().length > 0) {
+      setHasTyped(true);
+    }
+  };
+
+  useEffect(() => {
+    const handleBeforeUnload = async (e) => {
+      // Only delete if the user has started typing but has not submitted
+      // Or if user does not type anything and does not submit
+      if ((!hasTyped && !hasSubmitted) || (hasTyped && !hasSubmitted)) {
+        try {
+          await axios.delete("/api/auth/delete-incomplete-user");
+          console.log("Incomplete user deleted successfully");
+        } catch (error) {
+          console.error("Failed to delete incomplete user:", error.message);
+        }
+      }
+    };
+  
+    // Attach the beforeunload event listener
+    window.addEventListener("beforeunload", handleBeforeUnload);
+  
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasTyped, hasSubmitted]);
+
   const handleNewModerator = async (e) => {
     e.preventDefault();
     setHasSubmitted(true);
     const errors = validateFields();
 
     if (errors) {
+      setHasSubmitted(false);
       return;
     }
 
@@ -112,6 +138,8 @@ const ModeratorInfoFillPage = () => {
       });
 
       clearForm();
+      setHasTyped(false);
+      setHasSubmitted(false);
     }
   };
 
@@ -143,16 +171,12 @@ const ModeratorInfoFillPage = () => {
               borderColor={"black.500"}
               placeholder="Please enter your Moderator Key for verification"
               value={moderatorKey}
-              onChange={(e) => setModeratorKey(e.target.value)}
+              onChange={handleInputChange}
             />
             <FormErrorMessage>{newModeratorError}</FormErrorMessage>
           </FormControl>
 
           <Box display="flex" justifyContent="space-between" width="100%" mt={4}>
-            <Button colorScheme="red" onClick={returnHomepage}>
-              Return to Homepage
-            </Button>
-
             <Button type="submit" colorScheme="orange" isLoading={isLoading} loadingText="Verifying, please wait...">
               Confirm
             </Button>
