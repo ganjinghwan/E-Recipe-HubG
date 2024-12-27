@@ -2,14 +2,27 @@ import { create } from "zustand";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
-export const useAuthStore = create((set) => ({
+export const useAuthStore = create((set, get) => ({
     user: null,
     cooks:[],
+    CGEs:[],
     isAuthenticated: false,
     errors: null,
     isLoading: false,
     isCheckingAuth: true,
     message: null,
+
+
+    fetchCGE: async () => {
+        try {
+            const res = await axios.get("/api/auth/get-CGE-users");
+            set({ CGEs: res.data.data }); 
+            console.log("Fetched CGEs:", res.data.data);
+        } catch (error) {
+            console.error("Failed to fetch CGEs:", error);
+        }
+    },
+    userCGesCount: () => get().CGEs.length,
 
     fetchCook: async () => {
         try {

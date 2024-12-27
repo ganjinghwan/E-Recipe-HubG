@@ -4,7 +4,6 @@ import {
   Flex,
   Grid,
   GridItem,
-  Image,
   Text,
   Button,
   IconButton,
@@ -15,55 +14,81 @@ import {
   Textarea,
   Select,
   Center,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Link,
-  Tooltip,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   useBreakpointValue 
 } from "@chakra-ui/react";
-import { FaHeart, FaComment, FaClock, FaYoutube, FaStar} from "react-icons/fa";
 import { FaUser, FaFlag, FaBook, FaExclamationTriangle } from "react-icons/fa";
-import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
 import generalBackground from "../pic/mod3.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
+import { useNavigate } from "react-router-dom";
 import Chart from "react-apexcharts"; // Use ApexCharts for graphing
+
+
+import UserListModal from "../components/moderator-modal/user_list";
+
 
 const ModeratorPage = () => {
   const { user } = useAuthStore(); // Access current user info
-  const { fetchCook, cooks} = useAuthStore();
-  const { fetchFavoriteRecipes, favoriteRecipes, toggleFavorite } = useStoreRecipe();
-  const {fetchAllRecipes, recipes, addComment, addRate, fetchRecipeById} = useStoreRecipe();
+  const { fetchCGE, CGEs, userCGesCount} = useAuthStore();
+  const [counts, setCounts] = useState({
+    users: 0,
+    reports: 0,
+    recipes: 0,
+    warnings: 0,
+  });
 
+  const {fetchAllRecipes, recipes, recipeCount} = useStoreRecipe();
 
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [showModal, setShowModal] = useState(false);
-  const [tempUserName, setTempUserName] = useState("");
-  
-
-  const [selectedFood, setSelectedFood] = useState(null);
-  const [animationState, setAnimationState] = useState("");
-  const [activeTab, setActiveTab] = useState("Instruction");
-  const [carouselIndex, setCarouselIndex] = useState(0);
-  const [favoriteFoods, setFavoriteFoods] = useState([]);
-  const [categories, setCategories] = useState(["All"]); // "All" as default
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [isUserListOpen, setIsUserListOpen] = useState(false);
+  const [isReportListOpen, setIsReportListOpen] = useState(false);
+  const [isRecipeListOpen, setIsRecipeListOpen] = useState(false);
+  const [isWarningListOpen, setIsWarningListOpen] = useState(false);
 
 
   const toast = useToast();
-  const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
+  const navigate = useNavigate();
 
-  const [isOpen, setIsOpen] = useState(false);
+/**********************************Fetching Users Count******************************************************************** */
+  useEffect(() => {
+        fetchCGE();
+    }, [fetchCGE]);
+
+/**********************************Fetching Reports Count******************************************************************** */
+/**********************************Fetching Recipes Count******************************************************************** */
+ useEffect(() => {
+     fetchAllRecipes();
+ }, [fetchAllRecipes]);
+
+/**********************************Fetching Warnings Count******************************************************************** */
+
+  
+//   reports: CGEs?.filter((cge) => cge.type === "report").length || 0,
+//   recipes: CGEs?.filter((cge) => cge.type === "recipe").length || 0,
+//   warnings: CGEs?.filter((cge) => cge.type === "warning").length || 0,
+
+const handleClick = (type) => {
+
+    if (type === "users") {
+        setIsUserListOpen(true); // Open the UserListModal
+    } else if (type === "reports") {
+        setIsReportListOpen(true); // Open the ReportListModal
+    } else if (type === "recipes") {
+        setIsRecipeListOpen(true); // Open the RecipeListModal
+    } else if (type === "warnings") {
+        setIsWarningListOpen(true); // Open the WarningListModal
+    } else {
+        toast({
+            title: "Navigation error",
+            description: `No action configured for type: ${type}`,
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+        });
+    }
+};
+
+  
+
   const dataChartOptions = {
     chart: {
       id: "user-activity",
@@ -90,6 +115,8 @@ const ModeratorPage = () => {
       },
     ],
   };
+
+
 
 
   return (
@@ -138,10 +165,10 @@ const ModeratorPage = () => {
         >
           {/* Red Components */}
           {[
-            { title: "Users", icon: <FaUser />, count: 150 },
-            { title: "Reports", icon: <FaFlag />, count: 34 },
-            { title: "Recipes", icon: <FaBook />, count: 128 },
-            { title: "Warnings", icon: <FaExclamationTriangle />, count: 5 },
+            { title: "Users", icon: <FaUser />, count: userCGesCount(), type: "users" },
+            { title: "Reports", icon: <FaFlag />, count: counts.reports, type: "reports" },
+            { title: "Recipes", icon: <FaBook />, count: recipeCount(), type: "recipes" },
+            { title: "Warnings", icon: <FaExclamationTriangle />, count: counts.warnings, type: "warnings" },
           ].map((item, index) => (
             <Box
               key={index}
@@ -150,7 +177,7 @@ const ModeratorPage = () => {
               borderRadius="lg"
               textAlign="center"
               cursor="pointer"
-              onClick={() => setIsOpen(true)} // Placeholder for modal
+              onClick={() => handleClick(item.type)}
               backdropFilter="blur(10px)"
               _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
             >
@@ -201,6 +228,24 @@ const ModeratorPage = () => {
           </Box>
         </Grid>
       </Flex>
+
+      {/* User List Modal */}
+        <UserListModal
+            isOpen={isUserListOpen}
+            onClose={() => setIsUserListOpen(false)}
+        />
+        {/* <ReportListModal
+            isOpen={isReportListOpen}
+            onClose={() => setIsReportListOpen(false)}
+        />
+        <RecipeListModal
+            isOpen={isRecipeListOpen}
+            onClose={() => setIsRecipeListOpen(false)}
+        />
+        <WarningListModal
+            isOpen={isWarningListOpen}
+            onClose={() => setIsWarningListOpen(false)}
+        /> */}
     </Flex>
   );
 };
