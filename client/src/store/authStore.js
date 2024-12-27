@@ -142,4 +142,15 @@ export const useAuthStore = create((set) => ({
             throw error;
         }
     },
+
+    deleteAccount: async () => {
+        set({ isLoading: true, error: null });
+        try {
+            await axios.delete(`/api/auth/delete-account`);
+            set({ user: null, isAuthenticated: false, isLoading: false });
+        } catch (error) {
+            set({ error: error.response.data.message || "Error deleting account", isLoading: false });
+            throw error;
+        }
+    }
 }));

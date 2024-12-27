@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Modal,
@@ -18,6 +18,12 @@ import {
   IconButton,
   Stack,
   Text,
+  AlertDialog,
+  AlertDialogOverlay,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogBody,
+  AlertDialogFooter,
 } from "@chakra-ui/react";
 import { useAuthStore } from "../store/authStore";
 import { useCookStore } from "../store/cookStore";
@@ -29,12 +35,18 @@ import defaultAvatar from "../pic/avatar.png";
 import UpdateProfileForm from "./UpdateProfileForm";
 import UpdateRoleForm from "./UpdateRoleForm";
 import { FaTrash, FaEdit, FaPencilAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const ProfileForm = ({ isOpen, onClose }) => {
-  const { user, isUploadingPicture, uploadProfilePicture } = useAuthStore();
+  const { user, isUploadingPicture, uploadProfilePicture, deleteAccount} = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const { cook, getCookInfo } = useCookStore();
   const { eventOrganizer, getEventOrganizerInfo } = useEventOrgStore();
+
+  // Alert dialog state
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const cancelRef = useRef();
+  const navigate = useNavigate();
 
   const [activeView, setActiveView] = useState("profile"); // Tracks current view
 
@@ -116,8 +128,36 @@ const ProfileForm = ({ isOpen, onClose }) => {
     };
   };
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
 
+  const handleDeleteAccount = async () => {
+    setIsAlertOpen(false);
+
+    try {
+      await deleteAccount();
+      toast({
+        position: "bottom",
+        title: "User deleted successfully",
+        description: "Thank you for using E-Recipe-Hub. Hope to see you again soon!",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      });
+      navigate("/");
+      onClose();
+    } catch (error) {
+      toast({
+        position: "bottom",
+        title: "Failed to delete user",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
+  }
   return (
     <Modal isOpen={isOpen} onClose={onClose} isCentered>
       <ModalOverlay />
@@ -199,6 +239,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                         colorScheme="red"
                         ml={3}
                         mr={3}
+                        onClick={() => setIsAlertOpen(true)}
                       />
                     </Tooltip>
 
@@ -248,7 +289,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     <br />
                     <span style={{ fontWeight: "bold" }}>Email: </span>
                     {user.email} <br />
-                    <span style={{ fontWeight: "bold" }}>Role:</span> 
+                    <span style={{ fontWeight: "bold" }}>Role: </span> 
                     {user.role} <br />
                     <div>
                     {user.phoneNumber ? (
@@ -318,6 +359,34 @@ const ProfileForm = ({ isOpen, onClose }) => {
           </>
         )}
       </ModalContent>
+
+      {/* Alert Dialog for deleting account */}
+      <AlertDialog
+        isOpen= {isAlertOpen}
+        leastDestructiveRef={cancelRef}
+        onClose={() => setIsAlertOpen(false)}
+      >
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              Confirm Delete Account
+            </AlertDialogHeader>
+
+            <AlertDialogBody>
+              Are you sure you want to delete your account? Once confirm, it is not reversible.
+            </AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                Cancel
+              </Button>
+              <Button colorScheme="red" ml={3} onClick={handleDeleteAccount}>
+                Confirm
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
     </Modal>
   );
 };

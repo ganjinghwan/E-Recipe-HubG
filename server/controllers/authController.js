@@ -6,6 +6,9 @@ import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendRe
 import { verifyEmailSMTP } from "../nodemailer/emailVerify.js";
 import { Cook } from "../models/Cook.js";
 import { Guest } from "../models/Guest.js";
+import { EventOrganizer } from "../models/EventOrganizer.js";
+import { Moderator } from "../models/moderator.js";
+import Recipe from "../models/Recipe.js";
 
 
 export const getAllCook = async (req, res) => {
@@ -405,8 +408,6 @@ export const verifyUpdate = async (req, res) => {
 
 export const deleteIncompleteUser = async (req, res) => {
     try {
-        console.log("Executing user deletion");
-
         const user = await User.findById(req.user._id);
 
         if (!user) {
@@ -418,6 +419,38 @@ export const deleteIncompleteUser = async (req, res) => {
         res.status(200).json({ success: true, message: 'Incomplete User deleted successfully' });
     } catch (error) {
         console.log("Failed to delete incomplete user:", error.message);
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+export const deleteUser = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+    
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        if (user.role === 'moderator') {
+            await Moderator.findOneAndDelete({ moderator_id: user._id });
+            await User.findByIdAndDelete(req.user._id);
+        } else if (user.role === 'event-organizer') {
+            await EventOrganizer.findOneAndDelete({ event_org_id: user._id });
+            await User.findByIdAndDelete(req.user._id);
+        } else if (user.role === 'guest') {
+            await Guest.findOneAndDelete({ guest_id: user._id });
+            await User.findByIdAndDelete(req.user._id);
+        } else if (user.role === 'cook') {
+            await Recipe.deleteMany({ user_id: user._id });
+            await Cook.findOneAndDelete({ cook_id: user._id });
+            await User.findByIdAndDelete(req.user._id);
+        } else {
+            res.status(400).json({ success: false, message: 'User role not found' });
+        }
+
+        res.status(200).json({ success: true, message: 'User deleted successfully' });
+    } catch (error) {
+        console.log("Fail to delete user:", error.message);
         res.status(400).json({ success: false, message: error.message });
     }
 };
