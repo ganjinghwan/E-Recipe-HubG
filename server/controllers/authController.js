@@ -11,6 +11,15 @@ import { Moderator } from "../models/moderator.js";
 import Recipe from "../models/Recipe.js";
 
 
+export const getUserList_CGE = async (req, res) => {
+    try {
+        const users = await User.find({ role: { $in: ["cook", "guest", "event-organizer"] } });
+        res.status(200).json({ success: true, data: users });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Server Error- fetching users" });
+    }
+}
+
 export const getAllCook = async (req, res) => {
     try {
         const users = await User.find({role:"cook"});

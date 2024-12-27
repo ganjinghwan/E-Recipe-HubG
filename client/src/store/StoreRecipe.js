@@ -2,7 +2,7 @@ import {create} from 'zustand';
 import { useAuthStore } from "../store/authStore";
 
 
-export const useStoreRecipe = create((set) => ({
+export const useStoreRecipe = create((set, get) => ({
     recipes: [],
     favoriteRecipes:[],
     setRecipes: (recipes) => set({ recipes }),
@@ -31,18 +31,22 @@ export const useStoreRecipe = create((set) => ({
     },
 
 
+    /* only for cook recipe fetching purpose */
     fetchRecipes: async () => {
         const res = await fetch("/api/recipesinfo");
         const data = await res.json();
         set({ recipes: data.data });
     },
 
+    /* Fetch all recipes */
     fetchAllRecipes: async () => {
         const res = await fetch("/api/recipesinfo/all");
         const data = await res.json();
         set({ recipes: data.data });
     },
+    recipeCount:() => get().recipes.length,
 
+    /* Fetch recipe by ID */
     fetchRecipeById: async (rid) => {
         try {
             const res = await fetch(`/api/recipesinfo/${rid}`);
