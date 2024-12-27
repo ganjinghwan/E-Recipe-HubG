@@ -53,6 +53,49 @@ const Favorites = () => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
+
+  const truncateText = (text, charLimit) => {
+    if (!text) return ""; // Handle null or undefined text
+    return text.length > charLimit
+      ? `${text.slice(0, charLimit)}...` // Truncate by characters and add ellipsis
+      : text; // Return the full text if within the limit
+  };
+
+
+  const truncateSentences = (text, charLimit) => {
+    if (!text) return ""; // Handle null or undefined text
+  
+    const words = text.split(" "); // Split the text into words
+    const lines = []; // Array to store lines of text
+    let currentLine = ""; // Current line being constructed
+  
+    for (const word of words) {
+      if (word.length > charLimit) {
+        // If a single word exceeds the limit, split it into chunks
+        const chunks = word.match(new RegExp(`.{1,${charLimit}}`, "g"));
+        if (currentLine.trim()) {
+          lines.push(currentLine.trim()); // Push the current line before splitting the word
+          currentLine = ""; // Clear the current line
+        }
+        lines.push(...chunks); // Add the word chunks as separate lines
+      } else if ((currentLine + word).length > charLimit) {
+        // If adding the word exceeds the line limit, push the current line
+        lines.push(currentLine.trim());
+        currentLine = word + " "; // Start a new line with the current word
+      } else {
+        currentLine += word + " "; // Add the word to the current line
+      }
+    }
+  
+    // Add the last line if it's not empty
+    if (currentLine.trim()) {
+      lines.push(currentLine.trim());
+    }
+  
+    // Join the lines with a newline character
+    return lines.join("\n");
+  };
+
   const isValidUrl = (url) => {
     try {
       new URL(url);
@@ -155,6 +198,14 @@ const Favorites = () => {
         : recipes.filter(
             (recipe) => recipe.category.toLowerCase() === selectedCategory
         );
+
+  useEffect(() => {
+      if (filteredRecipes.length > 0) {
+        setSelectedFood(filteredRecipes[0]); // Set the first recipe as default
+      } else {
+        setSelectedFood(null); // Clear selection if no recipes match
+      }
+    }, [selectedCategory]); // Re-run effect when `selectedCategory`
 
 
   const handleFoodSelection = (food) => {
@@ -338,7 +389,7 @@ const Favorites = () => {
                 marginLeft="30px"
                 >
                 <Text fontSize={{ base: "2xl", md: "4xl" }} fontWeight="bold">
-                  {selectedFood?.title?.toUpperCase()}
+                  {truncateText(selectedFood?.title?.toUpperCase(), 12)}
                 </Text>
                 <Tooltip label="Add to favorites">
                 <IconButton
@@ -422,14 +473,14 @@ const Favorites = () => {
               <HStack spacing={4} mt={4} marginLeft="30px">
                 <Menu>
                   <MenuButton as={Button} rightIcon={<FaChevronDown />} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
-                    {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} {/* Display selected category */}
+                  {truncateText(selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1), 10)}{/* Display selected category */}
                   </MenuButton>
                   <MenuList maxH="100px" minW={{ base: "150px", md: "180px" }} overflowY="auto"> {/* Set scrollable dropdown content */}
                     {categories.map((category) => (
                       <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}
                         fontSize={{ base: "sm", md: "md" }}
                       >
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
+                        {truncateSentences(category.charAt(0).toUpperCase() + category.slice(1), 17)}
                       </MenuItem>
                     ))}
                   </MenuList>
@@ -498,7 +549,7 @@ const Favorites = () => {
                 <ul style={{ paddingLeft: "20px" }}>
                   {selectedFood?.ingredients.map((ingredient, index) => (
                    <li key={index}>
-                   {ingredient}
+                   {truncateSentences(ingredient, 31)}
                  </li>
                   ))}
                 </ul>
@@ -510,7 +561,7 @@ const Favorites = () => {
                   {selectedFood?.instructions.map((instruction, index) => (
                     <li key={index} >
                       {/* <Text as="span" fontWeight="medium"></Text> */}
-                      {instruction}
+                      {truncateSentences(instruction, 31)}
                     </li>
                   ))}
                 </ol>
@@ -522,8 +573,9 @@ const Favorites = () => {
                     {selectedFood?.comments && selectedFood.comments.length > 0 ? (
                       selectedFood.comments.map((comment, index) => (
                         <li key={index}>
-                          <Text fontWeight="medium">{comment.user}:</Text> {/* User's name */}
-                          <Text ml={4}>{comment.text}</Text> {/* Comment text */}
+                          <Text fontWeight="medium">{truncateSentences(comment.user, 31)}:</Text> {/* User's name */}
+                          <Text ml={4}>{truncateSentences(comment.text, 20)}</Text> {/* Comment text */}
+                        
                           <Text fontSize="sm" color="gray.500" ml={4}>
                             {new Date(comment.date).toLocaleString()} {/* Comment date */}
                           </Text>
@@ -614,7 +666,7 @@ const Favorites = () => {
                       borderRadius="full"
                       boxSize="85px"
                     />
-                    <Text>{food.title}</Text>
+                    <Text>{truncateText(food.title, 7)}</Text>
                   </VStack>
                 ))}
             </Flex>

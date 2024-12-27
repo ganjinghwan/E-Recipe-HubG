@@ -61,6 +61,18 @@ const Recipes = () => {
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
 
+  const resetNewRecipe = () => {
+    setNewRecipe({
+      title: "",
+      ingredients: [],
+      instructions: [],
+      prepTime: "",
+      category: "",
+      image: "",
+      video: "",
+    });
+  };
+  
   const getImageSrc = (image) => {
     return isValidUrl(image) ? image : "https://i.pinimg.com/originals/88/4f/6b/884f6bbb75ed5e1446d3b6151b53b3cf.gif";
   };
@@ -71,6 +83,44 @@ const Recipes = () => {
       ? `${text.slice(0, charLimit)}...` // Truncate by characters and add ellipsis
       : text; // Return the full text if within the limit
   };
+
+
+  const truncateSentences = (text, charLimit) => {
+    if (!text) return ""; // Handle null or undefined text
+  
+    const words = text.split(" "); // Split the text into words
+    const lines = []; // Array to store lines of text
+    let currentLine = ""; // Current line being constructed
+  
+    for (const word of words) {
+      if (word.length > charLimit) {
+        // If a single word exceeds the limit, split it into chunks
+        const chunks = word.match(new RegExp(`.{1,${charLimit}}`, "g"));
+        if (currentLine.trim()) {
+          lines.push(currentLine.trim()); // Push the current line before splitting the word
+          currentLine = ""; // Clear the current line
+        }
+        lines.push(...chunks); // Add the word chunks as separate lines
+      } else if ((currentLine + word).length > charLimit) {
+        // If adding the word exceeds the line limit, push the current line
+        lines.push(currentLine.trim());
+        currentLine = word + " "; // Start a new line with the current word
+      } else {
+        currentLine += word + " "; // Add the word to the current line
+      }
+    }
+  
+    // Add the last line if it's not empty
+    if (currentLine.trim()) {
+      lines.push(currentLine.trim());
+    }
+  
+    // Join the lines with a newline character
+    return lines.join("\n");
+  };
+  
+  
+  
   
   
 
@@ -146,13 +196,21 @@ const Recipes = () => {
     }
   }, [recipes]);
 
-
   const filteredRecipes =
     selectedCategory === "all"
       ? recipes
       : recipes.filter(
           (recipe) => recipe.category.toLowerCase() === selectedCategory
         );
+
+
+  useEffect(() => {
+      if (filteredRecipes.length > 0) {
+        setSelectedFood(filteredRecipes[0]); // Set the first recipe as default
+      } else {
+        setSelectedFood(null); // Clear selection if no recipes match
+      }
+    }, [selectedCategory]); // Re-run effect when `selectedCategory`
 
   const handleFoodSelection = (food) => {
     // console.log("Clicked Food111:", food);
@@ -487,9 +545,14 @@ const Recipes = () => {
                 <Tooltip label="Create">
                 <IconButton
                   size={iconButtonSize}
-                  icon={<FaPlus/>}
+                  icon={<FaPlus />}
                   aria-label="Create"
-                  colorScheme="teal"
+                  bg="rgba(255, 255, 255, 0.6)" // Semi-transparent background
+                  backdropFilter="blur(10px)" // Apply blur effect
+                  _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                  _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                  borderRadius="md" // Medium border radius for rounded corners
+                  boxShadow="sm" // Subtle shadow for depth
                   onClick={() => handleIconClick("create")}
                 />
                 </Tooltip>
@@ -498,7 +561,14 @@ const Recipes = () => {
                   size={iconButtonSize}
                   icon={<FaYoutube/>}
                   aria-label="Video"
-                  colorScheme="red"
+                  bg="rgba(255, 255, 255, 0.6)"
+                  backdropFilter="blur(10px)"
+                  _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                  _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                  borderRadius="md"
+                  boxShadow="sm"
+
+                  // colorScheme="red"
                   onClick={() => {
                     if (!selectedFood?.video || !isValidYoutubeUrl(selectedFood.video)) {
                       toast({
@@ -520,7 +590,14 @@ const Recipes = () => {
                   size={iconButtonSize}
                   icon={<FaEdit />}
                   aria-label="Update"
-                  colorScheme="yellow"
+                  bg="rgba(255, 255, 255, 0.6)"
+                  backdropFilter="blur(10px)"
+                  _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                  _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                  borderRadius="md"
+                  boxShadow="sm"
+
+                  // colorScheme="yellow"
                   onClick={() => handleIconClick("update")}
                 />
                 </Tooltip>
@@ -528,27 +605,35 @@ const Recipes = () => {
                 <IconButton
                   size={iconButtonSize}
                   icon={<FaTrash />}
+                  bg="rgba(255, 255, 255, 0.6)"
+                  backdropFilter="blur(10px)"
+                  _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                  _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                  borderRadius="md"
+                  boxShadow="sm"
                   aria-label="Delete"
-                  colorScheme="orange"
+                  // colorScheme="orange"
                   onClick={() => handleIconClick("delete")}
                 />
                 </Tooltip>
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
                 <Menu>
-                  <MenuButton as={Button} rightIcon={<FaChevronDown />} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
-                    {selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} {/* Display selected category */}
-                  </MenuButton>
-                  <MenuList maxH="100px" minW={{ base: "150px", md: "180px" }} overflowY="auto"> {/* Set scrollable dropdown content */}
-                    {categories.map((category) => (
-                      <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}
-                        fontSize={{ base: "sm", md: "md" }}
-                      >
-                        {category.charAt(0).toUpperCase() + category.slice(1)}
-                      </MenuItem>
-                    ))}
-                  </MenuList>
-                </Menu>
+                <MenuButton as={Button} rightIcon={<FaChevronDown />} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
+                  {truncateText(selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1), 10)}{/* Display selected category */}
+                </MenuButton>
+                <MenuList maxH="100px" minW={{ base: "150px", md: "180px" }} overflowY="auto"> {/* Set scrollable dropdown content */}
+                  {categories.map((category) => (
+                    <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}
+                      fontSize={{ base: "sm", md: "md" }}
+                      whiteSpace="pre-wrap"
+                      overflowWrap="break-word"
+                    >
+                      {truncateSentences(category.charAt(0).toUpperCase() + category.slice(1), 17)}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
               </HStack>
             </VStack>
           </Flex>
@@ -613,7 +698,7 @@ const Recipes = () => {
                 <ul style={{ paddingLeft: "20px" }}>
                   {selectedFood?.ingredients.map((ingredient, index) => (
                    <li key={index}>
-                   {ingredient}
+                   {truncateSentences(ingredient, 31)}
                  </li>
                   ))}
                 </ul>
@@ -625,7 +710,7 @@ const Recipes = () => {
                   {selectedFood?.instructions.map((instruction, index) => (
                     <li key={index} >
                       {/* <Text as="span" fontWeight="medium"></Text> */}
-                      {instruction}
+                      {truncateSentences(instruction, 31)}
                     </li>
                   ))}
                 </ol>
@@ -637,8 +722,12 @@ const Recipes = () => {
                     {selectedFood?.comments && selectedFood.comments.length > 0 ? (
                       selectedFood.comments.map((comment, index) => (
                         <li key={index}>
-                          <Text fontWeight="medium">{comment.user}:</Text> {/* User's name */}
-                          <Text ml={4}>{comment.text}</Text> {/* Comment text */}
+                          <Text fontWeight="medium">{truncateSentences(comment.user, 31)}:</Text> {/* User's name */}
+                          <Text ml={4}>{truncateSentences(comment.text, 20)}</Text> {/* Comment text */}
+                       
+                          <Text fontSize="sm" color="gray.500" ml={4}>
+                            {new Date(comment.date).toLocaleString()} {/* Comment date */}
+                          </Text>
                         </li>
                       ))
                     ) : (
@@ -764,7 +853,13 @@ const Recipes = () => {
         > */}
 
       {/* Modal for CRUD actions */}
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen} onClose={() => {
+          if (activeModal === "create") {
+            resetNewRecipe(); // Clear the input fields
+          }
+          onClose(); // Close the modal
+        }}
+      >
         <ModalOverlay />
         <ModalContent
           bg="rgba(255, 255, 255, 0.6)" // Semi-transparent modal background
@@ -913,7 +1008,16 @@ const Recipes = () => {
                 >
                   {activeModal === "create" ? "Submit" : "Confirm"}
                 </Button>
-                <Button onClick={onClose}>Cancel</Button>
+                <Button
+                  onClick={() => {
+                    if (activeModal === "create") {
+                      resetNewRecipe(); // Reset the inputs when the "Cancel" button is clicked
+                    }
+                    onClose(); // Close the modal
+                  }}
+                >
+                  Cancel
+                </Button>
               </>
             ) : null}
           </ModalFooter>

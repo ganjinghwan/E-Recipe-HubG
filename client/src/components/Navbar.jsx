@@ -19,6 +19,7 @@ import {
   ModalBody,
   Button,
 } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -37,6 +38,9 @@ const Navbar = () => {
   const { isAuthenticated, logout, user } = useAuthStore();
   const { isOpen: isOpenProfile, onOpen: onOpenProfile, onClose: onCloseProfile } = useDisclosure();
   const location = useLocation();
+
+  const [isFavorite, setIsFavorite] = useState(false); // Track favorite state
+  const navigate = useNavigate();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const toggleSearchBar = () => {setIsSearchBarActive(!isSearchBarActive); };
@@ -66,6 +70,23 @@ const Navbar = () => {
   const handleLogout = () => {
     logout();
     setIsMobileMenuOpen(false);
+  };
+
+  const handleFavoriteClick = () => {
+    const newState = !isFavorite; // Determine the new state
+    setIsFavorite(newState);
+
+    if (newState) {
+      // Navigate to favorites page when activated
+      navigate("/favourite");
+    } else {
+      // Navigate back to the page based on user role when deactivated
+      if (user?.role === "cook") {
+        navigate("/recipes");
+      } else if (user?.role === "guest") {
+        navigate("/visitors");
+      }
+    }
   };
 
   useEffect(() => {
@@ -263,10 +284,15 @@ const Navbar = () => {
         </Box>
 
 
-        {/* Favorites Link */}
-        <ChakraLink as={RouterLink} to="/favourite" fontSize="lg" _hover={{ color: "orange.300" }}>
-          <i className="fas fa-heart"></i>
-        </ChakraLink>
+        {/* Favorites Button */}
+        <IconButton
+            icon={<i className="fas fa-heart"></i>}
+            aria-label="Favorite"
+            onClick={handleFavoriteClick}
+            colorScheme={isFavorite ? "red" : "white"} // Toggle red color when favorite
+            variant={isFavorite ? "solid" : ""} // Solid for active, outline for inactive
+            _hover={{ color: "orange.300" }}
+          />
 
         {/* Profile Dropdown */}
         <Menu>
