@@ -160,13 +160,14 @@ const ProfileForm = ({ isOpen, onClose }) => {
                 <Box textAlign="center">
                   <Image
                     borderRadius="full"
+                    position={"relative"}
                     boxSize="220px"
                     src={user.profilePicture || selectedImg || defaultAvatar}
                     alt={`${user.name}'s profile picture`}
                     border="2px solid"
                     borderColor="black.200"
                     mb={4}
-                    ml={6}
+                    mx={"auto"}
                   />
                   <Box position="relative" display="inline-block">
                     <Button
@@ -261,7 +262,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     <span style={{ fontWeight: "bold" }}>Last login: </span>
                     {formatDate(user.lastLogin)}
                   </Box>
-                  <Box bg="yellow.100" p="4" borderRadius="md" mt="4" mb="4">
+                  <Box bg="yellow.100" p="4" borderRadius="md" mt="4" mb="4" overflow={"auto"} maxWidth={{base: "400px", md: "500px"}}>
                     Role information:
                     <br />
                     <span style={{ fontWeight: "bold" }}>Role: </span>
