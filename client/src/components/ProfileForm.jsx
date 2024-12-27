@@ -17,6 +17,7 @@ import {
   useBreakpointValue,
   IconButton,
   Stack,
+  Text,
 } from "@chakra-ui/react";
 import { useAuthStore } from "../store/authStore";
 import { useCookStore } from "../store/cookStore";
@@ -154,7 +155,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                 direction={{ base: "column", md: "row" }}
                 align={"center"}
                 gap={4}
-                textAlign={"center"}
+                textAlign={"left"}
               >
                 {/* Profile Picture Section */}
                 <Box textAlign="center">
@@ -242,15 +243,29 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     Welcome, {user.name}
                   </Box>
                   <Box bg="blue.100" p="4" borderRadius="md" mt="4">
-                    Username: {user.name} <br />
-                    Email: {user.email} <br />
-                    Role: {user.role} <br />
-                    {user.phoneNumber
-                      ? `Phone Number: ${user.phoneNumber}`
-                      : "Looks like you don't have a phone number yet!"}
+                    <span style={{ fontWeight: "bold" }}>Username: </span>
+                    {user.name} 
+                    <br />
+                    <span style={{ fontWeight: "bold" }}>Email: </span>
+                    {user.email} <br />
+                    <span style={{ fontWeight: "bold" }}>Role:</span> 
+                    {user.role} <br />
+                    <div>
+                    {user.phoneNumber ? (
+                      <div>
+                        <span style={{ fontWeight: "bold" }}>Phone Number:</span> {user.phoneNumber}
+                      </div>
+                    ) : (
+                      <div>
+                        <span style={{ fontWeight: "bold" }}>Looks like you don't have a phone number yet!</span>
+                      </div>
+                    )}
+                    </div>
                   </Box>
                   <Box bg="green.100" p="4" borderRadius="md" mt="4">
-                    Account activity:
+                    <Text as="span" fontWeight="bold" textDecoration={"underline"}>
+                      Account activity:
+                    </Text>
                     <br />
                     <span style={{ fontWeight: "bold" }}>Joined at: </span>
                     {new Date(user.createdAt).toLocaleDateString("en-US", {
@@ -263,7 +278,9 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     {formatDate(user.lastLogin)}
                   </Box>
                   <Box bg="yellow.100" p="4" borderRadius="md" mt="4" mb="4" overflow={"auto"} maxWidth={{base: "400px", md: "500px"}}>
-                    Role information:
+                    <Text as="span" fontWeight="bold" textDecoration={"underline"}>
+                      Role information:
+                    </Text>
                     <br />
                     <span style={{ fontWeight: "bold" }}>Role: </span>
                     {user.role}
