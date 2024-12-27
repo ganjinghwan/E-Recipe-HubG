@@ -291,7 +291,7 @@ const Navbar = () => {
             aria-label="Favorite"
             onClick={handleFavoriteClick}
             colorScheme={isFavorite ? "red" : "white"} // Toggle red color when favorite
-            variant={isFavorite ? "solid" : ""} // Solid for active, outline for inactive
+            variant={isFavorite ? "solid" : ""}
             _hover={{ color: "orange.300" }}
           />
         )}
