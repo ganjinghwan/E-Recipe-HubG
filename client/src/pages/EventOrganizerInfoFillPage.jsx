@@ -5,7 +5,6 @@ import eventOrganizerSmiling from "../pic/event-organizer-smiling.png";
 import eventOrganizerCheck from "../pic/event-organizer-check.jpg";
 import eventShow from "../pic/event-show.jpg";
 import { useNavigate } from "react-router-dom";
-import { useAuthStore } from "../store/authStore";
 import { useEventOrgStore } from "../store/eventOrgStore";
 import axios from "axios";
 
@@ -18,7 +17,6 @@ const EventOrganizerInfoFillPage = () => {
   const [newEventOrgError, setNewEventOrgError] = useState({});
 
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [hasTyped, setHasTyped] = useState(false);
 
   const { newEventOrganizerInfo, isLoading } = useEventOrgStore();
   
@@ -101,25 +99,22 @@ const EventOrganizerInfoFillPage = () => {
         default:
           break;
     }
-        
-    if (!hasTyped && value.trim().length > 0) {
-      setHasTyped(true);
+  };
+  
+  const handleDeleteIncompleteUser = async (e) => {
+    try {
+      //Send delete request to server
+      await axios.delete ("/api/auth/delete-incomplete-user");
+      console.log("Incomplete user deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete incomplete user:", error.message);
     }
   };
-      
-  useEffect(() => {
-    const handleBeforeUnload = async (e) => {
-      // Only delete if the user has started typing but has not submitted
-      // Or if user does not type anything and does not submit
-      if ((!hasTyped && !hasSubmitted) || (hasTyped && !hasSubmitted)) {
-        try {
-          //Send delete request to server
-          await axios.delete ("/api/auth/delete-incomplete-user");
-          console.log("Incomplete user deleted successfully");
-        } catch (error) {
-          console.error("Failed to delete incomplete user:", error.message);
-        }
-      }
+
+  useEffect (() => {
+    const handleBeforeUnload = (e) => {
+      handleDeleteIncompleteUser();
+      // No need to set return value for confirmation
     };
 
     // Attach the beforeunload event listener
@@ -129,9 +124,26 @@ const EventOrganizerInfoFillPage = () => {
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [hasTyped, hasSubmitted]);
+  });
 
+  useEffect(() => {
+    // Push a new state to the history stack
+    window.history.pushState(null, document.title, window.location.pathname);
 
+    const handlePopState = (e) => {
+      // Prevent default behavior and push state again to stay on the page
+      window.history.pushState(null, document.title, window.location.pathname);
+    };
+
+    // Add event listener for popstate event
+    window.addEventListener("popstate", handlePopState);
+
+    // Cleanup the event listener on component unmount
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    }
+  }, []);
+      
   const handleNewEventOrg = async (e) => {
     e.preventDefault();
     setHasSubmitted(true);
@@ -168,7 +180,6 @@ const EventOrganizerInfoFillPage = () => {
       });
     
       clearForm();
-      setHasTyped(false);
       setHasSubmitted(false);
     }
   }

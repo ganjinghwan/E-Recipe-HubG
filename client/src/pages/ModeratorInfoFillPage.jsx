@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { useAuthStore } from "../store/authStore";
+import React, { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useModeratorStore } from "../store/moderatorStore";
 import moderatorWorking from "../pic/moderator-work.jpg";
 import moderatorDiscuss from "../pic/moderator-discuss.jpg";
@@ -16,16 +16,13 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const ModeratorInfoFillPage = () => {
   const [moderatorKey, setModeratorKey] = useState("");
   const [newModeratorError, setNewModeratorError] = useState("");
   const [hasSubmitted, setHasSubmitted] = useState(false);
-  const [hasTyped, setHasTyped] = useState(false);
 
-  const { user } = useAuthStore();
   const { confirmModerator, isLoading } = useModeratorStore();
 
   const images = [
@@ -54,7 +51,6 @@ const ModeratorInfoFillPage = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
-
   const validateFields = () => {
     let error = "";
     if (!moderatorKey) {
@@ -70,37 +66,47 @@ const ModeratorInfoFillPage = () => {
     }
   }, [moderatorKey, hasSubmitted]);
 
-  const handleInputChange = (e) => {
-    const { value } = e.target;
-    setModeratorKey(value);
-
-    if (!hasTyped && value.trim().length > 0) {
-      setHasTyped(true);
+  const handleDeleteIncompleteUser = async () => {
+    try {
+      await axios.delete("/api/auth/delete-incomplete-user");
+      console.log("Incomplete user deleted successfully");
+    } catch (error) {
+      console.error("Failed to delete incomplete user:", error.message);
     }
   };
 
   useEffect(() => {
-    const handleBeforeUnload = async (e) => {
-      // Only delete if the user has started typing but has not submitted
-      // Or if user does not type anything and does not submit
-      if ((!hasTyped && !hasSubmitted) || (hasTyped && !hasSubmitted)) {
-        try {
-          await axios.delete("/api/auth/delete-incomplete-user");
-          console.log("Incomplete user deleted successfully");
-        } catch (error) {
-          console.error("Failed to delete incomplete user:", error.message);
-        }
-      }
+    const handleBeforeUnload = (e) => {
+      handleDeleteIncompleteUser();
+      // No need to set return value for confirmation
     };
-  
+
     // Attach the beforeunload event listener
     window.addEventListener("beforeunload", handleBeforeUnload);
-  
+
     // Cleanup the event listener on component unmount
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [hasTyped, hasSubmitted]);
+  });
+
+  useEffect(() => {
+    // Push a new state to the history stack
+    window.history.pushState(null, document.title, window.location.pathname);
+    
+    const handlePopState = (e) => {
+      // Prevent default behavior and push state again to stay on the page
+      window.history.pushState(null, document.title, window.location.pathname);
+    };
+    
+    // Add event listener for popstate event
+    window.addEventListener("popstate", handlePopState);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, []);
 
   const handleNewModerator = async (e) => {
     e.preventDefault();
@@ -124,7 +130,7 @@ const ModeratorInfoFillPage = () => {
       });
       navigate("/");
     } catch (error) {
-      const messages = error.response?.data?.messages || ["An unexpected error occured"];
+      const messages = error.response?.data?.messages || ["An unexpected error occurred"];
       
       messages.forEach((message) => {
         toast({
@@ -138,7 +144,6 @@ const ModeratorInfoFillPage = () => {
       });
 
       clearForm();
-      setHasTyped(false);
       setHasSubmitted(false);
     }
   };
@@ -159,9 +164,9 @@ const ModeratorInfoFillPage = () => {
 
         <Box mt={3}>
           <Text fontSize="xl" fontWeight="bold">
-            Welcome Moderator! Before continue, please fill in the required information.
+            Welcome Moderator! Before continuing, please fill in the required information.
             <br />
-            Please note that closing this page will count as discard for your account registration.
+            Please note that closing this page or navigating away will count as discarding your account registration.
           </Text>
         </Box>
 
@@ -173,7 +178,7 @@ const ModeratorInfoFillPage = () => {
               borderColor={"black.500"}
               placeholder="Please enter your Moderator Key for verification"
               value={moderatorKey}
-              onChange={handleInputChange}
+              onChange={(e) => setModeratorKey(e.target.value)}
             />
             <FormErrorMessage>{newModeratorError}</FormErrorMessage>
           </FormControl>
