@@ -1,6 +1,6 @@
 import { Box, Button, Flex, FormControl, FormErrorMessage, FormLabel, Input, Text, Textarea, useToast } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import eventOrganizerHappy from "../pic/event-organizer-smile.jpg";
+import eventOrganizerShowing from "../pic/event-organizer-showing.jpg";
 import eventOrganizerSmiling from "../pic/event-organizer-smiling.png";
 import eventOrganizerCheck from "../pic/event-organizer-check.jpg";
 import eventShow from "../pic/event-show.jpg";
@@ -21,7 +21,7 @@ const EventOrganizerInfoFillPage = () => {
   const { newEventOrganizerInfo, isLoading } = useEventOrgStore();
   
   const images = [
-    { src: eventOrganizerHappy, position: "86%" }, 
+    { src: eventOrganizerShowing, position: "60%" }, 
     { src: eventOrganizerSmiling, position: "32%" }, 
     { src: eventOrganizerCheck, position: "34%" }, 
     { src: eventShow, position: "center" }
