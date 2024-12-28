@@ -18,6 +18,7 @@ import { FaTrash } from "react-icons/fa";
 import { useAuthStore } from "../../store/authStore";
 
 
+
 const UserListModal = ({ isOpen, onClose }) => {
   const { CGEs, fetchCGE } = useAuthStore();
   const toast = useToast();
@@ -54,54 +55,102 @@ const UserListModal = ({ isOpen, onClose }) => {
         <ModalBody>
           <Box
             maxH="400px"
-            overflowX="auto"
-            overflowY="auto"
-            whiteSpace="nowrap"
             border="1px solid lightgray"
             borderRadius="md"
             p={2}
+            boxShadow="sm"
+            overflow="auto" // Enable horizontal scrolling
+            sx={{
+              '&::-webkit-scrollbar': {
+                height: '8px',
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: 'gray.500',
+                borderRadius: '10px',
+              },
+              '&::-webkit-scrollbar-thumb:hover': {
+                background: 'gray.700',
+              },
+              '&::-webkit-scrollbar-track': {
+                background: 'gray.100',
+                borderRadius: '10px',
+              },
+            }}
+
           >
+            <Box minW="830px"> {/* Ensure content is wide enough for horizontal scrolling */}
+            {/* Header Row */}
+            <Flex
+            alignItems="center"
+            bg="gray.100"
+            fontWeight="bold"
+            borderBottom="1px solid lightgray"
+            position="sticky"
+            top="0" // Keeps the header row fixed during vertical scrolling
+            zIndex="1"
+            >
+            <Flex flex="1">
+                <Box flex="1" minW="170px">
+                <Text>Username</Text>
+                </Box>
+                <Box flex="1" minW="140px">
+                <Text>Role</Text>
+                </Box>
+                <Box flex="2" minW="235px">
+                <Text>Email</Text>
+                </Box>
+                <Box flex="2" minW="220px">
+                <Text>ID</Text>
+                </Box>
+            </Flex>
+            </Flex>
+
+            {/* User Rows */}
             {CGEs?.length > 0 ? (
-              CGEs.map((user) => (
+            CGEs.map((user) => (
                 <Flex
-                  key={user._id}
-                  alignItems="center"
-                  justifyContent="space-between"
-                  p={2}
-                  mb={2}
-                  borderBottom="1px solid lightgray"
+                key={user._id}
+                alignItems="center"
+                justifyContent="space-between"
+                p={2}
+                mb={2}
+                borderBottom="1px solid lightgray"
+                bg="white" // Ensure background color applies even during horizontal scroll
                 >
-                  <Box
-                    minW="100px"
-                    textOverflow="ellipsis"
-                    overflow="hidden"
-                    whiteSpace="nowrap"
-                  >
+                {/* User Data Columns */}
+                <Flex flex="1">
+                    <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
                     <Text fontWeight="bold">{user.name}</Text>
-                    <Text fontSize="sm">{user.role}</Text>
-                  </Box>
-                  <Box
-                    minW="200px"
-                    textOverflow="ellipsis"
-                    overflow="hidden"
-                    whiteSpace="nowrap"
-                  >
+                    </Box>
+                    <Box flex="1" minW="140px" textOverflow="ellipsis" overflow="hidden">
+                    <Text>{user.role}</Text>
+                    </Box>
+                    <Box flex="2" minW="235px" textOverflow="ellipsis" overflow="hidden">
                     <Text>{user.email}</Text>
-                  </Box>
-                  <Text fontSize="xs">{user._id}</Text>
-                  <IconButton
+                    </Box>
+                    <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
+                    <Text>{user._id}</Text>
+                    </Box>
+                </Flex>
+
+                {/* Trash/Delete Button */}
+                <Box flex="0" minW="50px" textAlign="center">
+                    <IconButton
                     icon={<FaTrash />}
                     colorScheme="red"
                     size="sm"
                     onClick={() => handleDelete(user._id)}
                     aria-label="Delete user"
-                  />
+                    />
+                </Box>
                 </Flex>
-              ))
+            ))
             ) : (
-              <Text>No users found.</Text>
+            <Text>No users found.</Text>
             )}
-          </Box>
+         </Box>
+        </Box>
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" onClick={onClose}>
