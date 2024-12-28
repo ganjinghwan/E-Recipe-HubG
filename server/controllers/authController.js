@@ -9,6 +9,7 @@ import { Guest } from "../models/Guest.js";
 import { EventOrganizer } from "../models/EventOrganizer.js";
 import { Moderator } from "../models/moderator.js";
 import Recipe from "../models/Recipe.js";
+import cloudinary from "../cloudinary/cloudinary.js";
 
 
 export const getUserList_CGE = async (req, res) => {
@@ -289,6 +290,36 @@ export const checkAuth = async (req, res) => {
     } catch (error) {
         console.log("Failed to check auth", error.message);
         res.status(400).json({ success: false, message: error.message });
+    }
+}
+
+export const uploadProfilePicture = async (req, res) => {
+    try {
+       const {profilePicture} = req.body;
+
+       const userID = req.user._id;
+
+       if (!userID) {
+        return res.status(400).json({ success: false, message: "User not found" });
+       }
+
+       if (!profilePicture) {
+        return res.status(400).json({ success: false, message: "Please upload a profile picture" });
+       }
+
+       const uploadResponse = await cloudinary.uploader.upload(profilePicture);
+
+       const updatedUser = await User.findByIdAndUpdate(userID, {
+           profilePicture: uploadResponse.secure_url
+       }, { new: true });
+
+       res.status(200).json({
+           success: true,
+           message: "Profile picture uploaded successfully",
+           user: updatedUser
+       })
+    } catch (error) {
+        console.log("Error uploading profile picture", error.message);
     }
 }
 

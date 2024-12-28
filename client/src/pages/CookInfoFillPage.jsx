@@ -41,6 +41,32 @@ const CookInfoFillPage = () => {
         return () => clearInterval(interval);
     }, [images.length]);
 
+    const handleNewEmptyCook = async (e) => {
+        e.preventDefault();
+        setHasSubmitted(true);
+
+        try {
+            await newCookInfo("", "");
+            toast({
+                position: "bottom",
+                title: "Welcome Cook!",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            });
+            navigate("/");
+        } catch (error) {
+            toast({
+                position: "bottom",
+                title: "Error adding new cook info",
+                description: error.response?.data?.message,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        }
+    }
+
 
     const handleNewCook = async (e) => {
         e.preventDefault();
@@ -120,7 +146,7 @@ const CookInfoFillPage = () => {
                     </FormControl>
 
                     <Box display="flex" justifyContent="space-between" width="100%" mt={4}>
-                        <Button colorScheme="red" onClick={() => navigate("/")}>
+                        <Button colorScheme="red" onClick={handleNewEmptyCook}>
                             Skip
                         </Button>
                         <Button

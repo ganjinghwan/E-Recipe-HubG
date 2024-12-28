@@ -38,7 +38,7 @@ import { FaTrash, FaEdit, FaPencilAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 const ProfileForm = ({ isOpen, onClose }) => {
-  const { user, isUploadingPicture, uploadProfilePicture, deleteAccount} = useAuthStore();
+  const { user, isUploadingProfilePicture, uploadProfilePicture, deleteAccount} = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const { cook, getCookInfo } = useCookStore();
   const { eventOrganizer, getEventOrganizerInfo } = useEventOrgStore();
@@ -103,7 +103,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
-    reader.onload = async () => {
+    reader.onload = async (e) => {
       const base64Image = reader.result;
       setSelectedImg(base64Image);
       try {
@@ -111,6 +111,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
         toast({
           position: "bottom",
           title: "Profile picture uploaded successfully",
+          description: "Your new profile picture has been uploaded.",
           status: "success",
           duration: 5000,
           isClosable: true,
@@ -216,9 +217,9 @@ const ProfileForm = ({ isOpen, onClose }) => {
                       htmlFor="avatar-upload"
                       colorScheme="purple"
                       size="sm"
-                      isDisabled={isUploadingPicture}
+                      isDisabled={isUploadingProfilePicture}
                     >
-                      {isUploadingPicture ? "Uploading..." : "Upload Profile Picture"}
+                      {isUploadingProfilePicture ? "Uploading..." : "Upload Profile Picture"}
                     </Button>
                     <Input
                       type="file"
@@ -226,7 +227,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                       accept="image/*"
                       onChange={handleImageUpload}
                       display="none"
-                      isDisabled={isUploadingPicture}
+                      isDisabled={isUploadingProfilePicture}
                     />
                   </Box>
                   

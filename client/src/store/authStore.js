@@ -10,6 +10,7 @@ export const useAuthStore = create((set, get) => ({
     errors: null,
     isLoading: false,
     isCheckingAuth: true,
+    isUploadingProfilePicture: false,
     message: null,
 
 
@@ -143,6 +144,19 @@ export const useAuthStore = create((set, get) => ({
             throw { response: { data: { messages: errorMessage } } };
         }
     }, 
+
+    uploadProfilePicture: async (file) => {
+        set({isUploadingProfilePicture: true, error: null});
+        try {
+            const response = await axios.put(`/api/auth/upload-profile-picture`, file);
+            set({ user: response.data.user, isAuthenticated: true });
+        } catch (error) {
+            set({ error: error.response.data.message || "Error uploading profile picture", isUploadingProfilePicture: false });
+            throw error;
+        } finally {
+            set({ isUploadingProfilePicture: false });
+        }
+    },
 
     verifyUpdate: async (code) => {
         set({ isLoading: true, error: null });
