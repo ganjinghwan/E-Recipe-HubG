@@ -28,6 +28,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
+  Stack,
   useBreakpointValue 
 } from "@chakra-ui/react";
 import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube, FaStar} from "react-icons/fa";
@@ -60,6 +61,8 @@ const Recipes = () => {
   const [updatedRecipe, setUpdatedRecipe] = useState(selectedFood);
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
+  const [imageSource, setImageSource] = useState("url"); // Default to URL
+
 
   const resetNewRecipe = () => {
     setNewRecipe({
@@ -949,19 +952,61 @@ const Recipes = () => {
                     : handleInputChange(e)
                 }
               />
-              <Input
-                placeholder="Image URL"
-                name="image"
-                value={activeModal === "update" ? updatedRecipe?.image || "" : newRecipe.image}
-                onChange={(e) =>
-                  activeModal === "update"
-                    ? setUpdatedRecipe((prev) => ({
-                        ...prev,
-                        [e.target.name]: e.target.value,
-                      }))
-                    : handleInputChange(e)
-                }
-              />
+              <Box>
+                <Text fontWeight="bold">Select Image Source:</Text>
+                <Stack direction="row" spacing={4} mt={2}>
+                  <Button
+                    variant={imageSource === "url" ? "solid" : "outline"}
+                    onClick={() => setImageSource("url")}
+                  >
+                    URL
+                  </Button>
+                  <Button
+                    variant={imageSource === "upload" ? "solid" : "outline"}
+                    onClick={() => setImageSource("upload")}
+                  >
+                    Upload
+                  </Button>
+                </Stack>
+                {imageSource === "url" ? (
+                  <Input
+                    mt={4}
+                    placeholder="Enter Image URL"
+                    name="image"
+                    value={activeModal === "update" ? updatedRecipe?.image || "" : newRecipe.image}
+                    onChange={(e) =>
+                      activeModal === "update"
+                        ? setUpdatedRecipe((prev) => ({
+                            ...prev,
+                            [e.target.name]: e.target.value,
+                          }))
+                        : handleInputChange(e)
+                    }
+                  />
+                ) : (
+                  <Input
+                    mt={4}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        // Handle file upload logic here
+                        const imageUrl = URL.createObjectURL(file);
+                        activeModal === "update"
+                          ? setUpdatedRecipe((prev) => ({
+                              ...prev,
+                              image: imageUrl,
+                            }))
+                          : setNewRecipe((prev) => ({
+                              ...prev,
+                              image: imageUrl,
+                            }));
+                      }
+                    }}
+                  />
+                )}
+              </Box>
               <Input
                 placeholder="Video URL [optional]"
                 name="video"
