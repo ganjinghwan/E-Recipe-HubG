@@ -123,10 +123,6 @@ const Recipes = () => {
     return lines.join("\n");
   };
   
-  
-  
-  
-  
 
   const capitalize = (str) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
