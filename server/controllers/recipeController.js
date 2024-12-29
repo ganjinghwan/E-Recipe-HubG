@@ -3,6 +3,9 @@ import {Cook} from '../models/Cook.js';
 import { EventOrganizer } from '../models/EventOrganizer.js';
 import { Guest } from '../models/Guest.js';
 import mongoose from 'mongoose';
+import { isValidURL } from "../utils/validation.js"; // A utility to validate URLs
+import cloudinary from "../cloudinary/cloudinary.js";
+
 
 export const getRecipes = async (req, res) => {
     try{
@@ -40,50 +43,106 @@ export const getAllRecipes = async (req, res) => {
     }
 }
 
+
 export const createRecipe = async (req, res) => {
     const recipe = req.body;
     const userId = req.userId; 
-    if(!recipe.title || !recipe.ingredients || !recipe.instructions || !recipe.prepTime || !recipe.category || !recipe.image) {
-        return res.status(409).json({ success: false, message: 'All fields are required' });
+    if (
+        !recipe.title ||
+        !recipe.ingredients ||
+        !recipe.instructions ||
+        !recipe.prepTime ||
+        !recipe.category ||
+        !recipe.image
+    ) {
+        return res.status(409).json({ success: false, message: "All fields are required" });
     }
 
     try {
+        let imageUrl = recipe.image || null;
+
+        if (recipe.image) {
+            if (!isValidURL(recipe.image)) {
+                // If it's not a valid URL, assume it's a file and upload to Cloudinary
+                const uploadResponse = await cloudinary.uploader.upload(recipe.image, {
+                    folder: "recipes",
+                });
+                imageUrl = uploadResponse.secure_url;
+            } else {
+                // If it's a valid URL, use it directly
+                imageUrl = recipe.image;
+            }
+        }
+
         const newRecipe = new Recipe({
-            ...recipe,           // Spread existing recipe data
-            user_id: userId        // Add user ID to recipe
+            ...recipe, // Spread existing recipe data
+            user_id: userId, // Add user ID to recipe
+            image: imageUrl, // Add final image URL
         });
 
         await newRecipe.save();
-        res.status(201).json({ 
-            success: true, 
-            message: 'Recipe created successfully', 
-            data: newRecipe, 
+        res.status(201).json({
+            success: true,
+            message: "Recipe created successfully",
+            data: newRecipe,
         });
-    } catch(error) {
-        console.error("Failed to create recipe", error.message);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Server22 Error' 
+    } catch (error) {
+        console.error("Failed to create recipe:", error.message);
+        res.status(500).json({
+            success: false,
+            message: "Server Error",
         });
     }
 }
 
 export const updateRecipe = async (req, res) => {
-    const {id} = req.params;
-    const recipe = req.body;
+    const { id } = req.params; // Recipe ID from the request parameters
+    const recipe = req.body; // Updated recipe data from the request body
 
-    if(!mongoose.Types.ObjectId.isValid(id)){
-        return res.status(404).json({ success: false, message: 'Invalid Recipe ID' });
+    // Validate recipe ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ success: false, message: "Invalid Recipe ID" });
     }
 
-    try{
-        const updatedRecipe = await Recipe.findByIdAndUpdate(id, recipe,{new: true});
-        res.status(200).json({ success: true, message: 'Recipe updated successfully', data: recipe });    
-    }catch(error){
-        console.log("Failed to update recipe", error.message);
-        res.status(500).json({ success: false, message: 'Server Error' });
+    try {
+        let imageUrl = recipe.image || null;
+
+        // Check if an image is provided and handle accordingly
+        if (recipe.image) {
+            if (!isValidURL(recipe.image)) {
+                // If not a valid URL, upload to Cloudinary
+                const uploadResponse = await cloudinary.uploader.upload(recipe.image, {
+                    folder: "recipes",
+                });
+                imageUrl = uploadResponse.secure_url;
+            } else {
+                // If it's a valid URL, use it directly
+                imageUrl = recipe.image;
+            }
+        }
+
+        // Update the recipe with the verified image URL
+        const updatedRecipe = await Recipe.findByIdAndUpdate(
+            id,
+            { ...recipe, image: imageUrl }, // Include the processed image URL
+            { new: true } // Return the updated document
+        );
+
+        if (!updatedRecipe) {
+            return res.status(404).json({ success: false, message: "Recipe not found" });
+        }
+
+        // Respond with success
+        res.status(200).json({
+            success: true,
+            message: "Recipe updated successfully",
+            data: updatedRecipe,
+        });
+    } catch (error) {
+        console.error("Failed to update recipe:", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
     }
-}
+};
 
 
 export const deleteRecipe =async (req, res) => {

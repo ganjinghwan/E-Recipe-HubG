@@ -53,6 +53,7 @@ const Recipes = () => {
     image: "",
     video: "",
   });
+
   const {createRecipe, deleteRecipes, updateRecipes, fetchRecipeById, toggleFavorite} = useStoreRecipe();
   const { fetchFavoriteRecipes, favoriteRecipes } = useStoreRecipe();
   const {fetchRecipes, recipes} = useStoreRecipe();
@@ -318,6 +319,19 @@ const Recipes = () => {
   
 
   const handleAddRecipe = async () => {
+
+    // Validate the image URL
+    if (newRecipe.image && !isValidUrl(newRecipe.image)) {
+      toast({
+        title: "Invalid Image URL",
+        description: "Please enter a valid image URL.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return; // Stop further execution if validation fails
+    }
+
     const {success,message} = await createRecipe(newRecipe);
     console.log(newRecipe);
     if (!success) {
@@ -373,6 +387,19 @@ const Recipes = () => {
 
 
   const handleUpdateRecipe = async (rid,updatedRecipe) => {
+
+    // Validate the image URL
+    if (updatedRecipe.image && !isValidUrl(updatedRecipe.image)) {
+      toast({
+        title: "Invalid Image URL",
+        description: "Please enter a valid image URL.",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+      return; // Stop further execution if validation fails
+    }
+
     const {success,message} = await updateRecipes(rid,updatedRecipe);
     if (!success) {
       toast({
@@ -973,7 +1000,7 @@ const Recipes = () => {
                     mt={4}
                     placeholder="Enter Image URL"
                     name="image"
-                    value={activeModal === "update" ? updatedRecipe?.image || "" : newRecipe.image}
+                    value={activeModal === "update" ? updatedRecipe?.image || "" : newRecipe.image || ""}
                     onChange={(e) =>
                       activeModal === "update"
                         ? setUpdatedRecipe((prev) => ({
@@ -988,25 +1015,35 @@ const Recipes = () => {
                     mt={4}
                     type="file"
                     accept="image/*"
+                    key={activeModal === "update" ? "updateFileInput" : "newFileInput"} // Force re-render for consistent behavior
                     onChange={(e) => {
-                      const file = e.target.files[0];
+                      const file = e.target.files?.[0];
                       if (file) {
-                        // Handle file upload logic here
-                        const imageUrl = URL.createObjectURL(file);
-                        activeModal === "update"
-                          ? setUpdatedRecipe((prev) => ({
-                              ...prev,
-                              image: imageUrl,
-                            }))
-                          : setNewRecipe((prev) => ({
-                              ...prev,
-                              image: imageUrl,
-                            }));
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          const base64String = reader.result || ""; // Default to empty string
+                          if (activeModal === "update") {
+                            setUpdatedRecipe((prev) => ({ ...prev, image: base64String }));
+                          } else {
+                            setNewRecipe((prev) => ({ ...prev, image: base64String }));
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      } else {
+                        // Handle case where no file is selected
+                        if (activeModal === "update") {
+                          setUpdatedRecipe((prev) => ({ ...prev, image: "" }));
+                        } else {
+                          setNewRecipe((prev) => ({ ...prev, image: "" }));
+                        }
                       }
                     }}
                   />
+
+
                 )}
               </Box>
+
               <Input
                 placeholder="Video URL [optional]"
                 name="video"
