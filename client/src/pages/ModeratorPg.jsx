@@ -22,6 +22,7 @@ import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import Chart from "react-apexcharts"; // Use ApexCharts for graphing
+import dayjs from "dayjs";
 
 
 import UserListModal from "../components/moderator-modal/user_list";
@@ -50,19 +51,28 @@ const ModeratorPage = () => {
   const toast = useToast();
   const navigate = useNavigate();
 
-/**********************************Fetching Users Count******************************************************************** */
-  useEffect(() => {
-        fetchCGE();
-    }, [fetchCGE]);
+  const [userActivity, setUserActivity] = useState({ labels: [], counts: [] });
+  const [recipeSubmissions, setRecipeSubmissions] = useState({ labels: [], counts: [] });
 
-/**********************************Fetching Reports Count******************************************************************** */
-/**********************************Fetching Recipes Count******************************************************************** */
- useEffect(() => {
-     fetchAllRecipes();
- }, [fetchAllRecipes]);
-
-/**********************************Fetching Warnings Count******************************************************************** */
-
+/**********************************Fetching Users/Reports/Recipes/Warnings Count******************************************************************** */
+    
+    useEffect(() => {
+      // Fetch data
+      const fetchData = async () => {
+        await fetchCGE(); // Fetch user data
+        await fetchAllRecipes(); // Fetch recipe data
+    
+        // Process User Activity
+        const userActivityData = processDataForLast7Days(CGEs, "lastLogin");
+        setUserActivity(userActivityData);
+    
+        // Process Recipe Submissions
+        const recipeData = processDataForLast7Days(recipes, "createdAt");
+        setRecipeSubmissions(recipeData);
+      };
+    
+      fetchData();
+    }, [fetchCGE, fetchAllRecipes]);
   
 //   reports: CGEs?.filter((cge) => cge.type === "report").length || 0,
 //   recipes: CGEs?.filter((cge) => cge.type === "recipe").length || 0,
@@ -114,33 +124,50 @@ const handleClick = (type) => {
 };
 
   
+/**********************************Handling Data Chart******************************************************************** */
 
-  const dataChartOptions = {
-    chart: {
-      id: "user-activity",
-    },
-    xaxis: {
-      categories: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], // Last 7 days
-    },
-  };
+    // Helper function to process ISO dates
+    const processDataForLast7Days = (data, dateField) => {
+      const today = dayjs(); // Current day
+      const last7Days = [...Array(7).keys()].map((i) => today.subtract(6 - i, "day"));
+      
+      // Initialize results for the last 7 days
+      const result = last7Days.map((day) => ({
+        label: `${day.format("ddd")}/${day.format("DD")}`, // e.g., "Mon/30"
+        date: day.format("YYYY-MM-DD"),
+        count: 0,
+      }));
+    
+      // Loop through the data to populate the counts
+      data.forEach((item) => {
+        const recordDate = dayjs(item[dateField]).format("YYYY-MM-DD"); // Parse MongoDB ISODate
+        const match = result.find((day) => day.date === recordDate);
+        if (match) match.count++;
+      });
+    
+      return {
+        labels: result.map((r) => r.label),
+        counts: result.map((r) => r.count),
+      };
+    };
+    
+    const userActivityOptions = {
+        chart: { id: "user-activity" },
+        xaxis: { categories: userActivity.labels }, // Use processed labels
+    };
 
-  const userActivityData = {
-    series: [
-      {
-        name: "Active Users",
-        data: [5, 10, 7, 12, 15, 20, 18], // Mock data for login activity
-      },
-    ],
-  };
+    const recipeDataOptions = {
+        chart: { id: "recipe-submissions" },
+        xaxis: { categories: recipeSubmissions.labels }, // Use processed labels
+    };
 
-  const recipeData = {
-    series: [
-      {
-        name: "Recipes",
-        data: [2, 3, 1, 4, 5, 6, 8], // Mock data for recipes
-      },
-    ],
-  };
+    const userActivitySeries = [
+        { name: "Active Users", data: userActivity.counts }, // Use processed counts
+    ];
+
+    const recipeDataSeries = [
+        { name: "Recipes", data: recipeSubmissions.counts }, // Use processed counts
+    ];
 
 
 
@@ -256,42 +283,43 @@ const handleClick = (type) => {
         </Grid>
 
         <Grid templateColumns={{ base: "1fr", md: "1fr 1fr" }} gap={4} p={4}>
-          {/* Green Component - User Activity Chart */}
-          <Box
-            bg="rgba(255, 255, 255, 0.2)"
-            borderRadius="lg"
-            p={4}
-            backdropFilter="blur(10px)"
-          >
-            <Text fontWeight="bold" mb={2}>
-              User Activity
-            </Text>
-            <Chart
-              options={dataChartOptions}
-              series={userActivityData.series}
-              type="line"
-              height="200"
-            />
-          </Box>
+            {/* User Activity Chart */}
+            <Box
+                bg="rgba(255, 255, 255, 0.2)"
+                borderRadius="lg"
+                p={4}
+                backdropFilter="blur(10px)"
+            >
+                <Text fontWeight="bold" mb={2}>
+                User Activity
+                </Text>
+                <Chart
+                options={userActivityOptions}
+                series={userActivitySeries}
+                type="line"
+                height="200"
+                />
+            </Box>
 
-          {/* Blue Component - Recipes Histogram */}
-          <Box
-            bg="rgba(255, 255, 255, 0.2)"
-            borderRadius="lg"
-            p={4}
-            backdropFilter="blur(10px)"
-          >
-            <Text fontWeight="bold" mb={2}>
-              Recipes Submitted
-            </Text>
-            <Chart
-              options={dataChartOptions}
-              series={recipeData.series}
-              type="bar"
-              height="200"
-            />
-          </Box>
+            {/* Recipe Submissions Chart */}
+            <Box
+                bg="rgba(255, 255, 255, 0.2)"
+                borderRadius="lg"
+                p={4}
+                backdropFilter="blur(10px)"
+            >
+                <Text fontWeight="bold" mb={2}>
+                Recipes Submitted
+                </Text>
+                <Chart
+                options={recipeDataOptions}
+                series={recipeDataSeries}
+                type="bar"
+                height="200"
+                />
+            </Box>
         </Grid>
+
       </Flex>
 
       {/* User List Modal */}
