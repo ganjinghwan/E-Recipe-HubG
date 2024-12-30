@@ -16,7 +16,7 @@ import {
   Center,
   useBreakpointValue 
 } from "@chakra-ui/react";
-import { FaUser, FaFlag, FaBook, FaExclamationTriangle } from "react-icons/fa";
+import { FaUser, FaFlag, FaBook, FaExclamationTriangle, FaSync, FaSyncAlt } from "react-icons/fa";
 import generalBackground from "../pic/mod3.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
@@ -25,6 +25,7 @@ import Chart from "react-apexcharts"; // Use ApexCharts for graphing
 
 
 import UserListModal from "../components/moderator-modal/user_list";
+import RecipeListModal from "../components/moderator-modal/recipe_list";
 
 
 const ModeratorPage = () => {
@@ -38,12 +39,13 @@ const ModeratorPage = () => {
   });
 
   const {fetchAllRecipes, recipes, recipeCount} = useStoreRecipe();
+  const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
+  
 
   const [isUserListOpen, setIsUserListOpen] = useState(false);
   const [isReportListOpen, setIsReportListOpen] = useState(false);
   const [isRecipeListOpen, setIsRecipeListOpen] = useState(false);
   const [isWarningListOpen, setIsWarningListOpen] = useState(false);
-
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -66,6 +68,30 @@ const ModeratorPage = () => {
 //   recipes: CGEs?.filter((cge) => cge.type === "recipe").length || 0,
 //   warnings: CGEs?.filter((cge) => cge.type === "warning").length || 0,
 
+/**********************************Updating Date and time******************************************************************** */
+const [currentDate, setCurrentDate] = useState("");
+
+useEffect(() => {
+    const updateDate = () => {
+      const now = new Date();
+      setCurrentDate(now.toLocaleString());
+    };
+
+    updateDate();
+  }, []);
+
+  const handleRefresh = () => {
+    window.location.reload();
+  };
+
+
+//   const handleRefresh = () => {
+//     setCurrentDate(new Date());
+//     fetchCGE();
+//     fetchAllRecipes();
+//   };
+
+/**********************************Handling Modal Clicks******************************************************************** */
 const handleClick = (type) => {
 
     if (type === "users") {
@@ -157,7 +183,46 @@ const handleClick = (type) => {
       />
 
       {/* Dashboard Content */}
-      <Flex direction="column" w="80%" h="65%" zIndex="2">
+      <Flex direction="column" w="80%" h="70%" zIndex="2">
+
+        {/* Refresh and Date Section */}
+        <Grid templateColumns="repeat(5, 1fr)" gap={4} p={3} alignItems="center">
+            <Grid 
+                templateColumns="1fr auto" 
+                columnGap={4} 
+                alignItems="center" 
+                gridColumn="span 5"
+             >
+                <Box
+                    bg="rgba(255, 255, 255, 0.2)" // Semi-transparent white
+                    borderRadius="lg"
+                    backdropFilter="blur(20px)" // Apply blur effect
+                    p={2}
+                    gridColumn="3" // Place the box in the last column (most right side)
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    flexDirection="row"
+                >
+                    <Text fontWeight="bold" textAlign="right">
+                    Latest at :
+                    {currentDate}
+                    </Text>
+                    
+                </Box>
+
+                <IconButton
+                        aria-label="Refresh"
+                        icon={<FaSyncAlt />}
+                        size={iconButtonSize}
+                        onClick={handleRefresh}
+                        colorScheme="blue"
+                        gridColumn= "4"
+                />
+                
+            </Grid>
+        </Grid>
+        
         <Grid
           templateColumns={{ base: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }}
           gap={4}
@@ -237,12 +302,12 @@ const handleClick = (type) => {
         {/* <ReportListModal
             isOpen={isReportListOpen}
             onClose={() => setIsReportListOpen(false)}
-        />
-        <RecipeListModal
+        /> */}
+        {/* <RecipeListModal
             isOpen={isRecipeListOpen}
             onClose={() => setIsRecipeListOpen(false)}
-        />
-        <WarningListModal
+        /> */}
+        {/* <WarningListModal
             isOpen={isWarningListOpen}
             onClose={() => setIsWarningListOpen(false)}
         /> */}
