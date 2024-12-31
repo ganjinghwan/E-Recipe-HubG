@@ -11,6 +11,9 @@ import { Moderator } from "../models/moderator.js";
 import Recipe from "../models/Recipe.js";
 import cloudinary from "../cloudinary/cloudinary.js";
 
+import dayjs from "dayjs";
+import DailyLogins from "../models/DailyLogins.js"; // A new Mongoose model
+
 
 export const getUserList_CGE = async (req, res) => {
     try {
@@ -182,6 +185,14 @@ export const login = async (req, res) => {
 
         user.lastLogin = new Date();
         await user.save();
+
+        // Increment daily login count
+        const today = dayjs().format("YYYY-MM-DD");
+        const dailyLogin = await DailyLogins.findOneAndUpdate(
+        { date: today },
+        { $inc: { loginCount: 1 } }, // Increment count
+        { upsert: true, new: true } // Create a new document if not found
+        );
 
         res.status(200).json({
             success: true,
@@ -494,3 +505,24 @@ export const deleteUser = async (req, res) => {
         res.status(400).json({ success: false, message: error.message });
     }
 };
+
+export const getDailyLogins = async (req, res) => {
+    try {
+      const last7Days = [...Array(7).keys()].map((i) =>
+        dayjs().subtract(i, "day").format("YYYY-MM-DD")
+      );
+  
+      const logins = await DailyLogins.find({ date: { $in: last7Days } });
+  
+      // Ensure all days are represented, even with 0 counts
+      const result = last7Days.map((date) => {
+        const record = logins.find((login) => login.date === date);
+        return { date, loginCount: record ? record.loginCount : 0 };
+      });
+  
+      res.status(200).json({ success: true, data: result });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
+  };
+  

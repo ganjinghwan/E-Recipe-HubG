@@ -6,6 +6,7 @@ export const useAuthStore = create((set, get) => ({
     user: null,
     cooks:[],
     CGEs:[],
+    dailyLogins: [],
     isAuthenticated: false,
     errors: null,
     isLoading: false,
@@ -13,6 +14,15 @@ export const useAuthStore = create((set, get) => ({
     isUploadingProfilePicture: false,
     message: null,
 
+
+    fetchDailyLogins: async () => {
+        try {
+          const res = await axios.get("/api/auth/daily-logins");
+          set({ dailyLogins: res.data.data });
+        } catch (error) {
+          console.error("Failed to fetch daily logins:", error);
+        }
+      },
 
     fetchCGE: async () => {
         try {
