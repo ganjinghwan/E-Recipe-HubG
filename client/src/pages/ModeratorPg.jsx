@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Box,
   Flex,
@@ -31,7 +31,7 @@ import RecipeListModal from "../components/moderator-modal/recipe_list";
 
 const ModeratorPage = () => {
   const { user } = useAuthStore(); // Access current user info
-  const { fetchCGE, CGEs, userCGesCount} = useAuthStore();
+  const { fetchCGE, CGEs, userCGesCount, fetchDailyLogins, dailyLogins} = useAuthStore();
   const [counts, setCounts] = useState({
     users: 0,
     reports: 0,
@@ -57,23 +57,36 @@ const ModeratorPage = () => {
 /**********************************Fetching Users/Reports/Recipes/Warnings Count******************************************************************** */
     
     useEffect(() => {
-      // Fetch data
-      const fetchData = async () => {
+        const fetchData = async () => {
+        // Fetch all required data
+        await fetchDailyLogins(); // Fetch daily login data
         await fetchCGE(); // Fetch user data
         await fetchAllRecipes(); // Fetch recipe data
     
-        // Process User Activity
+        // Process Daily Logins for Chart
+        const loginLabels = dailyLogins.map((entry) =>
+            dayjs(entry.date).format("ddd/DD")
+        );
+        const loginCounts = dailyLogins.map((entry) => entry.count);
+        setUserActivity({ labels: loginLabels, counts: loginCounts });
+    
+        // Process User Activity for Last Logins
         const userActivityData = processDataForLast7Days(CGEs, "lastLogin");
         setUserActivity(userActivityData);
     
         // Process Recipe Submissions
         const recipeData = processDataForLast7Days(recipes, "createdAt");
         setRecipeSubmissions(recipeData);
-      };
+        };
     
-      fetchData();
-    }, [fetchCGE, fetchAllRecipes]);
+        fetchData();
+    }, [fetchDailyLogins, fetchCGE, fetchAllRecipes]);
   
+  
+
+    const userCount = useMemo(() => userCGesCount(), [userCGesCount]);
+    const recipeCountMemoized = useMemo(() => recipeCount(), [recipeCount]);
+
 //   reports: CGEs?.filter((cge) => cge.type === "report").length || 0,
 //   recipes: CGEs?.filter((cge) => cge.type === "recipe").length || 0,
 //   warnings: CGEs?.filter((cge) => cge.type === "warning").length || 0,
@@ -99,35 +112,39 @@ useEffect(() => {
 //     setCurrentDate(new Date());
 //     fetchCGE();
 //     fetchAllRecipes();
+//     await fetchDailyLogins();
+
 //   };
 
 /**********************************Handling Modal Clicks******************************************************************** */
-const handleClick = (type) => {
-
-    if (type === "users") {
-        setIsUserListOpen(true); // Open the UserListModal
-    } else if (type === "reports") {
-        setIsReportListOpen(true); // Open the ReportListModal
-    } else if (type === "recipes") {
-        setIsRecipeListOpen(true); // Open the RecipeListModal
-    } else if (type === "warnings") {
-        setIsWarningListOpen(true); // Open the WarningListModal
+const modalHandlers = {
+    users: setIsUserListOpen,
+    reports: setIsReportListOpen,
+    recipes: setIsRecipeListOpen,
+    warnings: setIsWarningListOpen,
+  };
+  
+  const handleClick = (type) => {
+    const handler = modalHandlers[type];
+    if (handler) {
+      handler(true);
     } else {
-        toast({
-            title: "Navigation error",
-            description: `No action configured for type: ${type}`,
-            status: "error",
-            duration: 5000,
-            isClosable: true,
-        });
+      toast({
+        title: "Navigation error",
+        description: `No action configured for type: ${type}`,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
-};
+  };
+  
 
   
 /**********************************Handling Data Chart******************************************************************** */
 
     // Helper function to process ISO dates
-    const processDataForLast7Days = (data, dateField) => {
+    const processDataForLast7Days = (data = [], dateField) => {
       const today = dayjs(); // Current day
       const last7Days = [...Array(7).keys()].map((i) => today.subtract(6 - i, "day"));
       
@@ -137,6 +154,9 @@ const handleClick = (type) => {
         date: day.format("YYYY-MM-DD"),
         count: 0,
       }));
+
+      if (!Array.isArray(data)) return { labels: [], counts: [] };
+
     
       // Loop through the data to populate the counts
       data.forEach((item) => {
@@ -158,7 +178,7 @@ const handleClick = (type) => {
 
     const recipeDataOptions = {
         chart: { id: "recipe-submissions" },
-        xaxis: { categories: recipeSubmissions.labels }, // Use processed labels
+        xaxis: { categories: recipeSubmissions.labels || [0] }, // Use processed labels
     };
 
     const userActivitySeries = [
@@ -166,11 +186,12 @@ const handleClick = (type) => {
     ];
 
     const recipeDataSeries = [
-        { name: "Recipes", data: recipeSubmissions.counts }, // Use processed counts
+        { name: "Recipes", data: recipeSubmissions.counts || [0] }, // Use processed counts
     ];
 
 
 
+/******************************************UI Design************************************************** */
 
   return (
     <Flex
@@ -257,9 +278,9 @@ const handleClick = (type) => {
         >
           {/* Red Components */}
           {[
-            { title: "Users", icon: <FaUser />, count: userCGesCount(), type: "users" },
+            { title: "Users", icon: <FaUser />, count: userCount, type: "users" },
             { title: "Reports", icon: <FaFlag />, count: counts.reports, type: "reports" },
-            { title: "Recipes", icon: <FaBook />, count: recipeCount(), type: "recipes" },
+            { title: "Recipes", icon: <FaBook />, count: recipeCountMemoized, type: "recipes" },
             { title: "Warnings", icon: <FaExclamationTriangle />, count: counts.warnings, type: "warnings" },
           ].map((item, index) => (
             <Box

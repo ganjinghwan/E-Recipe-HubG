@@ -188,14 +188,15 @@ export const login = async (req, res) => {
         generateTokenAndSetCookie(res, user._id);
 
         user.lastLogin = new Date();
+        user.loginCount = (user.loginCount || 0) + 1; // Increment loginCount
         await user.save();
 
         // Increment daily login count
         const today = dayjs().format("YYYY-MM-DD");
-        const dailyLogin = await DailyLogins.findOneAndUpdate(
-        { date: today },
-        { $inc: { loginCount: 1 } }, // Increment count
-        { upsert: true, new: true } // Create a new document if not found
+        await DailyLogins.findOneAndUpdate(
+            { date: today },
+            { $inc: { loginCount: 1 } }, // Increment daily login count
+            { upsert: true, new: true } // Create a new document if not found
         );
 
         res.status(200).json({

@@ -13,4 +13,6 @@ const DailyLoginsSchema = new mongoose.Schema({
     }
 });
 
-export const DailyLogins = mongoose.model("DailyLogins", DailyLoginsSchema);
+const DailyLogins = mongoose.model("DailyLogins", DailyLoginsSchema);
+
+export default DailyLogins;
