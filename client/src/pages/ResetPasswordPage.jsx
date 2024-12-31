@@ -2,21 +2,22 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Box, Button, Flex, Input, Text, useToast } from "@chakra-ui/react";
 import { useAuthStore } from "../store/authStore";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import { TbPasswordUser as PasswordIcon } from "react-icons/tb";
 import kitchen from "../pic/kitchen-benchtop-materials.jpg";
 
 const ResetPasswordPage = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const { resetPassword, isLoading } = useAuthStore();
 
   const { token } = useParams();
-  const navigate = useNavigate();
   const toast = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setIsSubmitted(true);
     if (password !== confirmPassword) {
       toast({
         title: "Error",
@@ -25,6 +26,7 @@ const ResetPasswordPage = () => {
         duration: 3000,
         isClosable: true,
       });
+      setIsSubmitted(false);
       return;
     }
 
@@ -32,15 +34,11 @@ const ResetPasswordPage = () => {
       await resetPassword(token, password);
       toast({
         title: "Success",
-        description: "Password reset successfully. Redirecting to homepage...",
+        description: "Password reset successfully. You can now close this page.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
     } catch (error) {
       toast({
         title: "Error",
@@ -49,6 +47,8 @@ const ResetPasswordPage = () => {
         duration: 3000,
         isClosable: true,
       });
+
+      setIsSubmitted(false);
     }
   };
 
@@ -101,62 +101,87 @@ const ResetPasswordPage = () => {
             Reset Password
           </Text>
 
-          <form onSubmit={handleSubmit}>
-            <Flex direction="column" gap="4" mb="6">
-              <Input
-                type="password"
-                placeholder="New Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                fontSize="md"
-                fontWeight="bold"
-                bg="white"
-                border="none"
-                borderRadius="md"
-                _focus={{
-                  outline: "none",
-                  borderColor: "blue.400",
-                  boxShadow: "0 0 0 2px green.400",
-                }}
-                required
-              />
+          {!isSubmitted ? (
+            <form onSubmit={handleSubmit}>
+              <Flex direction="column" gap="4" mb="6">
+                <Input
+                  type="password"
+                  placeholder="New Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  fontSize="md"
+                  fontWeight="bold"
+                  bg="white"
+                  border="none"
+                  borderRadius="md"
+                  _focus={{
+                    outline: "none",
+                    borderColor: "blue.400",
+                    boxShadow: "0 0 0 2px green.400",
+                  }}
+                  required
+                />
 
-              <Input
-                type="password"
-                placeholder="Confirm New Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                fontSize="md"
-                fontWeight="bold"
-                bg="white"
-                border="none"
-                borderRadius={"md"}
-                _focus={{
-                  outline: "none",
-                  borderColor: "blue.400",
-                  boxShadow: "0 0 0 2px green.400",
-                }}
-                required
-              />
-            </Flex>
+                <Input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  fontSize="md"
+                  fontWeight="bold"
+                  bg="white"
+                  border="none"
+                  borderRadius={"md"}
+                  _focus={{
+                    outline: "none",
+                    borderColor: "blue.400",
+                    boxShadow: "0 0 0 2px green.400",
+                  }}
+                  required
+                />
+              </Flex>
 
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button
-                type="submit"
-                w="full"
-                h="12"
-                bgGradient="linear(to-r, blue.400, teal.500)"
-                color="white"
-                fontWeight="bold"
-                _hover={{
-                  bgGradient: "linear(to-r, blue.500, teal.600)",
-                }}
-                isLoading={isLoading}
+              <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                <Button
+                  type="submit"
+                  w="full"
+                  h="12"
+                  bgGradient="linear(to-r, blue.400, teal.500)"
+                  color="white"
+                  fontWeight="bold"
+                  _hover={{
+                    bgGradient: "linear(to-r, blue.500, teal.600)",
+                  }}
+                  isLoading={isLoading}
+                >
+                  Reset Password
+                </Button>
+              </motion.div>
+            </form>
+          ) : (
+            <motion.div
+              initial={{ scale: 0}}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+            >
+              <Flex
+                width="16"
+                height="16"
+                bg="green.500"
+                rounded={"full"}
+                align={"center"}
+                justify={"center"}
+                alignItems={"center"}
+                mx={"auto"}
+                mb={"4"}
               >
-                Reset Password
-              </Button>
+                <PasswordIcon size={"36"} />
+              </Flex>
+              <Text fontSize={"sm"} color={"green.500"}>
+                Password Reset Successful, you can now close this page and return to log in.
+              </Text>
             </motion.div>
-          </form>
+          )}
         </motion.div>
       </Box>
     </Flex>

@@ -44,10 +44,11 @@ function App() {
   console.log("isRoleInfoCreated", isRoleInfoCreated);
 
   // Define which routes will not show Navbar
-  const noNavbarRoutes = ["/verify-email", "/forgot-password", "/reset-password", "/new-event-organizer", "/new-moderator", "/new-cook"];
-  const showNavbarRoutes = !noNavbarRoutes.some((route) => 
-    location.pathname.includes(route)
-  );
+  const noNavbarRoutes = ["/verify-email", "/forgot-password", "/reset-password/:token", "/new-event-organizer", "/new-moderator", "/new-cook", "/verify-update"];
+  const showNavbarRoutes = !noNavbarRoutes.some((route) => {
+    const regex = new RegExp(`^${route.replace(/:\w+/, '\\w+')}$`);
+    return regex.test(location.pathname);
+  });
 
   return (
     <Box minH="100vh">
