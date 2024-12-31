@@ -120,10 +120,14 @@ export const verifyEmail = async (req, res) => {
         user.verificationTokenExpiresAt = undefined;
     
         if (user.role === "guest") {
+            user.isRoleInfoCreated = true;
+
             const guestInfo = new Guest({
                 guest_id: user._id,
                 favouriteRecipes: [],
             })
+
+            await user.save();
 
             await guestInfo.save();
         }

@@ -17,6 +17,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
+import { useAuthStore } from "../store/authStore";
 
 const ModeratorInfoFillPage = () => {
   const [moderatorKey, setModeratorKey] = useState("");
@@ -24,6 +25,7 @@ const ModeratorInfoFillPage = () => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const { confirmModerator, isLoading } = useModeratorStore();
+  const { user } = useAuthStore();
 
   const images = [
     { src: moderatorWorking, position: "60%" },
@@ -37,6 +39,10 @@ const ModeratorInfoFillPage = () => {
 
   const toast = useToast();
   const navigate = useNavigate();
+
+  if (!user || user.role !== "moderator") {
+    navigate("/");
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -94,6 +100,7 @@ const ModeratorInfoFillPage = () => {
     // Push a new state to the history stack
     window.history.pushState(null, document.title, window.location.pathname);
     
+
     const handlePopState = (e) => {
       // Prevent default behavior and push state again to stay on the page
       window.history.pushState(null, document.title, window.location.pathname);

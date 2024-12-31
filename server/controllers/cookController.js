@@ -32,12 +32,16 @@ export const newCookInformation = async (req, res) => {
             }
         }
 
+        user.isRoleInfoCreated = true;
+
         const newCookInfo = new Cook({
             cook_id: user._id,
             specialty,
             experience,
             rating: 0,
         });
+
+        await user.save();
 
         await newCookInfo.save();
 

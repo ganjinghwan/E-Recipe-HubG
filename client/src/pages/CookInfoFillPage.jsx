@@ -13,6 +13,7 @@ const CookInfoFillPage = () => {
     const [cookExperience, setCookExperience] = useState("");
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const { newCookInfo, isLoading } = useCookStore();
+    const {user} = useAuthStore();
 
     const images = [
         { src: cookSmiling, position: "48%" },
@@ -27,6 +28,9 @@ const CookInfoFillPage = () => {
     const toast = useToast();
     const navigate = useNavigate();
 
+    if (!user || user.role !== "cook") {
+        navigate("/");
+    }
 
     useEffect(() => {
         const interval = setInterval(() => {

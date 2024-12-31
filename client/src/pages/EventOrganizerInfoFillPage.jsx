@@ -7,6 +7,7 @@ import eventShow from "../pic/event-show.jpg";
 import { useNavigate } from "react-router-dom";
 import { useEventOrgStore } from "../store/eventOrgStore";
 import axios from "axios";
+import { useAuthStore } from "../store/authStore";
 
 const EventOrganizerInfoFillPage = () => {
   // Event Organizer state
@@ -19,6 +20,7 @@ const EventOrganizerInfoFillPage = () => {
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
   const { newEventOrganizerInfo, isLoading } = useEventOrgStore();
+  const { user } = useAuthStore();
   
   const images = [
     { src: eventOrganizerShowing, position: "60%" }, 
@@ -33,6 +35,10 @@ const EventOrganizerInfoFillPage = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const maxCharacters = 250;
+
+  if (!user || user.role !== "event-organizer") {
+    navigate("/");
+  }
 
   useEffect(() => {
     const interval = setInterval(() => {

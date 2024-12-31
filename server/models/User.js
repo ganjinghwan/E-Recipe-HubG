@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    isVerified: {
+    isRoleInfoCreated: {
         type: Boolean,
         default: false
     },
