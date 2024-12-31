@@ -30,6 +30,8 @@ export const newEventOrganizerInformation = async (req, res) => {
             return res.status(400).json({ success: false, message: ["Please fill in all fields"] });
         }
 
+        user.isRoleInfoCreated = true;
+
         const newEventOrgInfo = new EventOrganizer({
             event_org_id: user._id,
             organizationName: orgName,
@@ -39,6 +41,8 @@ export const newEventOrganizerInformation = async (req, res) => {
             events_list: [],
             favouriteRecipes: [],
         });
+
+        await user.save();
 
         await newEventOrgInfo.save();
 

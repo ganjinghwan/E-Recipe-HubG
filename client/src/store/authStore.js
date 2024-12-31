@@ -8,6 +8,8 @@ export const useAuthStore = create((set, get) => ({
     CGEs:[],
     dailyLogins: [],
     isAuthenticated: false,
+    isVerifiedRequired: false,
+    isRoleInfoCreated: false,
     errors: null,
     isLoading: false,
     isCheckingAuth: true,
@@ -52,6 +54,8 @@ export const useAuthStore = create((set, get) => ({
             const response = await axios.post(`/api/auth/login`, { email, password });
             set({
                 isAuthenticated: true,
+                isVerifiedRequired: false,
+                isRoleInfoCreated: response.data.user.isRoleInfoCreated, 
                 user: response.data.user,
                 error: null,
                 isLoading: false,
@@ -64,10 +68,10 @@ export const useAuthStore = create((set, get) => ({
     },
 
     signup: async (email, password, name, role) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, isVerifiedRequired: false });
         try {
             const response = await axios.post(`/api/auth/signup`, { email, password, name, role });
-            set ({ user: response.data.user, isAuthenticated: false, isLoading: false });
+            set ({ user: response.data.user, isAuthenticated: false, isLoading: false, isVerifiedRequired: true });
         } catch (error) {
             set({isLoading: false });
             const errorMessage = error.response?.data?.message || [error.message];
@@ -79,10 +83,16 @@ export const useAuthStore = create((set, get) => ({
         set({ isLoading: true, error: null });
 		try {
             const response = await axios.post(`/api/auth/verify-email`, { code });
-			set({ user: response.data.user, isAuthenticated: true, isLoading: false });
+			set({ 
+                user: response.data.user, 
+                isAuthenticated: true, 
+                isVerifiedRequired: false, 
+                isRoleInfoCreated: response.data.user.isRoleInfoCreated,
+                isLoading: false 
+            });
 			return response.data;
 		} catch (error) {
-            set({ error: error.response.data.message || "Error verifying email", isLoading: false });
+            set({ error: error.response.data.message || "Error verifying email", isLoading: false, isVerifiedRequired: false });
 			throw error;
 		}
 	},
@@ -95,10 +105,22 @@ export const useAuthStore = create((set, get) => ({
                 withCredentials: true
             });
             console.log('Auth response:', response); // Debug log
-            set({ user: response.data.user, isAuthenticated: true, isCheckingAuth: false });
+            set({
+                user: response.data.user, 
+                isAuthenticated: true, 
+                isVerifiedRequired: false,
+                isRoleInfoCreated: response.data.user.isRoleInfoCreated,
+                isCheckingAuth: false 
+            });
         } catch (error) {
             console.error('Auth check error:', error.response || error); // Detailed error log
-            set({ error: null, isCheckingAuth: false, isAuthenticated: false });
+            set({ 
+                error: null, 
+                isCheckingAuth: false, 
+                isAuthenticated: false, 
+                isVerifiedRequired: false, 
+                isRoleInfoCreated: false 
+            });
         }
     },
 
@@ -106,7 +128,13 @@ export const useAuthStore = create((set, get) => ({
         set({ isLoading: true, error: null});
     try {
         await axios.post(`/api/auth/logout`);
-        set({ user: null, isAuthenticated: false, isLoading: false });
+        set({ 
+            user: null, 
+            isAuthenticated: false, 
+            isLoading: false, 
+            isVerifiedRequired: false, 
+            isRoleInfoCreated: false 
+        });
     } catch (error) {
         set({ error: "Failed to logout", isLoading: false });
         throw error;
@@ -147,7 +175,7 @@ export const useAuthStore = create((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const response = await axios.post(`/api/auth/update-profile`, { name, password, phone });
-            set({ user: response.data.user, isLoading: false });
+            set({ user: response.data.user, isLoading: false, isVerifiedRequired: true });
         } catch (error) {
             set({ isLoading: false });
             const errorMessage = error.response?.data?.message || [error.message];
@@ -169,10 +197,16 @@ export const useAuthStore = create((set, get) => ({
     },
 
     verifyUpdate: async (code) => {
-        set({ isLoading: true, error: null });
+        set({ isLoading: true, error: null, isVerifiedRequired: true });
         try {
             const response = await axios.post(`/api/auth/verify-update`, {code});
-            set({ user: response.data.user, isAuthenticated: true, isLoading: false });
+            set({ 
+                user: response.data.user, 
+                isAuthenticated: true,
+                isVerifiedRequired: false,
+                isRoleInfoCreated: response.data.user.isRoleInfoCreated, 
+                isLoading: false 
+            });
             return response.data;
         } catch (error) {
             set({ error: error.response.data.message || "Error verifying update", isLoading: false });
@@ -184,7 +218,13 @@ export const useAuthStore = create((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             await axios.delete(`/api/auth/delete-account`);
-            set({ user: null, isAuthenticated: false, isLoading: false });
+            set({ 
+                user: null, 
+                isAuthenticated: false, 
+                isVerifiedRequired: false,
+                isRoleInfoCreated: false,
+                isLoading: false 
+            });
         } catch (error) {
             set({ error: error.response.data.message || "Error deleting account", isLoading: false });
             throw error;

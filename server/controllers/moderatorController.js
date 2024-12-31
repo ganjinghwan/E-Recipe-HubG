@@ -22,10 +22,14 @@ export const newModeratorInformation = async (req, res) => {
             return res.status(401).json({ success: false, message: ["Invalid moderator key"] });
         }
 
+        user.isRoleInfoCreated = true;
+
         const moderator = new Moderator({
             moderator_id: user._id,
             userlist: [],
         });
+
+        await user.save();
 
         await moderator.save();
 

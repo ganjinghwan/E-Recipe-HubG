@@ -1,6 +1,6 @@
 import {Box} from '@chakra-ui/react'
 import { useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom';
 import HomePage from './pages/Home';
 import Recipes from './pages/Recipes';
 import About from './pages/About';
@@ -19,16 +19,17 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import LoadingSpinner from './components/LoadingSpinner';
 import ResetPasswordPage from './pages/ResetPasswordPage';
 import ProtectedRoute from './routeconfig/ProtectedRoute';
+import RestrictedRoute from './routeconfig/RestrictedRoute';
 import UpdateVerificationPage from './pages/UpdateVerificationPage';
 import EventOrganizerInfoFillPage from './pages/EventOrganizerInfoFillPage';
 import ModeratorInfoFillPage from './pages/ModeratorInfoFillPage';
 import CookInfoFillPage from './pages/CookInfoFillPage';
 
 import { useAuthStore } from './store/authStore';
+import VerifyRoutes from './routeconfig/VerifyRoutes';
 
 function App() {
-
-  const {isCheckingAuth, checkAuth, isAuthenticated, user}=useAuthStore();
+  const {isCheckingAuth, checkAuth, isAuthenticated, user, isVerifiedRequired, isRoleInfoCreated}=useAuthStore();
   const location = useLocation();
 
   useEffect(() => {
@@ -39,9 +40,11 @@ function App() {
 
   console.log("isAuthenticated", isAuthenticated);
   console.log("user", user);
+  console.log("isVerifiedRequired", isVerifiedRequired);
+  console.log("isRoleInfoCreated", isRoleInfoCreated);
 
   // Define which routes will not show Navbar
-  const noNavbarRoutes = ["/verify-email", "/forgot-password", "/new-event-organizer", "/new-moderator", "/new-cook"];
+  const noNavbarRoutes = ["/verify-email", "/forgot-password", "/reset-password", "/new-event-organizer", "/new-moderator", "/new-cook"];
   const showNavbarRoutes = !noNavbarRoutes.some((route) => 
     location.pathname.includes(route)
   );
@@ -51,14 +54,70 @@ function App() {
       {showNavbarRoutes && <Navbar />} {/* Render Navbar only in certain pages */}
       <Routes>
         {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        <Route path="/verify-email" element={<EmailVerificationPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/reset-password/:token" element={<ResetPasswordPage />} />
-        <Route path="/verify-update" element={<UpdateVerificationPage />} />
-        <Route path="/new-event-organizer" element={<EventOrganizerInfoFillPage />} />
-        <Route path="/new-moderator" element={<ModeratorInfoFillPage />} />
-        <Route path="/new-cook" element={<CookInfoFillPage />} />
+        <Route path="/" 
+          element={
+            <HomePage />
+          } 
+        />
+
+        <Route 
+          path="/verify-email" 
+          element={
+            <VerifyRoutes isVerifyRequired={isVerifiedRequired}>
+              <EmailVerificationPage />
+            </VerifyRoutes>
+          } 
+        />
+
+        <Route 
+          path="/forgot-password" 
+          element={
+            <ForgotPasswordPage />
+          } 
+        />
+
+        <Route 
+          path="/reset-password/:token" 
+          element={
+            <ResetPasswordPage />
+          } 
+        />
+
+        <Route 
+          path="/verify-update" 
+          element={
+            <VerifyRoutes isVerifyRequired={isVerifiedRequired}>
+              <UpdateVerificationPage />
+            </VerifyRoutes>   
+          } 
+        />
+
+        <Route 
+          path="/new-event-organizer" 
+          element={
+            <RestrictedRoute isAuthenticated={isAuthenticated} isRoleInfoCreated={isRoleInfoCreated}>
+              <EventOrganizerInfoFillPage />
+            </RestrictedRoute>
+          } 
+        />
+
+        <Route 
+          path="/new-moderator" 
+          element={
+            <RestrictedRoute isAuthenticated={isAuthenticated} isRoleInfoCreated={isRoleInfoCreated}>
+              <ModeratorInfoFillPage />
+            </RestrictedRoute>
+          } 
+        />
+
+        <Route 
+          path="/new-cook" 
+          element={
+            <RestrictedRoute isAuthenticated={isAuthenticated} isRoleInfoCreated={isRoleInfoCreated}>
+              <CookInfoFillPage />
+            </RestrictedRoute>
+            } 
+        />
 
         {/* Moderator Component Routes */}
         <Route path="/user-list" element={<UserListModal />} />
