@@ -193,11 +193,27 @@ export const login = async (req, res) => {
 
         // Increment daily login count
         const today = dayjs().format("YYYY-MM-DD");
-        await DailyLogins.findOneAndUpdate(
-            { date: today },
-            { $inc: { loginCount: 1 } }, // Increment daily login count
-            { upsert: true, new: true } // Create a new document if not found
-        );
+        const allowedRoles = ["guest", "cook", "event-organizer"];
+        if (allowedRoles.includes(user.role)) {
+            const dailyLog = await DailyLogins.findOne({ date: today });
+
+            if (dailyLog) {
+                // Check if userID already exists in today's login record
+                if (!dailyLog.userID.includes(user._id)) {
+                    dailyLog.userID.push(user._id); // Add userID
+                    dailyLog.loginCount += 1; // Increment login count
+                    await dailyLog.save();
+                }
+            } else {
+                // Create a new record for today's date if it doesn't exist
+                await DailyLogins.create({
+                    userID: [user._id], // Add userID
+                    date: today,
+                    loginCount: 1, // Set login count to 1
+                });
+            }
+        }
+
 
         res.status(200).json({
             success: true,
@@ -517,21 +533,22 @@ export const deleteUser = async (req, res) => {
 
 export const getDailyLogins = async (req, res) => {
     try {
-      const last7Days = [...Array(7).keys()].map((i) =>
-        dayjs().subtract(i, "day").format("YYYY-MM-DD")
-      );
-  
-      const logins = await DailyLogins.find({ date: { $in: last7Days } });
-  
-      // Ensure all days are represented, even with 0 counts
-      const result = last7Days.map((date) => {
-        const record = logins.find((login) => login.date === date);
-        return { date, loginCount: record ? record.loginCount : 0 };
-      });
-  
-      res.status(200).json({ success: true, data: result });
+        const last7Days = [...Array(7).keys()].map((i) =>
+            dayjs().subtract(i, "day").format("YYYY-MM-DD")
+        );
+
+        const logins = await DailyLogins.find({ date: { $in: last7Days } });
+
+        // Ensure all days are represented, even with 0 counts
+        const result = last7Days.map((date) => {
+            const record = logins.find((login) => login.date === date);
+            return { date, loginCount: record ? record.loginCount : 0 }; // Default count is 0
+        });
+
+        res.status(200).json({ success: true, data: result });
     } catch (error) {
-      res.status(500).json({ message: "Server error" });
+        res.status(500).json({ message: "Server error", error: error.message });
     }
-  };
+};
+
   

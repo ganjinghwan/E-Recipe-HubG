@@ -55,32 +55,40 @@ const ModeratorPage = () => {
   const [recipeSubmissions, setRecipeSubmissions] = useState({ labels: [], counts: [] });
 
 /**********************************Fetching Users/Reports/Recipes/Warnings Count******************************************************************** */
-    
     useEffect(() => {
         const fetchData = async () => {
-        // Fetch all required data
-        await fetchDailyLogins(); // Fetch daily login data
-        await fetchCGE(); // Fetch user data
-        await fetchAllRecipes(); // Fetch recipe data
-    
+            try {
+            await fetchDailyLogins(); // Fetch daily login data
+            await fetchCGE(); // Fetch user data
+            await fetchAllRecipes(); // Fetch recipe data
+            } catch (error) {
+                toast({
+                    title: "Error fetching data",
+                    description: error.message,
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+            }
+        };
+        fetchData();
+    }, []); // No dependency here
+
+    useEffect(() => {
         // Process Daily Logins for Chart
         const loginLabels = dailyLogins.map((entry) =>
             dayjs(entry.date).format("ddd/DD")
         );
-        const loginCounts = dailyLogins.map((entry) => entry.count);
-        setUserActivity({ labels: loginLabels, counts: loginCounts });
+        const loginCounts = dailyLogins.map((entry) => entry.loginCount); // Corrected field
+        setUserActivity({ labels: loginLabels.reverse(), counts: loginCounts.reverse() });
+    }, [dailyLogins]); // Dependency to trigger chart re-render
+
     
-        // Process User Activity for Last Logins
-        const userActivityData = processDataForLast7Days(CGEs, "lastLogin");
-        setUserActivity(userActivityData);
-    
+    useEffect(() => {
         // Process Recipe Submissions
         const recipeData = processDataForLast7Days(recipes, "createdAt");
         setRecipeSubmissions(recipeData);
-        };
-    
-        fetchData();
-    }, [fetchDailyLogins, fetchCGE, fetchAllRecipes]);
+    }, [recipes]);
   
   
 

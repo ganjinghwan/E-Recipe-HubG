@@ -21,6 +21,7 @@ export const useAuthStore = create((set, get) => ({
         try {
           const res = await axios.get("/api/auth/daily-logins");
           set({ dailyLogins: res.data.data });
+        //   console.log("Fetched daily logins:", res.data.data);
         } catch (error) {
           console.error("Failed to fetch daily logins:", error);
         }
