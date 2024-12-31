@@ -44,7 +44,7 @@ function App() {
   console.log("isRoleInfoCreated", isRoleInfoCreated);
 
   // Define which routes will not show Navbar
-  const noNavbarRoutes = ["/verify-email", "/forgot-password", "/reset-password", "/new-event-organizer", "/new-moderator", "/new-cook"];
+  const noNavbarRoutes = ["/verify-email", "/forgot-password", "/reset-password/:token", "/new-event-organizer", "/new-moderator", "/new-cook", "/verify-update"];
   const showNavbarRoutes = !noNavbarRoutes.some((route) => 
     location.pathname.includes(route)
   );

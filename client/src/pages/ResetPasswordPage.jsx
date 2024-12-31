@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Box, Button, Flex, Input, Text, useToast } from "@chakra-ui/react";
 import { useAuthStore } from "../store/authStore";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import kitchen from "../pic/kitchen-benchtop-materials.jpg";
 
 const ResetPasswordPage = () => {
@@ -11,7 +11,6 @@ const ResetPasswordPage = () => {
   const { resetPassword, isLoading } = useAuthStore();
 
   const { token } = useParams();
-  const navigate = useNavigate();
   const toast = useToast();
 
   const handleSubmit = async (e) => {
@@ -32,15 +31,11 @@ const ResetPasswordPage = () => {
       await resetPassword(token, password);
       toast({
         title: "Success",
-        description: "Password reset successfully. Redirecting to homepage...",
+        description: "Password reset successfully. You can now close this page.",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
     } catch (error) {
       toast({
         title: "Error",
