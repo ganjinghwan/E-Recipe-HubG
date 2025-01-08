@@ -11,6 +11,7 @@ const moderatorSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     }],
+    // history
     deletedRecipes: [{
        recipeID: {
            type: mongoose.Schema.Types.ObjectId,
@@ -29,6 +30,7 @@ const moderatorSchema = new mongoose.Schema({
            default: Date.now
        },
     }],
+    //history
     deletedUsers: [{
         userID: {
             type: mongoose.Schema.Types.ObjectId,
@@ -47,6 +49,7 @@ const moderatorSchema = new mongoose.Schema({
             default: Date.now
         },
     }],
+    //history
     warnings: [{
         userID: {
             type: mongoose.Schema.Types.ObjectId,

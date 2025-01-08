@@ -40,6 +40,28 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    inbox: [{
+        senderRole: {
+            type: String,
+            required: true
+        },
+        senderName: {
+            type: String,
+            required: true
+        },
+        messageTitle: {
+            type: String,
+            required: true
+        },
+        messageContent:{
+            type: String,
+            required: true
+        },
+        date:{
+            type: Date,
+            default: Date.now
+        },
+    }],
     resetPasswordToken: String,
     resetPasswordExpiresAt: Date,
     tempName: String,
