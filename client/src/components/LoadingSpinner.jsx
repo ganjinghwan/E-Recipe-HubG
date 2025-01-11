@@ -4,7 +4,7 @@ import { Box } from "@chakra-ui/react";
 const LoadingSpinner = () => {
   return (
     <Box
-      minH="100vh"
+      maxH="100vh"
       bgGradient="linear(to-br, gray.900, green.900, emerald.900)"
       display="flex"
       justifyContent="center"
@@ -20,8 +20,8 @@ const LoadingSpinner = () => {
           borderWidth: "6px", // Adjusted for better visibility
           borderTopWidth: "6px", // Matches border width
           borderStyle: "solid",
-          borderTopColor: "#38A169", // Green top border (matching Chakra green.500)
           borderColor: "#A0AEC0", // Gray border (matching Chakra gray.400)
+          borderTopColor: "#FFA500", // Orange border
           borderRadius: "50%", // Rounded circle
         }}
         animate={{ rotate: 360 }}

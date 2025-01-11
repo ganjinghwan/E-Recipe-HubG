@@ -22,10 +22,10 @@ const eventOrganizerSchema = new mongoose.Schema({
         type: String,
         required: false
     },
-    events_list: {
-        type: Array,
-        required: false
-    },
+    events_list: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Event",
+    }],
     favouriteRecipes: [{
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Recipe",

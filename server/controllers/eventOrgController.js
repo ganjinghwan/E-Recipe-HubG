@@ -52,7 +52,6 @@ export const newEventOrganizerInformation = async (req, res) => {
             newEventOrgInfo: {
                 ...newEventOrgInfo._doc,
             }
-
         });
     } catch (error) {
         console.log("Failed to create event organization information", error.message);

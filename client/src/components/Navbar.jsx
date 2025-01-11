@@ -151,7 +151,11 @@ const Navbar = () => {
             General
           </ChakraLink>
         )}
-        
+        {isAuthenticated && (
+          <ChakraLink as={RouterLink} to="/events" fontSize="lg" _hover={{ color: "orange.300" }}>
+            Events
+          </ChakraLink> 
+        )}
       </Flex>
 
       {/* Hamburger Menu for Smaller Screens */}
@@ -232,6 +236,18 @@ const Navbar = () => {
                 onClick={toggleMobileMenu}
               >
                 General
+              </ChakraLink>
+            )}
+            {isAuthenticated && (
+              <ChakraLink
+                as={RouterLink}
+                to="/events"
+                display="block"
+                py="2"
+                _hover={{ color: "orange.300" }}
+                onClick={toggleMobileMenu}
+              >
+                Events
               </ChakraLink>
             )}
           </Box>

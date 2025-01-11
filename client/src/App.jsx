@@ -24,6 +24,7 @@ import UpdateVerificationPage from './pages/UpdateVerificationPage';
 import EventOrganizerInfoFillPage from './pages/EventOrganizerInfoFillPage';
 import ModeratorInfoFillPage from './pages/ModeratorInfoFillPage';
 import CookInfoFillPage from './pages/CookInfoFillPage';
+import EventsPage from './pages/EventsPage';
 
 import { useAuthStore } from './store/authStore';
 import VerifyRoutes from './routeconfig/VerifyRoutes';
@@ -59,8 +60,9 @@ function App() {
           element={
             <HomePage />
           } 
-        />
+          />
 
+        {/* Authentication Routes */}
         <Route 
           path="/verify-email" 
           element={
@@ -139,9 +141,7 @@ function App() {
         <Route
           path="/about"
           element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <About />
-            </ProtectedRoute>
+            <About />
           }
         />
         <Route
@@ -166,6 +166,24 @@ function App() {
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <ModeratorPg />
             </ProtectedRoute>
+          }
+        />
+
+        {/* Event Organizer Specific Routes*/}
+        <Route
+          path='/events'
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <EventsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Redirect any invalid url back to homepage*/}
+        <Route
+          path="*"
+          element={
+            <Navigate to="/" />
           }
         />
       </Routes>

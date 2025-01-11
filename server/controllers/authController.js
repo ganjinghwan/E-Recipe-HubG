@@ -1,6 +1,5 @@
 import { User } from "../models/User.js";
 import bcrypt from "bcryptjs";
-import crypto from "crypto";
 import { generateTokenAndSetCookie } from "../utils/generateTokenAndSetCookie.js";
 import { sendVerificationEmail, sendWelcomeEmail, sendResetPasswordEmail, sendResetSuccessEmail, sendUpdateConfirmationEmail } from "../nodemailer/emailService.js";
 import { verifyEmailSMTP } from "../nodemailer/emailVerify.js";
@@ -13,6 +12,8 @@ import cloudinary from "../cloudinary/cloudinary.js";
 
 import dayjs from "dayjs";
 import DailyLogins from "../models/DailyLogins.js"; // A new Mongoose model
+import { Event } from "../models/Event.js";
+import { v4 as uuidv4 } from 'uuid';
 
 
 export const getUserList_CGE = async (req, res) => {
@@ -251,7 +252,7 @@ export const forgotPassword = async (req, res) => {
             return res.status(400).json({ success: false, message: "User not found" });
         }
 
-        const resetToken = crypto.randomBytes(24).toString('hex');
+        const resetToken = uuidv4();
         const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; //1 hours
 
         user.resetPasswordToken = resetToken;
@@ -511,6 +512,7 @@ export const deleteUser = async (req, res) => {
             await Moderator.findOneAndDelete({ moderator_id: user._id });
             await User.findByIdAndDelete(req.user._id);
         } else if (user.role === 'event-organizer') {
+            await Event.deleteMany({ eventBelongs_id: user._id });
             await EventOrganizer.findOneAndDelete({ event_org_id: user._id });
             await User.findByIdAndDelete(req.user._id);
         } else if (user.role === 'guest') {
