@@ -1,4 +1,4 @@
-/*import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
+import { Modal, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, useToast } from '@chakra-ui/react';
 import React, { useState } from 'react';
 import { 
     Modal,
@@ -92,4 +92,4 @@ const UpdateEventForm = ({isOpen, onClose}) => {
             </ModalContent>
         </Modal>
     )
-};*/
+};

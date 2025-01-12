@@ -118,8 +118,8 @@ const EventsPage = () => {
                       alignItems={"center"}
                       _hover={{ bg: "blue.100" }}
                     >
-                      <Box flex={4}>
-                        <Text fontSize="2xl" fontWeight="bold" color={"orange.800"}>
+                      <Box flex={4} minW={"0"}>
+                        <Text fontSize="2xl" fontWeight="bold" color={"orange.800"} isTruncated>
                           {event.event_name}
                         </Text>
                         <Text mt={1} noOfLines={2}>
