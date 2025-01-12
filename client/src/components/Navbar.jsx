@@ -315,7 +315,7 @@ const Navbar = () => {
         )}
 
         {/* Inbox Button */}
-        {(user?.role === "cook" || user?.role === "guest" || user?.role === event-organizer) && (
+        {(user?.role === "cook" || user?.role === "guest" || user?.role === "event-organizer") && (
         <IconButton
               icon={<i className="fas fa-envelope"></i>} // Add a font-awesome envelope icon
               aria-label="Inbox"
