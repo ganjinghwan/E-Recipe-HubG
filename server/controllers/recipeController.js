@@ -2,6 +2,7 @@ import Recipe from '../models/Recipe.js';
 import {Cook} from '../models/Cook.js';
 import { EventOrganizer } from '../models/EventOrganizer.js';
 import { Guest } from '../models/Guest.js';
+import { Report } from '../models/Report.js';
 import mongoose from 'mongoose';
 import { isValidURL } from "../utils/validation.js"; // A utility to validate URLs
 import cloudinary from "../cloudinary/cloudinary.js";
@@ -193,6 +194,48 @@ export const addComment = async (req, res) => {
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
+
+export const addReport = async (req, res) => {
+    const { reportTitle, reportReason, reportedUserId, reportedUserName, reportedRecipeId, reportedRecipeName, reporter_id, reporter_name, reporter_role, date } = req.body;
+
+    if (!reportTitle || !reportReason || !reportedUserId || !reporter_id) {
+        return res.status(400).json({
+            success: false,
+            message: "Missing required fields.",
+        });
+    }
+
+    try {
+        // Example: Save the report to a database (assuming a Report model/schema)
+        const newReport = new Report({
+            reportTitle,
+            reportReason,
+            reportedUserId,
+            reportedUserName,
+            reportedRecipeId,
+            reportedRecipeName,
+            reporter_id,
+            reporter_name,
+            reporter_role,
+            date,
+        });
+
+        await newReport.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Report submitted successfully.",
+            data: newReport,
+        });
+    } catch (error) {
+        console.error("Error creating report:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to submit report.",
+        });
+    }
+};
+
 
 export const addRate = async (req, res) => {
     const { id } = req.params; // Recipe ID

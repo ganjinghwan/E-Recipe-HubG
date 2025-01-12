@@ -27,9 +27,17 @@ const reportSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    reportedUserName: {
+        type: String,
+        required: true
+    },
     reportedRecipeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Recipe",
+        required: true
+    },
+    reportedRecipeName: {
+        type: String,
         required: true
     },
     date:{

@@ -37,15 +37,17 @@ import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
 import StarRatings from "react-star-ratings";
+import { set } from "mongoose";
 
 const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
   const { fetchCook, cooks} = useAuthStore();
   const { fetchFavoriteRecipes, favoriteRecipes, toggleFavorite } = useStoreRecipe();
-  const {fetchAllRecipes, recipes, addComment, addRate, fetchRecipeById} = useStoreRecipe();
+  const {fetchAllRecipes, recipes, addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
 
 
   const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUserName, setSelectedUserName] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [tempUserName, setTempUserName] = useState("");
 
@@ -320,6 +322,7 @@ const VisitorPage = () => {
     }
   
     setSelectedUser(user._id); // Store user ID instead of name
+    setSelectedUserName(user.name);
     setSelectedFood(selectedRecipes[0]);// Set the first recipe from this user
     setSelectedCategory("all"); // Reset category to "All" when a new user is selected
     setShowModal(false);
@@ -388,30 +391,74 @@ const VisitorPage = () => {
   };
 
 
-  const handleSubmitReport = () => {
+  const handleSubmitReport = async () => {
     if (!reportTitle.trim() || !reportReason.trim()) {
-      toast({
-        title: "Incomplete Report",
-        description: "Please fill in both the title and reason.",
-        status: "warning",
-        duration: 2000,
-        isClosable: true,
-      });
-      return;
-    }
-    // Submit the report (API call or add to reports data)
-    toast({
-      title: "Report submitted",
-      description: "Your report has been sent to the moderator.",
-      status: "success",
-      duration: 2000,
-      isClosable: true,
-    });
+        toast({
+            title: "Incomplete Report",
+            description: "Please fill in both the title and reason.",
+            status: "warning",
+            duration: 2000,
+            isClosable: true,
+        });
+        return;
 
-    setReportTitle("");
-    setReportReason("");
-    setShowReportModal(false);
-  };
+    }
+
+    if (!selectedFood) {
+        toast({
+            title: "No Recipe Selected",
+            description: "Please select a recipe to report.",
+            status: "warning",
+            duration: 2000,
+            isClosable: true,
+        });
+        return;
+    }
+
+    const reportData = {
+        reportedUserId: selectedFood.user_id, // Recipe's author ID
+        reportedUserName: selectedUserName,
+        reportedRecipeId: selectedFood._id,
+        reportedRecipeName: selectedFood.title,
+        reportTitle: reportTitle,
+        reportReason: reportReason,
+        reporter_id: user._id, // Current user ID
+        reporter_name: user.name, // Current user name
+        reporter_role: user.role, // Current user role
+        date: new Date().toISOString(),
+    };
+
+    try {
+        const response = await addReport(reportData);
+
+        if (!response.success) {
+            throw new Error(response.message);
+        }
+
+        toast({
+            title: "Report submitted successfully",
+            description: response.message,
+            status: "success",
+            duration: 2000,
+            isClosable: true,
+        });
+
+        setReportTitle("");
+        setReportReason("");
+        setShowReportModal(false);
+    } catch (error) {
+        console.error("Failed to submit report:", error);
+        toast({
+            title: "Failed to submit report",
+            description: error.message || "An unexpected error occurred.",
+            status: "error",
+            duration: 2000,
+            isClosable: true,
+        });
+
+    }
+};
+
 
 
   const changeRating = (newRating) => {
@@ -995,7 +1042,9 @@ const VisitorPage = () => {
               <Button colorScheme="blue" onClick= {handleSubmitRate} >
                 Submit
               </Button>
-              <Button variant="ghost" onClick={() => setShowRateModal(false)}>
+              <Button variant="ghost" onClick={() => 
+                setShowRateModal(false)}
+                >
                 Cancel
                 </Button>
             </ModalFooter>
@@ -1004,11 +1053,16 @@ const VisitorPage = () => {
 
 
         {/* Comment Modal */}
-        <Modal isOpen={showCommentModal} onClose={() => setShowCommentModal(false)}>
+        <Modal isOpen={showCommentModal} onClose={() =>{
+          setCommentText('');
+          setShowCommentModal(false);
+        }
+          }>
             <ModalOverlay />
             <ModalContent>
             <ModalHeader>Add a Comment</ModalHeader>
-            <ModalCloseButton />
+            <ModalCloseButton 
+            />
             <ModalBody>
                 <Textarea
                 placeholder="Enter your comment here..."
@@ -1020,7 +1074,11 @@ const VisitorPage = () => {
                 <Button colorScheme="blue" onClick={handleSubmitComment}>
                 Submit
                 </Button>
-                <Button variant="ghost" onClick={() => setShowCommentModal(false)}>
+                <Button variant="ghost" onClick={() => {
+                  setShowCommentModal(false);
+                  setCommentText("");
+                }}
+                  >
                 Cancel
                 </Button>
             </ModalFooter>
@@ -1028,7 +1086,11 @@ const VisitorPage = () => {
         </Modal>
 
         {/* Report Modal */}
-        <Modal isOpen={showReportModal} onClose={() => setShowReportModal(false)}>
+        <Modal isOpen={showReportModal} onClose={() => {
+          setReportTitle("") ;
+          setReportReason("") ;
+          setShowReportModal(false);
+          }}>
             <ModalOverlay />
             <ModalContent>
             <ModalHeader>Report Recipe</ModalHeader>
@@ -1051,7 +1113,12 @@ const VisitorPage = () => {
                 <Button colorScheme="red" onClick={handleSubmitReport}>
                 Submit Report
                 </Button>
-                <Button variant="ghost" onClick={() => setShowReportModal(false)}>
+                <Button variant="ghost" onClick={() =>{
+                   setReportTitle("") ;
+                   setReportReason("") ;
+                   setShowReportModal(false);
+                  }}
+                   >
                 Cancel
                 </Button>
             </ModalFooter>

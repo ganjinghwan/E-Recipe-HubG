@@ -45,6 +45,8 @@ const Navbar = () => {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const toggleSearchBar = () => {setIsSearchBarActive(!isSearchBarActive); };
 
+  const { isOpen: isInboxOpen, onOpen: onOpenInbox, onClose: onCloseInbox } = useDisclosure(); // Inbox modal state
+
   const openLoginForm = () => {
     setIsSignUp(false);
     onOpen();
@@ -138,12 +140,12 @@ const Navbar = () => {
         {/* Role based links */}
         {user?.role === "cook" && (
         <ChakraLink as={RouterLink} to="/recipes" fontSize="lg" _hover={{ color: "orange.300" }}>
-          Recipes
+          Recipe
         </ChakraLink>
         )}
         {user?.role === "guest" && (
           <ChakraLink as={RouterLink} to="/visitors" fontSize="lg" _hover={{ color: "orange.300" }}>
-            VRecipe
+            Recipe
           </ChakraLink>
         )}
         {user?.role === "moderator" && (
@@ -153,7 +155,7 @@ const Navbar = () => {
         )}
         {isAuthenticated && (
           <ChakraLink as={RouterLink} to="/events" fontSize="lg" _hover={{ color: "orange.300" }}>
-            Events
+            Event
           </ChakraLink> 
         )}
       </Flex>
@@ -211,7 +213,7 @@ const Navbar = () => {
               _hover={{ color: "orange.300" }}
               onClick={toggleMobileMenu}
             >
-              Recipes
+              Recipe
             </ChakraLink>
             )}
             {user?.role === "guest" && (
@@ -223,7 +225,7 @@ const Navbar = () => {
                 _hover={{ color: "orange.300" }}
                 onClick={toggleMobileMenu}
               >
-                VRecipe
+                Recipe
               </ChakraLink>
             )}
             {user?.role === "moderator" && (
@@ -312,6 +314,21 @@ const Navbar = () => {
           />
         )}
 
+        {/* Inbox Button */}
+        {(user?.role === "cook" || user?.role === "guest" || user?.role === event-organizer) && (
+        <IconButton
+              icon={<i className="fas fa-envelope"></i>} // Add a font-awesome envelope icon
+              aria-label="Inbox"
+              onClick={onOpenInbox}
+              color="white"
+              variant=""
+              _hover={{ bg: "whiteAlpha.200" }}
+            />
+        )}
+
+
+        
+
         {/* Profile Dropdown */}
         <Menu>
           <MenuButton
@@ -339,7 +356,25 @@ const Navbar = () => {
             <Button colorScheme="orange" onClick={openSignUpForm}>Sign Up</Button>
           </>
         )}
+
+      
       </Flex>
+      
+      {/* Inbox Modal */}
+      <Modal isOpen={isInboxOpen} onClose={onCloseInbox} isCentered>
+              <ModalOverlay />
+              <ModalContent bg="gray.800" color="white">
+                <ModalHeader>Inbox</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  {/* Replace with dynamic messages */}
+                  <Text>No new messages.</Text>
+                  <Text>Message 1: Welcome to E-Recipes Hub!</Text>
+                  <Text>Message 2: Your recipe has been approved.</Text>
+                </ModalBody>
+              </ModalContent>
+      </Modal>
+  
 
       {/* Modal */}
       <Modal isOpen={isOpen} onClose={onClose} isCentered>
