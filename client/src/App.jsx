@@ -28,6 +28,7 @@ import EventsPage from './pages/EventsPage';
 
 import { useAuthStore } from './store/authStore';
 import VerifyRoutes from './routeconfig/VerifyRoutes';
+import EventDetailsPage from './pages/EventDetailsPage';
 
 function App() {
   const {isCheckingAuth, checkAuth, isAuthenticated, user, isVerifiedRequired, isRoleInfoCreated}=useAuthStore();
@@ -175,6 +176,15 @@ function App() {
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
               <EventsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path='/events/:eventSpecificEndUrl'
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <EventDetailsPage />
             </ProtectedRoute>
           }
         />

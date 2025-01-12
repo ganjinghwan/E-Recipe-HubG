@@ -7,12 +7,15 @@ import { useAuthStore } from "../store/authStore";
 import { useEventStore } from "../store/eventStore";
 
 import CreateEventForm from "../components/CreateEventForm";
+import { useNavigate } from "react-router-dom";
 
 const EventsPage = () => {
   const { user } = useAuthStore();
   const { events, getAllSpecificEventOrgEvents, getAllEvents, isLoading: eventsLoading } = useEventStore();
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -100,87 +103,63 @@ const EventsPage = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 1.2 }}
             >
-              {user && user.role === "event-organizer" ? (
-                <>
-                  {/* List Form with VStack */}
-                  <VStack spacing={2} align="stretch">
-                    {events?.length > 0 ? (
-                      events.map((event) => (
-                        <Box
-                          key={event._id}
-                          p={4}
-                          bg="blue.200"
-                          borderRadius="md"
-                          height={"120px"}
-                          minW="90%"
-                          textAlign={"left"}
-                          _hover={{ bg: "blue.100" }}
-                        >
-                          <Text fontSize="2xl" fontWeight="bold" color={"orange.800"}>
-                            {event.event_name}
-                          </Text>
-                          <Text mt={1} noOfLines={2}>
-                            {event.event_description}
-                          </Text>
-                        </Box>
-                      ))
-                    ) : (
-                      <Box 
-                        width={"100%"}
-                        height={"100%"}
-                        position={"absolute"}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
-                      >
-                        <Text fontSize={"2xl"} fontWeight={"bold"} color="black">
-                          No events available, maybe try creating one?
+              {/* List Form with VStack */}
+              <VStack spacing={2} align="stretch">
+                {events?.length > 0 ? (
+                  events.map((event) => (
+                    <Flex
+                      key={event._id}
+                      p={4}
+                      bg="blue.200"
+                      borderRadius="md"
+                      height={"120px"}
+                      minW="90%"
+                      textAlign={"left"}
+                      alignItems={"center"}
+                      _hover={{ bg: "blue.100" }}
+                    >
+                      <Box flex={4}>
+                        <Text fontSize="2xl" fontWeight="bold" color={"orange.800"}>
+                          {event.event_name}
+                        </Text>
+                        <Text mt={1} noOfLines={2}>
+                          {event.event_description}
                         </Text>
                       </Box>
-                    )}
-                  </VStack>
-                </>
-              ) : (
-                <>
-                  {/* List Form with VStack */}
-                  <VStack spacing={2} align="stretch">
-                    {events?.length ? (
-                      events.map((event) => (
-                        <Box
-                          key={event._id}
-                          p={4}
-                          bg="blue.200"
-                          borderRadius="md"
-                          height={"120px"}
-                          minW="90%"
-                          textAlign={"left"}
-                          _hover={{ bg: "blue.100" }}
-                        >
-                          <Text fontSize="2xl" fontWeight="bold" color={"orange.800"}>
-                            {event.event_name}
-                          </Text>
-                          <Text mt={1} noOfLines={2}>
-                            {event.event_description}
-                          </Text>
-                        </Box>
-                      ))
-                    ) : (
-                      <Box 
-                        width={"100%"}
-                        height={"100%"}
-                        position={"absolute"}
-                        display="flex"
-                        alignItems="center"
-                        justifyContent="center"
+
+                      {/* Buttons */}
+                      <Box flex={1}
+                        display={"flex"}
+                        justifyContent={"center"}
+                        alignItems={"center"}
                       >
-                        <Text fontSize={"2xl"} fontWeight={"bold"} color="black">
-                          No Events Happening For Now, check again later
-                        </Text>
+                        <Button
+                          display={"flex"}
+                          colorScheme="orange"
+                          onClick={() => {
+                            navigate(`/events/${event.eventSpecificEndUrl}`);
+                          }}
+                        >
+                          More Info
+                        </Button>
                       </Box>
-                    )}
-                  </VStack>
-                </>
-              )}
+                    </Flex>
+                      ))
+                ) : (
+                  <Box 
+                    width={"100%"}
+                    height={"100%"}
+                    position={"absolute"}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text fontSize={"2xl"} fontWeight={"bold"} color="black">
+                      {user?.role === "event-organizer" ? "No events available, maybe try creating one?" : "No Events Happening For Now, check again later"}
+                    </Text>
+                  </Box>
+                )}
+              </VStack>
             </motion.div>
           </Box>
 

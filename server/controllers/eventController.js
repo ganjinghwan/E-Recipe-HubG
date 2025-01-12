@@ -126,6 +126,82 @@ export const createEvent = async (req, res) => {
     }
 };
 
+export const getSpecificEventDetails = async (req, res) => {
+    try {
+        const {specificEventURL} = req.params;
+
+        if (!specificEventURL) {
+            return res.status(404).json({message: ["Please provide a specific event URL"]});
+        }
+
+        const user = await User.findById(req.user._id);
+        
+        if (!user) {
+            return res.status(404).json({message: ["User not found"]});
+        }
+
+        const specificEventInfo = await Event.findOne({
+            eventSpecificEndUrl: specificEventURL
+        })
+
+        // Check which event organizer created this event
+        const eventOrgInfo = await EventOrganizer.findOne({ event_org_id: specificEventInfo.eventBelongs_id });
+        const userInfo = await User.findOne({ _id: specificEventInfo.eventBelongs_id });
+
+        if (!eventOrgInfo) {
+            return res.status(404).json({message: ["Event organization information not found"]});
+        }
+
+        if (!userInfo) {
+            return res.status(404).json({message: ["User information not found"]});
+        }
+
+        if (!specificEventInfo) {
+            return res.status(404).json({message: ["Event not found, please provide specific event URL"]});
+        }
+
+        const visualEventStartDate = new Date(specificEventInfo.start_date).toLocaleString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+        });
+
+        const visualEventEndDate = new Date(specificEventInfo.end_date).toLocaleString("en-US", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+        });
+
+        res.status(200).json({
+            success: true,
+            message: "Specific event details retrieved successfully",
+            allEventInfo: {                
+                specificEventInfo,
+                eventOrgInfo: {
+                    orgName: eventOrgInfo.organizationName,
+                    orgContact: eventOrgInfo.organizationContact,
+                },
+                userInfo: {
+                    username: userInfo.name
+                },
+                visualEventStartDate,
+                visualEventEndDate
+            }
+        });
+    } catch (error) {
+        console.log("Failed to retrieve event information", error.message);
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+};
+
 export const updateEvents = async (req, res) => {
     const {newEvent_name, newEvent_description, newStart_date, newEnd_date, newEvent_image} = req.body;
 

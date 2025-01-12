@@ -47,6 +47,21 @@ export const useEventStore = create((set) => ({
         }
     },
 
+    getEventInfo: async (specificEventURL) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.get(`/api/events/${specificEventURL}`);
+            set({
+                events: response.data.allEventInfo,
+                error: null,
+                isLoading: false
+            })
+        } catch (error) {
+            set({ error: error.response.data.message || "Error getting Event Information", isLoading: false });
+            throw error;
+        }
+    },
+
     createNewEvent: async (event_name, event_description, start_date, end_date, event_image) => {
         set({ isLoading: true, error: null });
         try {
