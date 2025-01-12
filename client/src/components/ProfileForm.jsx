@@ -281,10 +281,11 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     fontWeight="bold"
                     fontSize="xl"
                     textAlign="center"
+                    maxWidth={{base: "400px", md: "500px"}}
                   >
                     Welcome, {user.name}
                   </Box>
-                  <Box bg="blue.100" p="4" borderRadius="md" mt="4">
+                  <Box bg="blue.100" p="4" borderRadius="md" mt="4" maxWidth={{base: "400px", md: "500px"}}>
                     <span style={{ fontWeight: "bold" }}>Username: </span>
                     {user.name} 
                     <br />
@@ -304,7 +305,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     )}
                     </div>
                   </Box>
-                  <Box bg="green.100" p="4" borderRadius="md" mt="4">
+                  <Box bg="green.100" p="4" borderRadius="md" mt="4" maxWidth={{base: "400px", md: "500px"}}>
                     <Text as="span" fontWeight="bold" textDecoration={"underline"}>
                       Account activity:
                     </Text>

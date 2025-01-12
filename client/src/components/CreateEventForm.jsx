@@ -17,7 +17,6 @@ import {
     Button,
     ModalFooter
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useEventStore } from '../store/eventStore';
@@ -33,7 +32,6 @@ const CreateEventForm = ({isOpen, onClose}) => {
     const [createEventErrors, setCreateEventErrors] = useState({});
     const [hasSubmitted, setHasSubmitted] = useState(false);
 
-    const navigate = useNavigate();
     const toast = useToast();
     const { createNewEvent, isLoading } = useEventStore();
     const maxCharacters = 250;
