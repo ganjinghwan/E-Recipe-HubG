@@ -107,5 +107,20 @@ export const useEventStore = create((set) => ({
             set({ error: error.response.data.message || "Error deleting account", isLoading: false });
             throw error;
         }
-    }
+    },
+
+    joinEvent: async (specificEventURL) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.post(`/api/events/join/${specificEventURL}`);
+            set({
+                events: response.data.specificEventInfo,
+                error: null,
+                isLoading: false,
+            })
+        } catch (error) {
+            set({ error: error.response.data.message || "Error joining event", isLoading: false });
+            throw error;
+        }
+    },
 }));

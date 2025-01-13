@@ -25,11 +25,13 @@ import UpdateEventForm from '../components/UpdateEventForm';
 const EventDetailsPage = () => {
     const { user } = useAuthStore();
     const { eventSpecificEndUrl } = useParams();
-    const { events, getEventInfo, deleteEvent, isLoading } = useEventStore();
+    const { events, getEventInfo, deleteEvent, joinEvent, isLoading } = useEventStore();
     const [isFetching, setIsFetching] = useState(true);
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+
+    const [isJoinAlertOpen, setIsJoinAlertOpen] = useState(false);
     const cancelRef = useRef();
 
     const navigate = useNavigate();
@@ -89,6 +91,33 @@ const EventDetailsPage = () => {
                 position: "bottom",
                 title: "Failed to delete event",
                 description: error.message,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            })
+        }
+    }
+
+    const handleJoinEvent = async () => {
+        setIsJoinAlertOpen(false);
+
+        try {
+            await joinEvent(eventSpecificEndUrl);
+            toast({
+                position: "bottom",
+                title: "Successfully joined event",
+                description: "Redirect back to events page...",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            })
+
+            navigate("/events")
+        } catch (error) {
+            toast({
+                position: "bottom",
+                title: "Failed to join event",
+                description: error.message, 
                 status: "error",
                 duration: 5000,
                 isClosable: true,
@@ -206,45 +235,74 @@ const EventDetailsPage = () => {
                                 />
                             </Box>
                         </Box>
-                    {user && user.role === "event-organizer" && events?.specificEventInfo?.eventBelongs_id === user?._id && (
-                        <>
-                        <Button
-                            position={"absolute"}
-                            bottom="10px"
-                            right="306px"
-                            colorScheme="green"
-                            size="md"
-                            _hover={{ bg: "green.600" }}
-                            onClick={openUpdateEventModal}
-                        >
-                            Update Event
-                        </Button>
-                        <UpdateEventForm isOpen={isUpdateModalOpen} onClose={closeUpdateEventModal} eventURL={eventSpecificEndUrl}/>
-                        <Button
-                            position={"absolute"}
-                            bottom="10px"
-                            right="150px"
-                            colorScheme="blue"
-                            size="md"
-                            _hover={{ bg: "red.600" }}
-                        >
-                            Invite Attendees
-                        </Button>
-                        <Button
-                            position={"absolute"}
-                            bottom="10px"
-                            right="20px"
-                            colorScheme="red"
-                            size="md"
-                            _hover={{ bg: "red.600" }}
-                            onClick={() => setIsAlertOpen(true)}
-                            isLoading={isLoading}
-                            loadingText="Deleting..."
-                        >
-                            Delete Event
-                        </Button>
-                        </>
-                    )}
+
+
+                        {user && events ? (
+                            user.role === "event-organizer" && events?.specificEventInfo?.eventBelongs_id === user?._id ? (
+                            <>
+                                <Button
+                                    position={"absolute"}
+                                    bottom="10px"
+                                    right="306px"
+                                    colorScheme="green"
+                                    size="md"
+                                    _hover={{ bg: "green.600" }}
+                                    onClick={openUpdateEventModal}
+                                >
+                                    Update Event
+                                </Button>
+                                <UpdateEventForm isOpen={isUpdateModalOpen} onClose={closeUpdateEventModal} eventURL={eventSpecificEndUrl}/>
+                                <Button
+                                    position={"absolute"}
+                                    bottom="10px"
+                                    right="150px"
+                                    colorScheme="blue"
+                                    size="md"
+                                    _hover={{ bg: "red.600" }}
+                                >
+                                    Invite Attendees
+                                </Button>
+                                <Button
+                                    position={"absolute"}
+                                    bottom="10px"
+                                    right="20px"
+                                    colorScheme="red"
+                                    size="md"
+                                    _hover={{ bg: "red.600" }}
+                                    onClick={() => setIsAlertOpen(true)}
+                                    isLoading={isLoading}
+                                    loadingText="Deleting..."
+                                >
+                                    Delete Event
+                                </Button>
+                            </>
+                            ) : user.role !== "event-organizer" ? (
+                                // Display join button for users who are not event organizers
+                                events?.specificEventInfo?.attendees?.includes(user?._id) ? (
+                                    // Display text cannot join if user is already attending
+                                    <Text position={"absolute"} bottom="10px" right="20px" fontSize={"xl"} fontWeight={"bold"} color={"blue.500"}>You have already join this event</Text>
+                                ) : (
+                                    <>
+                                    <Button
+                                    position={"absolute"}
+                                    bottom="10px"
+                                    right="20px"
+                                    colorScheme="teal"
+                                    size="md"
+                                    _hover={{ bg: "teal.600" }}
+                                    onClick={() => setIsJoinAlertOpen(true)}
+                                    >
+                                        Join Event
+                                    </Button>
+                                    </>
+                                )
+                            ) : (
+                                // Display text to event organizer cannot join
+                                <Text position={"absolute"} bottom="10px" right="20px" fontSize={"xl"} fontWeight={"bold"} color={"red.500"}>Event organizer cannot join other events</Text>
+                            )
+                        ) : (
+                            navigate("/")
+                        )}
                     </Box>
                 </motion.div>
             )}
@@ -271,6 +329,36 @@ const EventDetailsPage = () => {
                                 Cancel
                             </Button>
                             <Button colorScheme="red" ml={3} onClick={handleDeleteEvent}>
+                                Confirm
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
+
+
+            {/* Alert Dialog for joining event */}
+            <AlertDialog
+                isOpen={isJoinAlertOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={() => setIsJoinAlertOpen(false)}
+                isCentered
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            Join Event
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                            Confirm to Join Event? Once join you cannot leave
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={() => setIsJoinAlertOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button colorScheme="green" ml={3} onClick={handleJoinEvent}>
                                 Confirm
                             </Button>
                         </AlertDialogFooter>

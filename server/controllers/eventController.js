@@ -350,3 +350,38 @@ export const deleteEvent = async (req, res) => {
         res.status(500).json({ success: false, message: [error.message] });
     }
 };
+
+export const joinEvent = async (req, res) => {
+    try {
+        const {specificEventURL} = req.params;
+        
+        const specificEventInfo = await Event.findOne({
+            eventSpecificEndUrl: specificEventURL
+        });
+
+        if (!specificEventInfo) {
+            return res.status(404).json({message: ["Event not found, please provide specific event URL"]});
+        }
+
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({message: ["User not found"]});
+        }
+
+        specificEventInfo.attendees.push(user._id);
+        await specificEventInfo.save();
+
+        res.status(200).json({ 
+            success: true, 
+            message: "Event joined successfully",
+            specificEventInfo: {
+                eventName: specificEventInfo.event_name,
+                eventAttendees: specificEventInfo.attendees
+            }
+        });
+    } catch (error) {
+        console.log("Failed to join eventtttt", error.message);
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+};
