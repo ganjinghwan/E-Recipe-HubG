@@ -78,7 +78,7 @@ export const useEventStore = create((set) => ({
         }
     },
 
-    updateEvent: async(newEvent_name, newEvent_description, newStart_date, newEnd_date, newEvent_image, specificEventURL) => {
+    updateEvent: async (newEvent_name, newEvent_description, newStart_date, newEnd_date, newEvent_image, specificEventURL) => {
         set({ isLoading: true, error: null });
         try {
             const response = await axios.post(`/api/events/update-event/${specificEventURL}`, { newEvent_name, newEvent_description, newStart_date, newEnd_date, newEvent_image });
@@ -92,5 +92,20 @@ export const useEventStore = create((set) => ({
             const errorMessage = error.response?.data?.message || [error.message];
             throw { response: { data: { messages: errorMessage } } };
         } 
+    },
+
+    deleteEvent: async (specificEventURL) => {
+        set({ isLoading: true, error: null });
+        try {
+            await axios.delete(`/api/events/delete-event/${specificEventURL}`);
+            set({
+                events: null,
+                error: null,
+                isLoading: false,
+            })
+        } catch (error) {
+            set({ error: error.response.data.message || "Error deleting account", isLoading: false });
+            throw error;
+        }
     }
 }));

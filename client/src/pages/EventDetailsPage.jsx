@@ -1,6 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import eventDetailsBgImage from '../pic/eventsDetailsImg.jpg';
-import { Box, Flex, Text, Button, Image, useToast } from '@chakra-ui/react';
+import { 
+    Box, 
+    Flex, 
+    Text, 
+    Button, 
+    Image, 
+    useToast, 
+    AlertDialog,
+    AlertDialogOverlay,
+    AlertDialogHeader,
+    AlertDialogBody,
+    AlertDialogFooter,
+    AlertDialogContent
+} from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useEventStore } from '../store/eventStore';
 import LoadingSpinner from '../components/LoadingSpinner';
@@ -12,10 +25,12 @@ import UpdateEventForm from '../components/UpdateEventForm';
 const EventDetailsPage = () => {
     const { user } = useAuthStore();
     const { eventSpecificEndUrl } = useParams();
-    const { events, getEventInfo } = useEventStore();
+    const { events, getEventInfo, deleteEvent, isLoading } = useEventStore();
     const [isFetching, setIsFetching] = useState(true);
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const cancelRef = useRef();
 
     const navigate = useNavigate();
     const toast = useToast();
@@ -46,8 +61,6 @@ const EventDetailsPage = () => {
         fetchEventData();
       }, [eventSpecificEndUrl, getEventInfo, navigate, toast]);
 
-    console.log("Events:", events);
-
     const openUpdateEventModal = () => {
         setIsUpdateModalOpen(true);
     };
@@ -55,6 +68,33 @@ const EventDetailsPage = () => {
     const closeUpdateEventModal = () => {
         setIsUpdateModalOpen(false);
     };
+
+    const handleDeleteEvent = async () => {
+        setIsAlertOpen(false);
+
+        try {
+            await deleteEvent(eventSpecificEndUrl);
+            toast({
+                position: "bottom",
+                title: "Event deleted successfully",
+                description: "Redirect back to events page...",
+                status: "success",
+                duration: 5000,
+                isClosable: true,
+            })
+
+            navigate("/events")
+        } catch (error) {
+            toast({
+                position: "bottom",
+                title: "Failed to delete event",
+                description: error.message,
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            })
+        }
+    }
 
     return (
         <Flex
@@ -197,6 +237,9 @@ const EventDetailsPage = () => {
                             colorScheme="red"
                             size="md"
                             _hover={{ bg: "red.600" }}
+                            onClick={() => setIsAlertOpen(true)}
+                            isLoading={isLoading}
+                            loadingText="Deleting..."
                         >
                             Delete Event
                         </Button>
@@ -205,6 +248,35 @@ const EventDetailsPage = () => {
                     </Box>
                 </motion.div>
             )}
+
+            {/* Alert Dialog for deleting event */}
+            <AlertDialog
+                isOpen={isAlertOpen}
+                leastDestructiveRef={cancelRef}
+                onClose={() => setIsAlertOpen(false)}
+                isCentered
+            >
+                <AlertDialogOverlay>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            Confirm Delete Event
+                        </AlertDialogHeader>
+
+                        <AlertDialogBody>
+                            Are you sure you want to delete this event? Once confirmed, it cannot be undone.
+                        </AlertDialogBody>
+
+                        <AlertDialogFooter>
+                            <Button ref={cancelRef} onClick={() => setIsAlertOpen(false)}>
+                                Cancel
+                            </Button>
+                            <Button colorScheme="red" ml={3} onClick={handleDeleteEvent}>
+                                Confirm
+                            </Button>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialogOverlay>
+            </AlertDialog>
         </Flex>
         );
 };
