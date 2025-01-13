@@ -16,7 +16,7 @@ import {
   Center,
   useBreakpointValue 
 } from "@chakra-ui/react";
-import { FaUser, FaFlag, FaBook, FaExclamationTriangle, FaSync, FaSyncAlt } from "react-icons/fa";
+import { FaUser, FaFlag, FaBook, FaExclamationTriangle, FaSync, FaSyncAlt, FaRegCalendarAlt  } from "react-icons/fa";
 import generalBackground from "../pic/mod3.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
@@ -46,7 +46,7 @@ const ModeratorPage = () => {
   const [isUserListOpen, setIsUserListOpen] = useState(false);
   const [isReportListOpen, setIsReportListOpen] = useState(false);
   const [isRecipeListOpen, setIsRecipeListOpen] = useState(false);
-  const [isWarningListOpen, setIsWarningListOpen] = useState(false);
+  const [isEventListOpen, setIsEventListOpen] = useState(false);
 
   const toast = useToast();
   const navigate = useNavigate();
@@ -129,7 +129,7 @@ const modalHandlers = {
     users: setIsUserListOpen,
     reports: setIsReportListOpen,
     recipes: setIsRecipeListOpen,
-    warnings: setIsWarningListOpen,
+    events: setIsEventListOpen,
   };
   
   const handleClick = (type) => {
@@ -291,7 +291,7 @@ const modalHandlers = {
             { title: "Users", icon: <FaUser />, count: userCount, type: "users" },
             { title: "Reports", icon: <FaFlag />, count: counts.reports, type: "reports" },
             { title: "Recipes", icon: <FaBook />, count: recipeCountMemoized, type: "recipes" },
-            { title: "Warnings", icon: <FaExclamationTriangle />, count: counts.warnings, type: "warnings" },
+            { title: "Events", icon: <FaRegCalendarAlt />, count: counts.warnings, type: "events" },
           ].map((item, index) => (
             <Box
               key={index}
@@ -369,8 +369,8 @@ const modalHandlers = {
             onClose={() => setIsRecipeListOpen(false)}
         /> */}
         {/* <WarningListModal
-            isOpen={isWarningListOpen}
-            onClose={() => setIsWarningListOpen(false)}
+            isOpen={isEventListOpen}
+            onClose={() => setIsEventListOpen(false)}
         /> */}
     </Flex>
   );
