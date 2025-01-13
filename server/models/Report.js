@@ -34,11 +34,11 @@ const reportSchema = new mongoose.Schema({
     reportedRecipeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Recipe",
-        required: true
+        required: false
     },
     reportedRecipeName: {
         type: String,
-        required: true
+        required: false
     },
     date:{
         type: Date,

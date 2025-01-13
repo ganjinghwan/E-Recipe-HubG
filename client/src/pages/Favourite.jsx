@@ -301,8 +301,9 @@ const Favorites = () => {
       direction="column"
       justify="center"
       align="center"
-      h="100vh"
+      h={{ base: "120vh", md: "100vh" }}
       bgImage={`url(${recipesBackground})`}
+      bgAttachment="fixed"
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"

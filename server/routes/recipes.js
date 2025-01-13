@@ -1,6 +1,6 @@
 /* Recipe CRUD */
 import express from 'express';
-import { getRecipes, createRecipe, updateRecipe, deleteRecipe, getAllRecipes,addComment, addReport,
+import { getRecipes, createRecipe, updateRecipe, deleteRecipe, getAllRecipes,addComment, addReport, addReportUser,
          addRate, getRecipeById, toggleFavorite } from '../controllers/recipeController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
@@ -17,5 +17,6 @@ router.post('/:id/rate',verifyToken, addRate);
 router.get('/:id',verifyToken, getRecipeById);
 router.post('/togglefav', verifyToken, toggleFavorite); 
 router.post('/report',verifyToken, addReport);
+router.post('/reportUser',verifyToken, addReportUser);
 
 export default router;

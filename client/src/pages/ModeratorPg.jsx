@@ -206,7 +206,7 @@ const modalHandlers = {
         direction="column"
         justify="center"
         align="center"
-        h="100vh"
+        h={{base: "150vh", md: "100vh"}}
         position="relative"
         textAlign="center"
         overflow="hidden"
@@ -216,8 +216,9 @@ const modalHandlers = {
         top="0"
         left="0"
         w="100%"
-        h="100%"
+        h={{ base: "150vh", md: "100vh" }}
         bgImage={`url(${generalBackground})`}
+        bgAttachment="fixed"
         bgSize="cover"
         bgPosition="center"
         bgRepeat="no-repeat"
@@ -236,6 +237,7 @@ const modalHandlers = {
         borderRadius="lg"
         backdropFilter="blur(30px)"
         zIndex="1"
+        overflow="auto"
       />
 
       {/* Dashboard Content */}
@@ -318,6 +320,7 @@ const modalHandlers = {
                 borderRadius="lg"
                 p={4}
                 backdropFilter="blur(10px)"
+                boxShadow="md"
             >
                 <Text fontWeight="bold" mb={2}>
                 User Activity
@@ -326,7 +329,7 @@ const modalHandlers = {
                 options={userActivityOptions}
                 series={userActivitySeries}
                 type="line"
-                height="200"
+                height={useBreakpointValue({ base: 150, md: 200 })} // Adjust chart height based on screen size
                 />
             </Box>
 
@@ -336,6 +339,7 @@ const modalHandlers = {
                 borderRadius="lg"
                 p={4}
                 backdropFilter="blur(10px)"
+                boxShadow="md"
             >
                 <Text fontWeight="bold" mb={2}>
                 Recipes Submitted
@@ -344,7 +348,7 @@ const modalHandlers = {
                 options={recipeDataOptions}
                 series={recipeDataSeries}
                 type="bar"
-                height="200"
+                height={useBreakpointValue({ base: 150, md: 200 })} // Adjust chart height based on screen size
                 />
             </Box>
         </Grid>

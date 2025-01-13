@@ -551,11 +551,12 @@ const VisitorPage = () => {
       direction="column"
       justify="center"
       align="center"
-      h="100vh"
+      h={{ base: "120vh", md: "100vh" }}
       bgImage={`url(${recipesBackground})`}
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
+      bgAttachment="fixed"
       position="relative"
       textAlign="center"
       filter={isOpen ? "blur(5px)" : "none"}  // Apply blur when modal is open
@@ -585,7 +586,7 @@ const VisitorPage = () => {
         <Center>
          <VStack spacing={4} bg="rgba(255, 255, 255, 0.8)" p={4} borderRadius="md">
           <Text fontSize="xl" fontWeight="bold">
-             {user ? `Hello, ${user.name}!` : "Welcome, Visitor!"}
+             {user ? `Hello, ${truncateText(user.name, 20)} !` : "Welcome, Visitor!"}
             </Text>
             <Text fontSize="xl" fontWeight="light">
               Please choose a user/chef to view their recipes.
@@ -658,7 +659,7 @@ const VisitorPage = () => {
                 </Tooltip>
               </HStack>
               <Text marginLeft="30px" fontSize="md" fontWeight="semibold" color="gray.600">
-                Author: {cooks.find((u) => u._id === selectedUser)?.name || "Unknown"}
+                Author: {truncateText(cooks.find((u) => u._id === selectedUser)?.name || "Unknown",15)}
             </Text>
 
             {/* Rate IconButton */}
@@ -998,7 +999,8 @@ const VisitorPage = () => {
                 >
                 {cooks.map((user) => (
                     <option key={user._id?.$oid || user.name} value={user.name}>
-                    {user.name}
+                    {truncateText(user.name, 35)}
+                    
                     </option>
                 ))}
                 </Select>

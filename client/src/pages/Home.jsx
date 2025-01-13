@@ -27,6 +27,7 @@ const Home = () => {
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
+      bgAttachment="fixed"
       position="relative"
       textAlign="center"
     >

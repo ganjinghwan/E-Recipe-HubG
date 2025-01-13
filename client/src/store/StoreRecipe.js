@@ -136,6 +136,29 @@ export const useStoreRecipe = create((set, get) => ({
             return { success: false, message: "Failed to submit report." };
         }
     },
+
+    addReportUser: async (reportData) => {
+        try {
+            const res = await fetch(`/api/recipesinfo/reportUser`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(reportData),
+            });
+    
+            const data = await res.json();
+    
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+    
+            return { success: true, message: "Report submitted successfully." };
+        } catch (error) {
+            console.error("Error submitting report:", error);
+            return { success: false, message: "Failed to submit report." };
+        }
+    },
     
 
     addRate: async (rid, rateData) => {

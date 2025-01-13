@@ -237,6 +237,46 @@ export const addReport = async (req, res) => {
 };
 
 
+export const addReportUser = async (req, res) => {
+    const { reportTitle, reportReason, reportedUserId, reportedUserName, reporter_id, reporter_name, reporter_role, date } = req.body;
+
+    if (!reportTitle || !reportReason || !reportedUserId || !reporter_id) {
+        return res.status(400).json({
+            success: false,
+            message: "Missing required fields.",
+        });
+    }
+
+    try {
+        // Example: Save the report to a database (assuming a Report model/schema)
+        const newReport = new Report({
+            reportTitle,
+            reportReason,
+            reportedUserId,
+            reportedUserName,
+            reporter_id,
+            reporter_name,
+            reporter_role,
+            date,
+        });
+
+        await newReport.save();
+
+        res.status(201).json({
+            success: true,
+            message: "Report submitted successfully.",
+            data: newReport,
+        });
+    } catch (error) {
+        console.error("Error creating report:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to submit report.",
+        });
+    }
+};
+
+
 export const addRate = async (req, res) => {
     const { id } = req.params; // Recipe ID
     const { userId, rating } = req.body; // User rating input

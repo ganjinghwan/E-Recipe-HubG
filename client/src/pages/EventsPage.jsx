@@ -58,6 +58,7 @@ const EventsPage = () => {
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
+      bgAttachment="fixed"
     >
       {/* Overlay */}
       <Box

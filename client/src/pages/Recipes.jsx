@@ -29,12 +29,13 @@ import {
   MenuList,
   MenuItem,
   Stack,
-  useBreakpointValue 
+  useBreakpointValue,
 } from "@chakra-ui/react";
-import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube, FaStar} from "react-icons/fa";
+import { FaHeart, FaPlus, FaEdit, FaTrash, FaClock, FaYoutube, FaStar, FaFlag} from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
+import { useAuthStore } from "../store/authStore";
 
 const Recipes = () => {
   const [selectedFood, setSelectedFood] = useState(null);
@@ -54,7 +55,7 @@ const Recipes = () => {
     video: "",
   });
 
-  const {createRecipe, deleteRecipes, updateRecipes, fetchRecipeById, toggleFavorite} = useStoreRecipe();
+  const {createRecipe, deleteRecipes, updateRecipes, fetchRecipeById, addReportUser, toggleFavorite} = useStoreRecipe();
   const { fetchFavoriteRecipes, favoriteRecipes } = useStoreRecipe();
   const {fetchRecipes, recipes} = useStoreRecipe();
   const [categories, setCategories] = useState(["All"]); // "All" as default
@@ -62,8 +63,22 @@ const Recipes = () => {
   const [updatedRecipe, setUpdatedRecipe] = useState(selectedFood);
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
+  const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
+
   const [imageSource, setImageSource] = useState("url"); // Default to URL
 
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [reportDetails, setReportDetails] = useState({ title: "", reason: "" });
+  const [availableUsers, setAvailableUsers] = useState([]);
+
+  const { user, fetchCGE, CGEs } = useAuthStore();
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log("Focused Element:", document.activeElement);
+    }
+  }, [isOpen]);
+  
 
   const resetNewRecipe = () => {
     setNewRecipe({
@@ -420,16 +435,94 @@ const Recipes = () => {
     onClose();
   };
 
+  /********************************************** Handling Report **************************************************/
+  useEffect(() => {
+    if (activeModal === "report") {
+      fetchCGE(); // Fetch CGE users when report modal is opened
+    }
+  }, [activeModal, fetchCGE]);
+
+  useEffect(() => {
+    if (CGEs.length > 0) {
+      // Filter out the current user
+      setAvailableUsers(CGEs.filter((cge) => cge.name !== user?.name));
+    }
+  }, [CGEs, user]);
+
+  const closeModal = () => {
+    setSelectedUser(null);
+    setReportDetails({ title: "", reason: "" });
+    onClose();
+  };
+  
+
+  const handleSubmitReport = async () => {
+    if (!selectedUser || !reportDetails.title.trim() || !reportDetails.reason.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+      return;
+    }
+
+    const reportData = {
+      reportedUserId:  selectedUser._id, 
+      reportedUserName: selectedUser.name,
+      reportTitle:  reportDetails.title,
+      reportReason: reportDetails.reason,
+      reporter_id: user._id, // Current user ID
+      reporter_name: user.name, // Current user name
+      reporter_role: user.role, // Current user role
+      date: new Date().toISOString(),
+  };
+
+  console.log("Report Data:", reportData);
+
+    try {
+      const response = await addReportUser(reportData);
+
+      if (!response.success) {
+            throw new Error(response.message);
+      }
+
+      toast({
+        title: "Report Submitted",
+        description: "The user has been reported successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+
+      onClose();
+      setReportDetails({ title: "", reason: "" });
+      setSelectedUser(null);
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit the report.",
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  };
+
+
   return (
     <Flex
       direction="column"
       justify="center"
       align="center"
-      h="100vh"
+      h={{ base: "120vh", md: "100vh" }}
       bgImage={`url(${recipesBackground})`}
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
+      bgAttachment="fixed"
       position="relative"
       textAlign="center"
       filter={isOpen ? "blur(5px)" : "none"}  // Apply blur when modal is open
@@ -568,7 +661,7 @@ const Recipes = () => {
               </HStack>
              
               
-              <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
+              <HStack spacing={5} marginLeft="30px"> {/* Wider gap for icons */}
                 <Tooltip label="Create">
                 <IconButton
                   size={iconButtonSize}
@@ -628,6 +721,24 @@ const Recipes = () => {
                   onClick={() => handleIconClick("update")}
                 />
                 </Tooltip>
+
+                {/* Report IconButton */}
+                <Tooltip label="Report User">
+                    <IconButton
+                    size={iconButtonSize}
+                    icon={<FaFlag />}
+                    aria-label="Report User"
+                    bg="rgba(255, 255, 255, 0.6)"
+                    backdropFilter="blur(10px)"
+                    _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                    _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                    borderRadius="md"
+                    boxShadow="sm"
+
+                    onClick={() => handleIconClick("report")}
+                    />
+                </Tooltip>
+
                 <Tooltip label="Delete">
                 <IconButton
                   size={iconButtonSize}
@@ -646,15 +757,16 @@ const Recipes = () => {
               </HStack>
               <HStack spacing={4} mt={4} marginLeft="30px">
                 <Menu>
-                <MenuButton as={Button} rightIcon={<FaChevronDown />} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
+                <MenuButton as={Button} rightIcon={<FaChevronDown />} height={{ base: "30px", md: "40px" }} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
                   {truncateText(selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1), 10)}{/* Display selected category */}
                 </MenuButton>
-                <MenuList maxH="100px" minW={{ base: "150px", md: "180px" }} overflowY="auto"> {/* Set scrollable dropdown content */}
+                <MenuList maxH={{ base: "100px", md: "130px" }} minW={{ base: "150px", md: "180px" }} overflowY="auto"> {/* Set scrollable dropdown content */}
                   {categories.map((category) => (
                     <MenuItem key={category} onClick={() => setSelectedCategory(category.toLowerCase())}
                       fontSize={{ base: "sm", md: "md" }}
                       whiteSpace="pre-wrap"
                       overflowWrap="break-word"
+                      _hover={{ bg: "gray.100" }}
                     >
                       {truncateSentences(category.charAt(0).toUpperCase() + category.slice(1), 17)}
                     </MenuItem>
@@ -676,10 +788,11 @@ const Recipes = () => {
             p={{ base: 2, md: 4 }}
             borderRadius="md" 
             shadow="md" 
+            maxW={{ base: "60%", md: "100%" }}
             maxH={{ base: "150px", md: "300px" }}
           >
             {/* Tab Navigation */}
-            <Flex justify="space-around" mb={4}>
+            <Flex justify="space-around" mb={{ base: 2, md: 4 }}>
               <Button
                 variant="link"
                 colorScheme={activeTab === "Ingredients" ? "orange" : "gray"}
@@ -807,7 +920,7 @@ const Recipes = () => {
               // transform={`translateX(-${carouselIndex * 1}px)`} // Smooth transition
             >
               {filteredRecipes
-                .slice(carouselIndex, carouselIndex + 5) // Show only 5 items
+                .slice(carouselIndex, carouselIndex + numberOfItems) // Show only 5 items
                 .map((food) => (
                   <VStack
                     key={food._id}
@@ -1056,6 +1169,7 @@ const Recipes = () => {
               />
             </VStack>
           )}
+           
 
             {activeModal === "delete" && (
               <Text>Are you sure you want to delete{" "}
@@ -1102,7 +1216,71 @@ const Recipes = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
+      
+      {/* Modal for Reporting Users */}
+      {activeModal === "report" && (
+        <Modal 
+          isOpen={isOpen} 
+          onClose = {closeModal}
+          autoFocus = {false}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>Report User</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <VStack spacing={4}  align="stretch">
+              <Menu>
+                <MenuButton as={Button} rightIcon={<FaChevronDown />} width="400px">
+                    {selectedUser ? truncateText(selectedUser.name, 20) : "Select a User"}
+                </MenuButton>
+                <MenuList maxHeight="200px" overflowY="auto" width="400px">
+                  {availableUsers.map((user, index) => (
+                    <MenuItem key={user.id || index} onClick={() => setSelectedUser(user)}>
+                      {truncateText( user.name, 50)}{/* Display selected user */}
+                    </MenuItem>
+                  ))}
+                </MenuList>
+              </Menu>
+    
+
+                <Input
+                  placeholder="Title"
+                  value={reportDetails.title}
+                  onChange={(e) =>
+                    setReportDetails((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
+                />
+                <Textarea
+                  placeholder="Reason"
+                  value={reportDetails.reason}
+                  onChange={(e) =>
+                    setReportDetails((prev) => ({
+                      ...prev,
+                      reason: e.target.value,
+                    }))
+                  }
+                />
+              </VStack>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="blue" mr={3} onClick={handleSubmitReport}>
+                Submit Report
+              </Button>
+              <Button variant="ghost" onClick={closeModal}
+              >
+                Cancel
+                </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
+
     </Flex>
+    
   );
 };
 
