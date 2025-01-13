@@ -7,11 +7,15 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
+import UpdateEventForm from '../components/UpdateEventForm';
+
 const EventDetailsPage = () => {
     const { user } = useAuthStore();
     const { eventSpecificEndUrl } = useParams();
     const { events, getEventInfo } = useEventStore();
     const [isFetching, setIsFetching] = useState(true);
+
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
     const navigate = useNavigate();
     const toast = useToast();
@@ -43,6 +47,14 @@ const EventDetailsPage = () => {
       }, [eventSpecificEndUrl, getEventInfo, navigate, toast]);
 
     console.log("Events:", events);
+
+    const openUpdateEventModal = () => {
+        setIsUpdateModalOpen(true);
+    };
+
+    const closeUpdateEventModal = () => {
+        setIsUpdateModalOpen(false);
+    };
 
     return (
         <Flex
@@ -154,17 +166,41 @@ const EventDetailsPage = () => {
                                 />
                             </Box>
                         </Box>
-                    {user && user.role === "event-organizer" && (
+                    {user && user.role === "event-organizer" && events?.specificEventInfo?.eventBelongs_id === user?._id && (
+                        <>
+                        <Button
+                            position={"absolute"}
+                            bottom="10px"
+                            right="306px"
+                            colorScheme="green"
+                            size="md"
+                            _hover={{ bg: "green.600" }}
+                            onClick={openUpdateEventModal}
+                        >
+                            Update Event
+                        </Button>
+                        <UpdateEventForm isOpen={isUpdateModalOpen} onClose={closeUpdateEventModal} eventURL={eventSpecificEndUrl}/>
+                        <Button
+                            position={"absolute"}
+                            bottom="10px"
+                            right="150px"
+                            colorScheme="blue"
+                            size="md"
+                            _hover={{ bg: "red.600" }}
+                        >
+                            Invite Attendees
+                        </Button>
                         <Button
                             position={"absolute"}
                             bottom="10px"
                             right="20px"
-                            colorScheme="green"
+                            colorScheme="red"
                             size="md"
-                            _hover={{ bg: "green.600" }}
+                            _hover={{ bg: "red.600" }}
                         >
-                            Update Event
+                            Delete Event
                         </Button>
+                        </>
                     )}
                     </Box>
                 </motion.div>

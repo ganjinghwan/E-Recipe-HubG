@@ -76,5 +76,21 @@ export const useEventStore = create((set) => ({
             const errorMessage = error.response?.data?.message || [error.message];
             throw { response: { data: { messages: errorMessage } } };
         }
+    },
+
+    updateEvent: async(newEvent_name, newEvent_description, newStart_date, newEnd_date, newEvent_image, specificEventURL) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.post(`/api/events/update-event/${specificEventURL}`, { newEvent_name, newEvent_description, newStart_date, newEnd_date, newEvent_image });
+            set({
+                events: response.data.updatedEventInfo,
+                error: null,
+                isLoading: false
+            });
+        } catch (error) {
+            set({ isLoading: false });
+            const errorMessage = error.response?.data?.message || [error.message];
+            throw { response: { data: { messages: errorMessage } } };
+        } 
     }
 }));
