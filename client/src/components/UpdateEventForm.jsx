@@ -283,7 +283,7 @@ const UpdateEventForm = ({isOpen, onClose, eventURL}) => {
                         isLoading={isLoading}
                         loadingText="Updating Event..."
                     >
-                        Confirm Update
+                        Update
                     </Button>
                 </ModalFooter>
 

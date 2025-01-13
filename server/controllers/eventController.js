@@ -284,11 +284,17 @@ export const updateEvents = async (req, res) => {
         }
 
         if (newEvent_image) {
-            specificEventValid.event_image = newEvent_image;
+            const newEventPicture = await cloudinary.uploader.upload(newEvent_image);
+            specificEventValid.event_thumbnail = newEventPicture.secure_url;
         }
 
         if (updateEventErrors.length > 0) {
             return res.status(400).json({ success: false, message: updateEventErrors });
+        } else {
+            if (newStart_date && newEnd_date) {
+                specificEventValid.start_date = newStart_date;
+                specificEventValid.end_date = newEnd_date;
+            }
         }
 
         await specificEventValid.save();
