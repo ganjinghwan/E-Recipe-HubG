@@ -21,6 +21,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 import UpdateEventForm from '../components/UpdateEventForm';
+import InviteAttendeesForm from '../components/InviteAttendeesForm';
 
 const EventDetailsPage = () => {
     const { user } = useAuthStore();
@@ -29,6 +30,7 @@ const EventDetailsPage = () => {
     const [isFetching, setIsFetching] = useState(true);
 
     const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+    const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
 
     const [isJoinAlertOpen, setIsJoinAlertOpen] = useState(false);
@@ -69,6 +71,14 @@ const EventDetailsPage = () => {
 
     const closeUpdateEventModal = () => {
         setIsUpdateModalOpen(false);
+    };
+
+    const openInviteAttendeesModal = () => {
+        setIsInviteModalOpen(true);
+    };
+
+    const closeInviteAttendeesModal = () => {
+        setIsInviteModalOpen(false);
     };
 
     const handleDeleteEvent = async () => {
@@ -258,10 +268,12 @@ const EventDetailsPage = () => {
                                     right="150px"
                                     colorScheme="blue"
                                     size="md"
-                                    _hover={{ bg: "red.600" }}
+                                    _hover={{ bg: "blue.600" }}
+                                    onClick={openInviteAttendeesModal}
                                 >
                                     Invite Attendees
                                 </Button>
+                                <InviteAttendeesForm isOpen={isInviteModalOpen} onClose={closeInviteAttendeesModal} eventURL={eventSpecificEndUrl}/>
                                 <Button
                                     position={"absolute"}
                                     bottom="10px"

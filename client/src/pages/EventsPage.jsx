@@ -130,9 +130,10 @@ const EventsPage = () => {
 
                       {/* Buttons */}
                       <Box flex={1}
-                        display={"flex"}
+                        display={"absolute"}
                         justifyContent={"center"}
                         alignItems={"center"}
+                        justifyItems={"center"}
                       >
                         <Button
                           display={"flex"}
@@ -140,9 +141,18 @@ const EventsPage = () => {
                           onClick={() => {
                             navigate(`/events/${event.eventSpecificEndUrl}`);
                           }}
-                        >
+                          >
                           More Info
                         </Button>
+                          {event.attendees?.includes(user?._id) && (
+                            <Button
+                              display={"flex"}
+                              colorScheme="green"
+                              mt={2}
+                            >
+                              View Event Recipe
+                            </Button>
+                          )}
                       </Box>
                     </Flex>
                       ))

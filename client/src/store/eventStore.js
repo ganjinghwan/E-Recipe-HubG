@@ -5,6 +5,7 @@ export const useEventStore = create((set) => ({
     isLoading: false,
     error: null,
     events: [],
+    attendeesList: [],
 
     getAllSpecificEventOrgEvents: async () => {
         set({ isLoading: true, error: null });
@@ -123,4 +124,19 @@ export const useEventStore = create((set) => ({
             throw error;
         }
     },
+
+    getInviteAttendeesList: async (specificEventURL) => {
+        set({ isLoading: true, error: null });
+        try {
+            const response = await axios.get(`/api/events/get-event-attendeesList/${specificEventURL}`);
+            set({
+                attendeesList: response.data.invitableUserInfo,
+                error: null,
+                isLoading: false,
+            })
+        } catch (error) {
+            set({ error: error.response.data.message || "Error getting invite attendees list", isLoading: false });
+            throw error;
+        }
+    }
 }));

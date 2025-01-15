@@ -40,6 +40,38 @@ export const getAllEvents = async (req, res) => {
     }
 }
 
+export const getInvitableUserList = async (req, res) => {
+    try {
+        const {specificEventURL} = req.params;
+
+        const actualBelongsToEventOrg = await Event.findOne({
+            eventBelongs_id: req.user._id,
+            eventSpecificEndUrl: specificEventURL
+        })
+
+        if (!actualBelongsToEventOrg) {
+            return res.status(404).json({message: ["No actual event organizer"]});
+        }
+
+        const invitableUserInfo = await User.find({ 
+            // find user that are these roles and are not already join this event
+            role: { $in: ["cook", "guest"] },
+            _id: { $nin: actualBelongsToEventOrg.attendees }
+        } );
+
+        if (!invitableUserInfo) {
+            return res.status(404).json({message: ["No user found"]});
+        }
+
+        res.status(200).json({ 
+            success: true, 
+            invitableUserInfo
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+}
+
 export const createEvent = async (req, res) => {
     const {event_name, event_description, start_date, end_date, event_image} = req.body;
 
@@ -120,7 +152,6 @@ export const createEvent = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error(error);
         console.log("Failed to create event organization information", error.message);
         res.status(500).json({ success: false, message: [error.message] });
     }

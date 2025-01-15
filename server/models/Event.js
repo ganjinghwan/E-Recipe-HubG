@@ -36,11 +36,6 @@ const eventSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    comments: {
-        type: Array,
-        required: false
-    },
-    updateEventToken: String,
     eventSpecificEndUrl: String,
 }, {
     timestamps: true
