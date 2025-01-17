@@ -2,7 +2,7 @@ import { create } from "zustand";
 import axios from "axios";
 
 axios.defaults.withCredentials = true;
-export const useAuthStore = create((set, get) => ({
+export const useAuthStore = create((set) => ({
     user: null,
     cooks:[],
     CGEs:[],
@@ -36,7 +36,7 @@ export const useAuthStore = create((set, get) => ({
             console.error("Failed to fetch CGEs:", error);
         }
     },
-    userCGesCount: () => get().CGEs.length,
+    // userCGesCount: () => get().CGEs.length,
 
     fetchCook: async () => {
         try {

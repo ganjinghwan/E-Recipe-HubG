@@ -38,4 +38,54 @@ export const newModeratorInformation = async (req, res) => {
         console.log("Failed to create moderator", error.message);
         res.status(500).json({ success: false, message: [error.message] });
     }
-}
+};
+
+export const addDeletedRecipeHistory = async (req, res) => {
+    const { userName, userRole, recipeTitle, recipeId, reason, date} = req.body;
+    
+    if (!userName ||!userRole || !recipeTitle || !recipeId || !reason) {
+        return res.status(400).json({
+            success: false,
+            message: "Missing required fields.",
+        });
+    }
+
+    try {
+      // Fetch the moderator
+      const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+      if (!moderator) {
+        return res.status(404).json({ success: false, message: "Moderator not found" });
+      }
+  
+      // Add to deletedRecipes history
+      moderator.deletedRecipes.push({
+        userName: userName,
+        userRole: userRole,
+        recipeTitle: recipeTitle,
+        recipeID: recipeId,
+        reason: reason,
+        date: date,
+      });
+  
+      await moderator.save();
+  
+      res.status(200).json({ success: true, message: "Recipe deletion recorded in history." });
+    } catch (error) {
+      console.error("Failed to record deleted recipe:", error.message);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+export const getDeletedRecipeHistory = async (req, res) => {
+    try {
+        const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+        if (!moderator) {
+            return res.status(404).json({ success: false, message: "Moderator not found" });
+        }
+        res.status(200).json({ success: true, data: moderator.deletedRecipes });
+    } catch (error) {
+        console.error("Failed to fetch deleted recipe history:", error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+  

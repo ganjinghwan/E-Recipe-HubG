@@ -47,6 +47,7 @@ export const useEventStore = create((set) => ({
             throw error;
         }
     },
+    // eventCount : () => get().events.length,
 
     getEventInfo: async (specificEventURL) => {
         set({ isLoading: true, error: null });

@@ -46,6 +46,40 @@ const UserListModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const truncateSentences = (text, charLimit) => {
+    if (!text) return ""; // Handle null or undefined text
+  
+    const words = text.split(" "); // Split the text into words
+    const lines = []; // Array to store lines of text
+    let currentLine = ""; // Current line being constructed
+  
+    for (const word of words) {
+      if (word.length > charLimit) {
+        // If a single word exceeds the limit, split it into chunks
+        const chunks = word.match(new RegExp(`.{1,${charLimit}}`, "g"));
+        if (currentLine.trim()) {
+          lines.push(currentLine.trim()); // Push the current line before splitting the word
+          currentLine = ""; // Clear the current line
+        }
+        lines.push(...chunks); // Add the word chunks as separate lines
+      } else if ((currentLine + word).length > charLimit) {
+        // If adding the word exceeds the line limit, push the current line
+        lines.push(currentLine.trim());
+        currentLine = word + " "; // Start a new line with the current word
+      } else {
+        currentLine += word + " "; // Add the word to the current line
+      }
+    }
+  
+    // Add the last line if it's not empty
+    if (currentLine.trim()) {
+      lines.push(currentLine.trim());
+    }
+  
+    // Join the lines with a newline character
+    return lines.join("\n");
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
@@ -121,7 +155,7 @@ const UserListModal = ({ isOpen, onClose }) => {
                 {/* User Data Columns */}
                 <Flex flex="1">
                     <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
-                    <Text fontWeight="bold">{user.name}</Text>
+                    <Text fontWeight="bold">{truncateSentences(user.name,15)}</Text>
                     </Box>
                     <Box flex="1" minW="140px" textOverflow="ellipsis" overflow="hidden">
                     <Text>{user.role}</Text>

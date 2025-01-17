@@ -37,7 +37,6 @@ import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
 import StarRatings from "react-star-ratings";
-import { set } from "mongoose";
 
 const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
@@ -647,16 +646,19 @@ const VisitorPage = () => {
                 <Text fontSize={{ base: "2xl", md: "4xl" }} fontWeight="bold">
                    {truncateText(selectedFood?.title?.toUpperCase(), 12)}
                 </Text>
-                <Tooltip label="Add to favorites">
-                <IconButton
-                  marginTop="4px"
-                  marginLeft= "4px"
-                  size="sm"
-                  icon={<FaHeart/>}
-                  onClick={() => handleToggleFavorite(selectedFood?._id)}
-                  colorScheme={favoriteFoods.includes(selectedFood?._id) ? "red" : "gray"}
-                />
-                </Tooltip>
+                {user?.role === "guest" && (
+                  <Tooltip label="Add to favorites">
+                  <IconButton
+                    marginTop="4px"
+                    marginLeft= "4px"
+                    size="sm"
+                    icon={<FaHeart/>}
+                    onClick={() => handleToggleFavorite(selectedFood?._id)}
+                    colorScheme={favoriteFoods.includes(selectedFood?._id) ? "red" : "gray"}
+                  />
+                  </Tooltip>
+                )}
+                
               </HStack>
               <Text marginLeft="30px" fontSize="md" fontWeight="semibold" color="gray.600">
                 Author: {truncateText(cooks.find((u) => u._id === selectedUser)?.name || "Unknown",15)}
@@ -700,8 +702,9 @@ const VisitorPage = () => {
               </HStack>
               <HStack spacing={7} marginLeft="30px"> {/* Wider gap for icons */}
                 
-
+              
                 {/* Comments IconButton */}
+                {user?.role === "guest" && (
                 <Tooltip label="Comments">
                     <IconButton
                     size={iconButtonSize}
@@ -711,8 +714,10 @@ const VisitorPage = () => {
                     onClick={() => handleIconClick("comments")}
                     />
                 </Tooltip>
+                )}
 
                 {/* Report IconButton */}
+                {user?.role === "guest" && (
                 <Tooltip label="Report Recipe">
                     <IconButton
                     size={iconButtonSize}
@@ -722,6 +727,8 @@ const VisitorPage = () => {
                     onClick={() => handleIconClick("report")}
                     />
                 </Tooltip>
+                )}
+                
 
                 <Tooltip label="Video">
                 <IconButton

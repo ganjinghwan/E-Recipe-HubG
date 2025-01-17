@@ -8,6 +8,7 @@ import cookRoutes from './routes/cook_rt.js';
 import organizerRoutes from './routes/eventOrg_rt.js';
 import moderatorRoutes from './routes/moderator_rt.js';
 import eventRoutes from './routes/event_rt.js'
+import reportRoutes from './routes/report.js';
 import cookieParser from 'cookie-parser';
 import path from "path";
 
@@ -34,6 +35,9 @@ app.use("/api/moderator", moderatorRoutes);
 
 //Events
 app.use("/api/events", eventRoutes);
+
+//Reports
+app.use("/api/reports", reportRoutes);
 
 
 // console.log(process.env.MONGO_URI);

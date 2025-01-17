@@ -13,13 +13,21 @@ const moderatorSchema = new mongoose.Schema({
     }],
     // history
     deletedRecipes: [{
+       userName: {
+           type: String,
+           required: true
+       },
+       userRole: {
+           type: String,
+           required: true
+       },
+       recipeTitle: {
+           type: String,
+           required: true
+       },
        recipeID: {
            type: mongoose.Schema.Types.ObjectId,
            ref: "Recipe",
-       },
-       recipeName: {
-           type: String,
-           required: true
        },
        reason: {
            type: String,

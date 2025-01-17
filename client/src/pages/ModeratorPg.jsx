@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Flex,
@@ -18,8 +18,13 @@ import {
 } from "@chakra-ui/react";
 import { FaUser, FaFlag, FaBook, FaExclamationTriangle, FaSync, FaSyncAlt, FaRegCalendarAlt  } from "react-icons/fa";
 import generalBackground from "../pic/mod3.jpg";
+
+// import store
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
+import { useEventStore } from "../store/eventStore";
+import { useReportStore } from "../store/reportStore";
+
 import { useNavigate } from "react-router-dom";
 import Chart from "react-apexcharts"; // Use ApexCharts for graphing
 import dayjs from "dayjs";
@@ -31,15 +36,12 @@ import RecipeListModal from "../components/moderator-modal/recipe_list";
 
 const ModeratorPage = () => {
   const { user } = useAuthStore(); // Access current user info
-  const { fetchCGE, CGEs, userCGesCount, fetchDailyLogins, dailyLogins} = useAuthStore();
-  const [counts, setCounts] = useState({
-    users: 0,
-    reports: 0,
-    recipes: 0,
-    warnings: 0,
-  });
+  const { fetchCGE, CGEs, fetchDailyLogins, dailyLogins} = useAuthStore();
 
-  const {fetchAllRecipes, recipes, recipeCount} = useStoreRecipe();
+
+  const {fetchAllRecipes, recipes} = useStoreRecipe();
+  const {getAllEvents, events} = useEventStore();
+  const {fetchAllReports, reports} = useReportStore();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
   
 
@@ -54,13 +56,15 @@ const ModeratorPage = () => {
   const [userActivity, setUserActivity] = useState({ labels: [], counts: [] });
   const [recipeSubmissions, setRecipeSubmissions] = useState({ labels: [], counts: [] });
 
-/**********************************Fetching Users/Reports/Recipes/Warnings Count******************************************************************** */
+/**********************************Fetching Users/Reports/Recipes/Events/Warnings Count******************************************************************** */
     useEffect(() => {
         const fetchData = async () => {
             try {
             await fetchDailyLogins(); // Fetch daily login data
             await fetchCGE(); // Fetch user data
             await fetchAllRecipes(); // Fetch recipe data
+            await getAllEvents(); // Fetch event data
+            await fetchAllReports(); // Fetch report data
             } catch (error) {
                 toast({
                     title: "Error fetching data",
@@ -72,7 +76,7 @@ const ModeratorPage = () => {
             }
         };
         fetchData();
-    }, []); // No dependency here
+      }, [fetchDailyLogins, fetchCGE, fetchAllRecipes, getAllEvents, fetchAllReports]); // Ensure functions are stable references
 
     useEffect(() => {
         // Process Daily Logins for Chart
@@ -92,12 +96,11 @@ const ModeratorPage = () => {
   
   
 
-    const userCount = useMemo(() => userCGesCount(), [userCGesCount]);
-    const recipeCountMemoized = useMemo(() => recipeCount(), [recipeCount]);
+    const userCount = CGEs?.length || 0 ;
+    const recipeCountMemoized = recipes?.length || 0;
+    const reportCountMemo = reports?.length || 0;
+    const eventCountMemo = events?.length || 0;
 
-//   reports: CGEs?.filter((cge) => cge.type === "report").length || 0,
-//   recipes: CGEs?.filter((cge) => cge.type === "recipe").length || 0,
-//   warnings: CGEs?.filter((cge) => cge.type === "warning").length || 0,
 
 /**********************************Updating Date and time******************************************************************** */
 const [currentDate, setCurrentDate] = useState("");
@@ -111,18 +114,38 @@ useEffect(() => {
     updateDate();
   }, []);
 
-  const handleRefresh = () => {
+  const handleRefresh = async () => {
     window.location.reload();
+    try {
+      // update date
+      const updatenow = new Date();
+      setCurrentDate(updatenow.toLocaleString());
+
+      // refresh
+      await fetchDailyLogins(); // Refresh daily logins
+      await fetchCGE();         // Refresh user data
+      await fetchAllRecipes();  // Refresh recipe data
+      await getAllEvents();     // Refresh event data
+      await fetchAllReports();  // Refresh report data
+  
+      toast({
+        title: "Data refreshed.",
+        description: "The latest data has been loaded successfully.",
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+    } catch (error) {
+      toast({
+        title: "Error refreshing data.",
+        description: error.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
+    }
   };
-
-
-//   const handleRefresh = () => {
-//     setCurrentDate(new Date());
-//     fetchCGE();
-//     fetchAllRecipes();
-//     await fetchDailyLogins();
-
-//   };
+  
 
 /**********************************Handling Modal Clicks******************************************************************** */
 const modalHandlers = {
@@ -289,9 +312,9 @@ const modalHandlers = {
           {/* Red Components */}
           {[
             { title: "Users", icon: <FaUser />, count: userCount, type: "users" },
-            { title: "Reports", icon: <FaFlag />, count: counts.reports, type: "reports" },
+            { title: "Reports", icon: <FaFlag />, count: reportCountMemo, type: "reports" },
             { title: "Recipes", icon: <FaBook />, count: recipeCountMemoized, type: "recipes" },
-            { title: "Events", icon: <FaRegCalendarAlt />, count: counts.warnings, type: "events" },
+            { title: "Events", icon: <FaRegCalendarAlt />, count: eventCountMemo, type: "events" },
           ].map((item, index) => (
             <Box
               key={index}
@@ -364,10 +387,10 @@ const modalHandlers = {
             isOpen={isReportListOpen}
             onClose={() => setIsReportListOpen(false)}
         /> */}
-        {/* <RecipeListModal
+         <RecipeListModal
             isOpen={isRecipeListOpen}
             onClose={() => setIsRecipeListOpen(false)}
-        /> */}
+        />
         {/* <WarningListModal
             isOpen={isEventListOpen}
             onClose={() => setIsEventListOpen(false)}

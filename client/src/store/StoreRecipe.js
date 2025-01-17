@@ -2,7 +2,7 @@ import {create} from 'zustand';
 import { useAuthStore } from "../store/authStore";
 
 
-export const useStoreRecipe = create((set, get) => ({
+export const useStoreRecipe = create((set) => ({
     recipes: [],
     favoriteRecipes:[],
     setRecipes: (recipes) => set({ recipes }),
@@ -44,7 +44,7 @@ export const useStoreRecipe = create((set, get) => ({
         const data = await res.json();
         set({ recipes: data.data });
     },
-    recipeCount:() => get().recipes.length,
+    // recipeCount:() => get().recipes.length,
 
     /* Fetch recipe by ID */
     fetchRecipeById: async (rid) => {

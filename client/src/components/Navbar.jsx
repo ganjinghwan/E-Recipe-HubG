@@ -150,10 +150,10 @@ const Navbar = () => {
         )}
         {user?.role === "moderator" && (
           <ChakraLink as={RouterLink} to="/moderatorpg" fontSize="lg" _hover={{ color: "orange.300" }}>
-            General
+            User_Activity
           </ChakraLink>
         )}
-        {isAuthenticated && (
+        {isAuthenticated && user?.role !== "moderator" && (
           <ChakraLink as={RouterLink} to="/events" fontSize="lg" _hover={{ color: "orange.300" }}>
             Event
           </ChakraLink> 
@@ -237,10 +237,10 @@ const Navbar = () => {
                 _hover={{ color: "orange.300" }}
                 onClick={toggleMobileMenu}
               >
-                General
+                User_Activity
               </ChakraLink>
             )}
-            {isAuthenticated && (
+            {isAuthenticated && user?.role !== "moderator" && (
               <ChakraLink
                 as={RouterLink}
                 to="/events"
