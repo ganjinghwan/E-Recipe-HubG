@@ -4,7 +4,6 @@ import {
   Flex,
   Link as ChakraLink,
   IconButton,
-  Input,
   Menu,
   MenuButton,
   MenuList,
@@ -22,16 +21,14 @@ import {
 import { useNavigate } from "react-router-dom";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
 import { Link as RouterLink, useLocation } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import LoginForm from "./LoginForm";
 import SignUpForm from "./SignUpForm";
 import { useAuthStore } from "../store/authStore";
 import ProfileForm from "./ProfileForm";
-
-const MotionBox = motion(Box); // For animations
+import SearchBar from "./SearchBar";
 
 const Navbar = () => {
-  const [isSearchBarActive, setIsSearchBarActive] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // For hamburger menu
   const [isSignUp, setIsSignUp] = useState(false);
@@ -43,9 +40,12 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-  const toggleSearchBar = () => {setIsSearchBarActive(!isSearchBarActive); };
 
   const { isOpen: isInboxOpen, onOpen: onOpenInbox, onClose: onCloseInbox } = useDisclosure(); // Inbox modal state
+
+  const handleSearch = (query) => {
+    console.log("Search query:", query);
+  }
 
   const openLoginForm = () => {
     setIsSignUp(false);
@@ -261,46 +261,7 @@ const Navbar = () => {
       {isAuthenticated ? (
         <>
         {/* Search Bar */}
-        <Box position="relative" display="flex" alignItems="center">
-          <MotionBox
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-            bg={isSearchBarActive ? "white" : "transparent"}
-            color={isSearchBarActive ? "black" : "white"}
-            borderRadius="full"
-            px="2"
-            width={isSearchBarActive ? "250px" : "40px"}
-            height="40px"
-            initial={{ width: "40px" }}
-            animate={{
-              width: isSearchBarActive ? "250px" : "40px",
-              backgroundColor: isSearchBarActive ? "#FFFFFF" : "transparent",
-            }}
-            transition={{ duration: 0.3 }}
-          >
-            <IconButton
-              icon={<i className="fas fa-search"></i>}
-              onClick={toggleSearchBar}
-              bg="transparent"
-              size="sm"
-              aria-label="Search"
-              color={isSearchBarActive ? "black" : "white"}
-              _hover={{ bg: "transparent" }}
-            />
-            {isSearchBarActive && (
-              <Input
-                bg="transparent"
-                border="none"
-                placeholder="Search..."
-                flex="1"
-                _focus={{ outline: "none" }}
-                onBlur={toggleSearchBar}
-              />
-            )}
-          </MotionBox>
-        </Box>
-
+        <SearchBar onSearch={handleSearch} />
 
         {/* Favorites Button */}
         {(user?.role === "cook" || user?.role === "guest") && (
