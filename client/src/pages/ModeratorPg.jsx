@@ -32,6 +32,9 @@ import dayjs from "dayjs";
 
 import UserListModal from "../components/moderator-modal/user_list";
 import RecipeListModal from "../components/moderator-modal/recipe_list";
+import EventListModal from "../components/moderator-modal/event_list";
+import ReportListModal from "../components/moderator-modal/report_list";
+
 
 
 const ModeratorPage = () => {
@@ -51,7 +54,6 @@ const ModeratorPage = () => {
   const [isEventListOpen, setIsEventListOpen] = useState(false);
 
   const toast = useToast();
-  const navigate = useNavigate();
 
   const [userActivity, setUserActivity] = useState({ labels: [], counts: [] });
   const [recipeSubmissions, setRecipeSubmissions] = useState({ labels: [], counts: [] });
@@ -383,13 +385,17 @@ const modalHandlers = {
             isOpen={isUserListOpen}
             onClose={() => setIsUserListOpen(false)}
         />
-        {/* <ReportListModal
+        <ReportListModal
             isOpen={isReportListOpen}
             onClose={() => setIsReportListOpen(false)}
-        /> */}
+        />
          <RecipeListModal
             isOpen={isRecipeListOpen}
             onClose={() => setIsRecipeListOpen(false)}
+        />
+        <EventListModal
+            isOpen={isEventListOpen}
+            onClose={() => setIsEventListOpen(false)}
         />
         {/* <WarningListModal
             isOpen={isEventListOpen}
