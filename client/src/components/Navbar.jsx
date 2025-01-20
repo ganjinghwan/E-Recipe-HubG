@@ -27,6 +27,7 @@ import SignUpForm from "./SignUpForm";
 import { useAuthStore } from "../store/authStore";
 import ProfileForm from "./ProfileForm";
 import SearchBar from "./SearchBar";
+import InboxModal from "./Inbox";
 
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -40,8 +41,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
-
-  const { isOpen: isInboxOpen, onOpen: onOpenInbox, onClose: onCloseInbox } = useDisclosure(); // Inbox modal state
+  const [isInboxOpen, setIsInboxOpen] = useState(false);
 
   const handleSearch = (query) => {
     console.log("Search query:", query);
@@ -68,6 +68,10 @@ const Navbar = () => {
   const openProfileForm = () => {
       onOpenProfile();
   };
+
+  const openInbox = () => {
+    setIsInboxOpen(true);
+  }
 
   const handleLogout = () => {
     logout();
@@ -280,7 +284,7 @@ const Navbar = () => {
         <IconButton
               icon={<i className="fas fa-envelope"></i>} // Add a font-awesome envelope icon
               aria-label="Inbox"
-              onClick={onOpenInbox}
+              onClick={openInbox}
               color="white"
               variant=""
               _hover={{ bg: "whiteAlpha.200" }}
@@ -320,21 +324,11 @@ const Navbar = () => {
 
       
       </Flex>
-      
-      {/* Inbox Modal */}
-      <Modal isOpen={isInboxOpen} onClose={onCloseInbox} isCentered>
-              <ModalOverlay />
-              <ModalContent bg="gray.800" color="white">
-                <ModalHeader>Inbox</ModalHeader>
-                <ModalCloseButton />
-                <ModalBody>
-                  {/* Replace with dynamic messages */}
-                  <Text>No new messages.</Text>
-                  <Text>Message 1: Welcome to E-Recipes Hub!</Text>
-                  <Text>Message 2: Your recipe has been approved.</Text>
-                </ModalBody>
-              </ModalContent>
-      </Modal>
+
+      <InboxModal
+            isOpen={isInboxOpen}
+            onClose={() => setIsInboxOpen(false)}
+        />
   
 
       {/* Modal */}

@@ -17,6 +17,19 @@ export const useAuthStore = create((set) => ({
     message: null,
 
 
+    fetchUserInbox: async () => {
+        try {
+          const res = await axios.get("/api/auth/get-inbox");
+          const sortedInbox = res.data.inbox.sort(
+            (a, b) => new Date(b.date) - new Date(a.date) // Sort by date (latest first)
+          );
+          set({ userInbox: sortedInbox });
+        } catch (error) {
+          console.error("Failed to fetch user inbox:", error.message);
+        }
+      },
+      
+
     fetchDailyLogins: async () => {
         try {
           const res = await axios.get("/api/auth/daily-logins");

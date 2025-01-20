@@ -15,6 +15,61 @@ import DailyLogins from "../models/DailyLogins.js"; // A new Mongoose model
 import { Event } from "../models/Event.js";
 import { v4 as uuidv4 } from 'uuid';
 
+export const addMessageToInbox = async (req, res) => {
+  try {
+    const { userId, senderRole, senderName, messageTitle, messageContent } = req.body;
+
+    if (!userId || !senderRole || !senderName || !messageTitle || !messageContent) {
+      return res.status(400).json({ success: false, message: "All fields are required." });
+    }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found." });
+    }
+
+    // Create the inbox message object
+    const newMessage = {
+      senderRole,
+      senderName,
+      messageTitle,
+      messageContent,
+      date: new Date(),
+    };
+
+    // Add the new message to the user's inbox
+    user.inbox.unshift(newMessage); // Adds to the beginning of the array for latest-first order
+
+    await user.save();
+
+    res.status(200).json({ success: true, message: "Inbox message added successfully.", user });
+  } catch (error) {
+    console.error("Error adding message to inbox:", error.message);
+    res.status(500).json({ success: false, message: "Server error." });
+  }
+};
+
+
+export const getUserInbox = async (req, res) => {
+    try {
+        // Find the user and only return the 'inbox' field
+        const user = await User.findById(req.user._id).select("inbox");
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Sort inbox messages by date (latest first)
+        const sortedInbox = user.inbox.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        res.status(200).json({ success: true, inbox: sortedInbox });
+    } catch (error) {
+        console.error("Error fetching user inbox:", error.message);
+        res.status(500).json({ success: false, message: "Failed to fetch user inbox" });
+    }
+};
+
 
 export const getUserList_CGE = async (req, res) => {
     try {
@@ -214,7 +269,6 @@ export const login = async (req, res) => {
                 });
             }
         }
-
 
         res.status(200).json({
             success: true,
