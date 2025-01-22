@@ -61,6 +61,20 @@ export const useAuthStore = create((set) => ({
         }
     },
     
+    addInbox: async (userId, senderRole, senderName, messageTitle, messageContent) => {
+        set({ isLoading: true, error: null })
+        try {
+            const response = await axios.post(`/api/auth/add-inbox-message`, { userId, senderRole, senderName, messageTitle, messageContent });
+            set({
+                inviteUpdate: response.data,
+                isLoading: false,
+                error: null
+            })
+        } catch (error) {
+            set({ isLoading: false });
+            console.error("Failed to add inbox message:", error);
+        }
+    },
 
     login: async (email, password) => {
         set({ isLoading: true, error: null, isVerifiedRequired: true });

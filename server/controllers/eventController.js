@@ -56,7 +56,7 @@ export const getInvitableUserList = async (req, res) => {
         const invitableUserInfo = await User.find({ 
             // find user that are these roles and are not already join this event
             role: { $in: ["cook", "guest"] },
-            _id: { $nin: actualBelongsToEventOrg.attendees }
+            _id: { $nin: actualBelongsToEventOrg.attendees, $nin: actualBelongsToEventOrg.invited },
         } );
 
         if (!invitableUserInfo) {
@@ -400,7 +400,14 @@ export const joinEvent = async (req, res) => {
             return res.status(404).json({message: ["User not found"]});
         }
 
-        specificEventInfo.attendees.push(user._id);
+        if (!specificEventInfo.attendees.includes(user._id)) {            
+            specificEventInfo.attendees.push(user._id);
+        }
+
+        if (specificEventInfo.invited.includes(user._id)) {
+            specificEventInfo.invited = specificEventInfo.invited.filter(invitedId => invitedId.toString() !== user._id.toString());
+        }
+
         await specificEventInfo.save();
 
         res.status(200).json({ 
@@ -412,7 +419,71 @@ export const joinEvent = async (req, res) => {
             }
         });
     } catch (error) {
-        console.log("Failed to join eventtttt", error.message);
+        console.log("Failed to join event", error.message);
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+};
+
+export const inviteAttendees = async (req, res) => {
+    try {
+        const {specificEventURL} = req.params;
+  
+        const specificEventInfo = await Event.findOne({
+            eventSpecificEndUrl: specificEventURL
+        });
+
+        if (!specificEventInfo) {
+            return res.status(404).json({message: ["Event not found, please provide specific event URL"]});
+        }
+
+        const { invitedAttendeesID } = req.body;
+
+        if (!invitedAttendeesID) {
+            return res.status(400).json({ success: false, message: ["Please provide invited attendees"] });
+        }
+
+        if (specificEventInfo.attendees.includes(invitedAttendeesID)) {
+            return res.status(400).json({ success: false, message: ["User already attended"] });
+        }
+
+        if (specificEventInfo.invited.includes(invitedAttendeesID)) {
+            return res.status(400).json({ success: false, message: ["User already invited"] });
+        }
+
+        // The person that was invited information
+        const designatedUserInfo = await User.findById(invitedAttendeesID);
+
+        // Sender information
+        const senderInfo = await User.findById(req.user._id);
+
+        if (!designatedUserInfo) {
+            return res.status(404).json({message: ["User not found"]});
+        } 
+
+        if (!senderInfo) {
+            return res.status(404).json({message: ["Sender not found"]});
+        }
+
+        // Add user id into the invited array of the event
+        specificEventInfo.invited.push(invitedAttendeesID);
+
+        await specificEventInfo.save();
+
+        console.log("Attendees invited list", specificEventInfo.invited);
+
+        res.status(200).json({
+            success: true,
+            message: "Attendees invited successfully",
+            inviteInboxRequired: {
+                senderInfo: {
+                    senderName: senderInfo.name,
+                    senderRole: senderInfo.role,
+                },
+                specificEventInfo
+            }
+        })
+    } catch (error) {
+        console.log("Failed to invite attendees", error.message);
         res.status(500).json({ success: false, message: [error.message] });
     }
 };

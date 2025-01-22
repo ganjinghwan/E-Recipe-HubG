@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middleware/authMiddleware.js';
-import { createEvent, deleteEvent, getAllEvents, getEventOrganizerCreatedEvents, getInvitableUserList, getSpecificEventDetails, joinEvent, updateEvents } from '../controllers/eventController.js';
+import { createEvent, deleteEvent, getAllEvents, getEventOrganizerCreatedEvents, getInvitableUserList, getSpecificEventDetails, inviteAttendees, joinEvent, updateEvents } from '../controllers/eventController.js';
 
 const router = express.Router();
 
@@ -12,5 +12,6 @@ router.post("/new-event", verifyToken, createEvent);
 router.post("/update-event/:specificEventURL", verifyToken, updateEvents);
 router.delete("/delete-event/:specificEventURL", verifyToken, deleteEvent);
 router.post("/join/:specificEventURL", verifyToken, joinEvent);
+router.post("/invite/:specificEventURL", verifyToken, inviteAttendees);
 
 export default router;

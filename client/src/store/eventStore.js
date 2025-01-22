@@ -47,7 +47,6 @@ export const useEventStore = create((set) => ({
             throw error;
         }
     },
-    // eventCount : () => get().events.length,
 
     getEventInfo: async (specificEventURL) => {
         set({ isLoading: true, error: null });
@@ -135,6 +134,20 @@ export const useEventStore = create((set) => ({
                 error: null,
                 isLoading: false,
             })
+        } catch (error) {
+            set({ error: error.response.data.message || "Error getting invite attendees list", isLoading: false });
+            throw error;
+        }
+    },
+
+    sendInviteEventReq: async (specificEventURL, invitedAttendeesID) => {
+        set({ error: null });
+        try {
+            const response = await axios.post(`/api/events/invite/${specificEventURL}`, { invitedAttendeesID });
+            set({
+                error: null,
+                inviteNeeded: response.data.inviteInboxRequired
+            });
         } catch (error) {
             set({ error: error.response.data.message || "Error getting invite attendees list", isLoading: false });
             throw error;

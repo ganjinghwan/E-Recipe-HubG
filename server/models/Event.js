@@ -7,8 +7,13 @@ const eventSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    // Invite attendees list
+    // Attendees list
     attendees: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
+    // Invite attendees list
+    invited: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     }],
@@ -28,10 +33,6 @@ const eventSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
-    /*event_date: {
-        type: Date,
-        required: true
-    },*/
     event_thumbnail: {
         type: String,
         required: true
