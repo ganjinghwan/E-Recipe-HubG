@@ -14,9 +14,8 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
   Button,
+  Badge,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { HamburgerIcon, CloseIcon } from "@chakra-ui/icons";
@@ -33,9 +32,11 @@ const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // For hamburger menu
   const [isSignUp, setIsSignUp] = useState(false);
-  const { isAuthenticated, logout, user } = useAuthStore();
+  const { isAuthenticated, logout, user, fetchUserInbox, userInbox = [] } = useAuthStore();
   const { isOpen: isOpenProfile, onOpen: onOpenProfile, onClose: onCloseProfile } = useDisclosure();
   const location = useLocation();
+
+  const [unreadNum, setUnreadNum] = useState(0);
 
   const [isFavorite, setIsFavorite] = useState(false); // Track favorite state
   const navigate = useNavigate();
@@ -101,6 +102,18 @@ const Navbar = () => {
     }
   }, [location]);
 
+
+  // Check number of unread messages
+  useEffect(() => {
+    if (user) {
+      fetchUserInbox();
+    }
+  }, [isOpen, fetchUserInbox]);
+
+  // Calculate unread count dynamically
+  useEffect(() => {
+    setUnreadNum(userInbox.filter((msg) => !msg.readStatus).length);
+  }, [userInbox]);
 
   return (
     <Flex
@@ -281,14 +294,36 @@ const Navbar = () => {
 
         {/* Inbox Button */}
         {(user?.role === "cook" || user?.role === "guest" || user?.role === "event-organizer") && (
-        <IconButton
-              icon={<i className="fas fa-envelope"></i>} // Add a font-awesome envelope icon
-              aria-label="Inbox"
-              onClick={openInbox}
-              color="white"
-              variant=""
-              _hover={{ bg: "whiteAlpha.200" }}
-            />
+        <Box position="relative" display="inline-block">
+          <IconButton
+            icon={<i className="fas fa-envelope"></i>} // Add a font-awesome envelope icon
+            aria-label="Inbox"
+            onClick={openInbox}
+            color="white"
+            variant=""
+            _hover={{ bg: "whiteAlpha.200" }}
+          />
+
+          {unreadNum > 0 && (
+            <Badge
+              colorScheme="red"
+              position="absolute"
+              top="2.5"
+              right="2.5"
+              transform="translate(50%, -50%)"
+              borderRadius="full"
+              px={2}
+              fontSize="0.7em"
+              alignItems="center"
+              justifyContent="center" 
+              display="flex"
+              width="1.5em"
+              height="1.5em"
+            >
+              {unreadNum}
+            </Badge>
+          )}
+        </Box>
         )}
 
 

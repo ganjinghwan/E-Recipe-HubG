@@ -36,6 +36,7 @@ export const addMessageToInbox = async (req, res) => {
       messageTitle,
       messageContent,
       date: new Date(),
+      readStatus: false
     };
 
     // Add the new message to the user's inbox
@@ -48,6 +49,32 @@ export const addMessageToInbox = async (req, res) => {
     console.error("Error adding message to inbox:", error.message);
     res.status(500).json({ success: false, message: "Server error." });
   }
+};
+
+export const setInboxReadStatus = async (req, res) => {
+    try {
+        // Find the user
+        const user = await User.findById(req.user._id);
+
+        const { messageIndex } = req.body; 
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Sort inbox messages by date (latest first)
+        const sortedInbox = user.inbox.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        // Find the index num inside of the inbox array and set the read status to true
+        sortedInbox[messageIndex].readStatus = true;
+
+        await user.save();
+
+        res.status(200).json({ success: true, inbox: sortedInbox });
+    } catch (error) {
+        console.error("Error fetching user inbox:", error.message);
+        res.status(500).json({ success: false, message: "Failed to fetch user inbox" });
+    }
 };
 
 

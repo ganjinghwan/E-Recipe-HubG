@@ -76,6 +76,20 @@ export const useAuthStore = create((set) => ({
         }
     },
 
+    setInboxRead: async (messageIndex) => {
+        set({ isLoading: true, error: null });
+        try {
+            await axios.post(`/api/auth/set-inbox-read`, { messageIndex });
+            set({
+                isLoading: false,
+                error: null
+            })
+        } catch (error) {
+            set({ isLoading: false });
+            console.error("Failed to set inbox message as read:", error);
+        }
+    },
+
     login: async (email, password) => {
         set({ isLoading: true, error: null, isVerifiedRequired: true });
         try {
