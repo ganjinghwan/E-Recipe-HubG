@@ -66,8 +66,8 @@ const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
             setInvitedUsers((prev) => [...prev, loadingUserId]);
             addInbox(
                 loadingUserId,
-                senderInfo.senderName,
                 senderInfo.senderRole,
+                senderInfo.senderName,
                 "You are being invited to an event!",
                 `You have been invited to event ${specificEventInfo.event_name}`
             );

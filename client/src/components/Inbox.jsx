@@ -12,14 +12,17 @@ import {
   Flex,
   Text,
   IconButton,
-  Badge,
+  useBreakpointValue,
+  Tooltip,
 } from "@chakra-ui/react";
-import { CheckIcon } from "@chakra-ui/icons";
+import { CheckIcon, CloseIcon, ViewIcon } from "@chakra-ui/icons";
 import { useAuthStore } from "../store/authStore";
 
 const InboxModal = ({ isOpen, onClose }) => {
   const { fetchUserInbox, userInbox = [], setInboxRead } = useAuthStore(); // Access inbox from the store
   const [unreadCount, setUnreadCount] = useState(0);
+
+  const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
 
   // Fetch inbox messages when the modal opens
   useEffect(() => {
@@ -127,18 +130,42 @@ const InboxModal = ({ isOpen, onClose }) => {
                         Sent by: {msg.senderName} ({msg.senderRole})
                       </Text>
                     </Box>
-                    {!msg.readStatus && (
-                      <IconButton
-                        aria-label="Mark as read"
-                        icon={<CheckIcon />}
-                        colorScheme="green"
-                        size="sm"
-                        position="absolute"
-                        bottom={"8px"}
-                        right={"8px"}
-                        onClick={() => handleMarkAsRead(index)}
-                      />
-                    )}
+                    <Flex position={"absolute"} bottom={"8px"} right={"8px"} alignItems={"center"}>
+                      {msg.senderRole === "event-organizer" && (
+                        <>                     
+                        <Tooltip label="Reject Invite" aria-label="Reject Invite tooltip">                        
+                          <IconButton
+                            size={iconButtonSize}
+                            icon={<CloseIcon />}
+                            aria-label="Reject Invite"
+                            colorScheme="red"
+                            ml={2}
+                          />
+                        </Tooltip>
+                        <Tooltip label="Accept Invite" aria-label="Accept Invite tooltip">                        
+                          <IconButton
+                            size={iconButtonSize}
+                            icon={<CheckIcon />}
+                            aria-label="Accept Invite"
+                            colorScheme="green"
+                            ml={2}
+                            mr={2}
+                          />
+                        </Tooltip>
+                        </>
+                      )}
+                      {!msg.readStatus && (
+                        <Tooltip label="Mark as read" aria-label="Mark as read tooltip">
+                          <IconButton
+                            aria-label="Mark as read"
+                            icon={<ViewIcon />}
+                            colorScheme="blue"
+                            size="sm"
+                            onClick={() => handleMarkAsRead(index)}
+                          />
+                        </Tooltip>
+                      )}
+                    </Flex>
                   </Flex>
                 ))
               ) : (
