@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Modal,
@@ -13,28 +13,95 @@ import {
   Text,
   IconButton,
   useToast,
+  Tooltip,
+  Textarea,
 } from "@chakra-ui/react";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaHistory  } from "react-icons/fa";
 import { useAuthStore } from "../../store/authStore";
-
+import { useModeratorStore } from "../../store/moderatorStore";
+import UserHistoryListModal from "./userHistory";
 
 
 const UserListModal = ({ isOpen, onClose }) => {
   const { CGEs, fetchCGE } = useAuthStore();
+  const {deleteImproperUser, addDeletedUserHistory} = useModeratorStore();
   const toast = useToast();
 
-  // Handle user deletion
-  const handleDelete = async (userId) => {
-    try {
-      //await fetch(}); // 
+  const [reason, setReason] = useState(""); // State for reason input
+  const [selectedUserName, setSelectedUserName] = useState(null);
+  const [selectedUserID, setSelectedUserID] = useState(null);
+  const [selectedRole, setSelectedRole] = useState(null);
+  const [isReasonModalOpen, setIsReasonModalOpen] = useState(false); // Modal for reason
+
+  const [isUserHistoryListOpen, setIsUserHistoryListOpen] = useState(false);
+  
+
+/***************************************Handle Delete Recipe*****************************************/
+  const openReasonModal = (uid) => {
+    const selectedUserName = CGEs.find((selectedUserName) => selectedUserName._id === uid)?.name  || "Unknown User";
+    const selectedRole = CGEs.find((selectedUserName) => selectedUserName._id === uid)?.role || "Unknown Role";
+
+    setSelectedUserID (uid);
+    setSelectedUserName (selectedUserName);
+    setSelectedRole (selectedRole);
+    setIsReasonModalOpen(true);
+    
+  };
+
+  // Close Reason Modal
+  const closeReasonModal = () => {
+    setSelectedUserID(null);
+    setSelectedUserName(null);
+    setSelectedRole(null);
+    setReason("");
+    setIsReasonModalOpen(false);
+  };  
+
+  const confirmDelete = async () => {
+    if (!reason.trim()) {
       toast({
-        title: "User deleted.",
-        description: `User with ID ${userId} has been removed.`,
-        status: "success",
-        duration: 5000,
-        isClosable: true,
+          title: "Error",
+          description: "Please provide a reason for deletion.",
+          status: "error",
+          duration: 3000,
+          isClosable: true,
       });
-      fetchCGE(); // Refresh the CGEs list after deletion
+      return;
+      }
+    try {
+      const { success, message} = await deleteImproperUser(selectedUserID);
+      if (success) {
+        // Add deleted user to history
+        const historyData = {
+          userID: selectedUserID,
+          userName: selectedUserName,
+          userRole: selectedRole,
+          reason: reason,
+          date: new Date().toLocaleString(),
+        };
+        const response = await addDeletedUserHistory(historyData);
+        
+        if (!response.success) {
+        throw new Error(response.message);
+        }
+
+        toast({
+          title: "User deleted.",
+          description: message,
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
+        fetchCGE(); // Refresh the CGEs list after deletion
+        } else {
+          toast({
+          title: "Error for deleteing user.",
+          description: message,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+          });
+        }
     } catch (error) {
       toast({
         title: "Error deleting user.",
@@ -44,7 +111,14 @@ const UserListModal = ({ isOpen, onClose }) => {
         isClosable: true,
       });
     }
+    closeReasonModal(); // Close the modal
+
   };
+/**********************************************Handle History Display*********************************************/
+const handleHistory = () => {
+  setIsUserHistoryListOpen(true);
+  onClose();
+}
 
   const truncateSentences = (text, charLimit) => {
     if (!text) return ""; // Handle null or undefined text
@@ -81,6 +155,7 @@ const UserListModal = ({ isOpen, onClose }) => {
   };
 
   return (
+  <>
     <Modal isOpen={isOpen} onClose={onClose} size="xl">
       <ModalOverlay />
       <ModalContent>
@@ -174,7 +249,7 @@ const UserListModal = ({ isOpen, onClose }) => {
                     icon={<FaTrash />}
                     colorScheme="red"
                     size="sm"
-                    onClick={() => handleDelete(user._id)}
+                    onClick={() => openReasonModal(user._id)}
                     aria-label="Delete user"
                     />
                 </Box>
@@ -186,13 +261,51 @@ const UserListModal = ({ isOpen, onClose }) => {
          </Box>
         </Box>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter gap={3}>
+          <Tooltip label = "History">
+            <IconButton
+            icon={<FaHistory />}
+            colorScheme="blue"
+            size="md"
+            onClick={handleHistory}
+            aria-label="History"
+            />
+          </Tooltip>
           <Button colorScheme="blue" onClick={onClose}>
             Close
           </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
+
+    {/* Reason Modal */}
+    <Modal isOpen={isReasonModalOpen} onClose={closeReasonModal}>
+    <ModalOverlay />
+    <ModalContent>
+        <ModalHeader>Reason for Deletion</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+        <Textarea
+            placeholder="Enter the reason for deletion..."
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+        />
+        </ModalBody>
+        <ModalFooter gap={2}>
+        <Button colorScheme="red" onClick={confirmDelete}>
+            Submit
+        </Button>
+        <Button onClick={closeReasonModal}>Cancel</Button>
+        </ModalFooter>
+    </ModalContent>
+    </Modal>
+
+     {/* History Modal */}
+     <UserHistoryListModal
+      isOpen={isUserHistoryListOpen}
+      onClose={() => setIsUserHistoryListOpen(false)}
+    />
+</>
   );
 };
 

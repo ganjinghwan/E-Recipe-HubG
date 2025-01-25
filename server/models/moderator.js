@@ -48,6 +48,10 @@ const moderatorSchema = new mongoose.Schema({
             type: String,           
             required: true
         },
+        userRole: {
+            type: String,           
+            required: true
+        },
         reason: {
             type: String,           
             required: true

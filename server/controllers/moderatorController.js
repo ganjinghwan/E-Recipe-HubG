@@ -1,8 +1,13 @@
-import { User } from '../models/User.js';
-import { Moderator } from '../models/moderator.js';
-import dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
-dotenv.config();
+import { User } from '../models/User.js';
+import Recipe from "../models/Recipe.js";
+import { Report } from '../models/Report.js';
+import { Event } from '../models/Event.js';
+import { EventOrganizer } from '../models/EventOrganizer.js';
+import { Guest } from '../models/Guest.js';
+import { Cook } from '../models/Cook.js';
+import { Moderator } from '../models/moderator.js';
 
 export const newModeratorInformation = async (req, res) => {
     const { moderatorKey } = req.body;
@@ -88,4 +93,89 @@ export const getDeletedRecipeHistory = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const deleteImproperUser = async (req, res) => {
+    // console.log("deleteImproperUser-id", req.params);
+    try {
+        const {id} = req.params;
+
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            return res.status(404).json({ success: false, message: 'Invalid User ID' });
+        }
+
+        const user = await User.findById(id);
+    
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+
+        if (user.role === 'event-organizer') {
+            await Event.deleteMany({ eventBelongs_id: user._id });
+            await EventOrganizer.findOneAndDelete({ event_org_id: user._id });
+        } else if (user.role === 'guest') {
+            await Guest.findOneAndDelete({ guest_id: user._id });
+        } else if (user.role === 'cook') {
+            await Recipe.deleteMany({ user_id: user._id });
+            await Cook.findOneAndDelete({ cook_id: user._id });
+        } else {
+            res.status(400).json({ success: false, message: 'User role not found' });
+        }
+
+        await User.findByIdAndDelete(id);
+
+
+        res.status(200).json({ success: true, message: 'User deleted successfully' });
+    } catch (error) {
+        console.log("Fail to delete user:", error.message);
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
   
+export const addDeletedUserHistory = async (req, res) => {
+    const { userID, userName, userRole, reason, date } = req.body;
+  
+    if (!userName || !userRole || !reason) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields.",
+      });
+    }
+  
+    try {
+      // Fetch the moderator
+      const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+      if (!moderator) {
+        return res.status(404).json({ success: false, message: "Moderator not found" });
+      }
+  
+      // Add to deletedUsers history
+      moderator.deletedUsers.push({
+        userID: userID,
+        userName: userName,
+        userRole: userRole,
+        reason: reason,
+        date: date,  
+      });
+  
+      await moderator.save();
+  
+      res.status(200).json({ success: true, message: "User deletion recorded in history." });
+    } catch (error) {
+      console.error("Failed to record deleted user:", error.message);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+
+export const getDeletedUserHistory = async (req, res) => {
+    try {
+        const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+        if (!moderator) {
+            return res.status(404).json({ success: false, message: "Moderator not found" });
+        }
+        res.status(200).json({ success: true, data: moderator.deletedUsers });
+    } catch (error) {
+        console.error("Failed to fetch deleted user history:", error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

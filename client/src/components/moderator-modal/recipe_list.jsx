@@ -21,7 +21,7 @@ import { useAuthStore } from "../../store/authStore";
 import { useModeratorStore } from "../../store/moderatorStore";
 
 import RecipeHistoryListModal from "./recipeHistory";
-import { FaTrash, FaUtensils } from "react-icons/fa";
+import { FaTrash, FaUtensils, FaHistory } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
 
@@ -299,9 +299,15 @@ const RecipeListModal = ({ isOpen, onClose }) => {
                     colorScheme="blue"
                  />
                  </Tooltip>
-                  <Button colorScheme="blue" onClick={handleHistory}>
-                    History
-                  </Button>
+                  <Tooltip label = "History">
+                    <IconButton
+                    icon={<FaHistory />}
+                    colorScheme="blue"
+                    size="md"
+                    onClick={handleHistory}
+                    aria-label="History"
+                    />
+                  </Tooltip>
                   <Button colorScheme="red" onClick={onClose}>
                     Close
                   </Button>
