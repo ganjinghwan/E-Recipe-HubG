@@ -167,7 +167,7 @@ const Navbar = () => {
         )}
         {user?.role === "moderator" && (
           <ChakraLink as={RouterLink} to="/moderatorpg" fontSize="lg" _hover={{ color: "orange.300" }}>
-            User_Activity
+            DashBoard
           </ChakraLink>
         )}
         {isAuthenticated && user?.role !== "moderator" && (
@@ -254,7 +254,7 @@ const Navbar = () => {
                 _hover={{ color: "orange.300" }}
                 onClick={toggleMobileMenu}
               >
-                User_Activity
+                DashBoard
               </ChakraLink>
             )}
             {isAuthenticated && user?.role !== "moderator" && (
