@@ -61,10 +61,10 @@ export const useAuthStore = create((set) => ({
         }
     },
     
-    addInbox: async (userId, senderRole, senderName, messageTitle, messageContent) => {
+    addInbox: async (userId, senderRole, senderName, messageTitle, messageContent, additionalInformation) => {
         set({ isLoading: true, error: null })
         try {
-            const response = await axios.post(`/api/auth/add-inbox-message`, { userId, senderRole, senderName, messageTitle, messageContent });
+            const response = await axios.post(`/api/auth/add-inbox-message`, { userId, senderRole, senderName, messageTitle, messageContent, additionalInformation });
             set({
                 inviteUpdate: response.data,
                 isLoading: false,

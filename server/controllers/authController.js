@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 export const addMessageToInbox = async (req, res) => {
   try {
-    const { userId, senderRole, senderName, messageTitle, messageContent } = req.body;
+    const { userId, senderRole, senderName, messageTitle, messageContent, additionalInformation } = req.body;
 
     if (!userId || !senderRole || !senderName || !messageTitle || !messageContent) {
       return res.status(400).json({ success: false, message: "All fields are required." });
@@ -36,13 +36,18 @@ export const addMessageToInbox = async (req, res) => {
       messageTitle,
       messageContent,
       date: new Date(),
-      readStatus: false
+      readStatus: false,
+      additionalInformation
     };
+
+    console.log("New message:", newMessage);
 
     // Add the new message to the user's inbox
     user.inbox.unshift(newMessage); // Adds to the beginning of the array for latest-first order
 
     await user.save();
+
+    console.log("User inbox:", user.inbox);
 
     res.status(200).json({ success: true, message: "Inbox message added successfully.", user });
   } catch (error) {

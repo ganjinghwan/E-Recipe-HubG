@@ -17,12 +17,14 @@ import {
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon, ViewIcon } from "@chakra-ui/icons";
 import { useAuthStore } from "../store/authStore";
+import { useNavigate } from "react-router-dom";
 
 const InboxModal = ({ isOpen, onClose }) => {
   const { fetchUserInbox, userInbox = [], setInboxRead } = useAuthStore(); // Access inbox from the store
   const [unreadCount, setUnreadCount] = useState(0);
 
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
+  const navigate = useNavigate();
 
   // Fetch inbox messages when the modal opens
   useEffect(() => {
@@ -49,6 +51,11 @@ const InboxModal = ({ isOpen, onClose }) => {
     fetchUserInbox();
     // Update the store with the updated inbox
     //setUnreadCount(updatedInbox.filter((msg) => !msg.read).length);
+  };
+
+  const handleAcceptInvite = (msg) => {
+    navigate(`/events/${msg.additionalInformation}`);
+    onClose();
   };
 
   const formatDate = (isoDate) => {
@@ -150,6 +157,7 @@ const InboxModal = ({ isOpen, onClose }) => {
                             colorScheme="green"
                             ml={2}
                             mr={2}
+                            onClick={() => handleAcceptInvite(msg)}
                           />
                         </Tooltip>
                         </>

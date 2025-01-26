@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import eventDetailsBgImage from '../pic/eventsDetailsImg.jpg';
+import goodRainbow from '../pic/goodrainbow.jpg';
 import { 
     Box, 
     Flex, 
@@ -144,7 +144,7 @@ const EventDetailsPage = () => {
             position="relative"
             textAlign="center"
             overflow="hidden"
-            bgImage={`url(${eventDetailsBgImage})`}
+            bgImage={`url(${goodRainbow})`}
             bgSize="cover"
             bgPosition="center"
             bgRepeat="no-repeat"
@@ -186,7 +186,7 @@ const EventDetailsPage = () => {
                     justifyContent={"flex-start"}
                     borderRadius={"lg"}
                     alignItems={"flex-start"}
-                    >
+                >
                         <Box
                             position={"absolute"}
                             width={"100%"}

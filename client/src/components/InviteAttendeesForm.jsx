@@ -18,7 +18,7 @@ import { useEventStore } from '../store/eventStore';
 import LoadingSpinner from './LoadingSpinner';
 
 const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
-    const { attendeesList, getInviteAttendeesList, sendInviteEventReq, inviteNeeded } = useEventStore();
+    const { attendeesList, getInviteAttendeesList, sendInviteEventReq } = useEventStore();
     const { addInbox } = useAuthStore();
     const [loadingUserId, setLoadingUserId] = useState(null); // Track user being invited
     const [invitedUsers, setInvitedUsers] = useState([]); // Track successfully invited users
@@ -26,13 +26,13 @@ const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
     const [isFinding, setIsFinding] = useState(false);
 
     const toast = useToast();
-
+  
     useEffect(() => {
         setIsFinding(true);
         const timer = setTimeout(() => {
             setIsFinding(false);
         }, 4000);
-
+        
         getInviteAttendeesList(eventURL);
         return () => clearTimeout(timer);
     }, [getInviteAttendeesList, eventURL]);
@@ -40,7 +40,32 @@ const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
     const handleInvite = useCallback(async (selectedUserID) => {
         setLoadingUserId(selectedUserID); // Set loading state
         try {
-            await sendInviteEventReq(eventURL, selectedUserID);
+            const updateInviteNeeded = await sendInviteEventReq(eventURL, selectedUserID);
+
+            console.log("Invite needed after sendInviteEventReq:", updateInviteNeeded);
+
+            setProcessedInvites((prev) => new Set([...prev, selectedUserID]));
+
+            // Mark as invited and send inbox
+            setInvitedUsers((prev) => [...prev, selectedUserID]);
+
+            await addInbox(
+                selectedUserID,
+                updateInviteNeeded.senderInfo.senderRole,
+                updateInviteNeeded.senderInfo.senderName,
+                "You are being invited to an event!",
+                `You have been invited to event ${updateInviteNeeded.specificEventInfo.event_name}`,
+                updateInviteNeeded.specificEventInfo.eventSpecificEndUrl
+            );
+        
+            // Show toast
+            toast({
+                title: 'Invite Sent',
+                description: 'Invite sent successfully',
+                status: 'success',
+                duration: 2000,
+                isClosable: true,
+            });
         } catch (error) {
             toast({
                 title: 'Error',
@@ -52,36 +77,7 @@ const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
         } finally {
             setLoadingUserId(null); // Reset loading state
         }
-    }, [eventURL, sendInviteEventReq, toast]);
-
-    useEffect(() => {
-        if (inviteNeeded && loadingUserId && !processedInvites.has(loadingUserId)) {
-            // Ensure we process only unprocessed invites
-            const { senderInfo, specificEventInfo } = inviteNeeded;
-
-            // Add to processed invites
-            setProcessedInvites((prev) => new Set(prev).add(loadingUserId));
-
-            // Mark as invited and send inbox
-            setInvitedUsers((prev) => [...prev, loadingUserId]);
-            addInbox(
-                loadingUserId,
-                senderInfo.senderRole,
-                senderInfo.senderName,
-                "You are being invited to an event!",
-                `You have been invited to event ${specificEventInfo.event_name}`
-            );
-
-            // Show toast
-            toast({
-                title: 'Invite Sent',
-                description: 'Invite sent successfully',
-                status: 'success',
-                duration: 2000,
-                isClosable: true,
-            });
-        }
-    }, [inviteNeeded, loadingUserId, addInbox, toast, processedInvites]);
+    }, [eventURL, sendInviteEventReq, addInbox, toast]);
 
     return (
         <Modal isOpen={isOpen} onClose={onClose}>

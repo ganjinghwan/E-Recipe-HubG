@@ -64,6 +64,10 @@ const userSchema = new mongoose.Schema({
         readStatus:{
             type: Boolean,
             default: false
+        },
+        additionalInformation:{
+            type: String,
+            default: ""
         }
     }],
     resetPasswordToken: String,

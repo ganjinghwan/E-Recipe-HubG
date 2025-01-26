@@ -53,14 +53,25 @@ export const getInvitableUserList = async (req, res) => {
             return res.status(404).json({message: ["No actual event organizer"]});
         }
 
-        const invitableUserInfo = await User.find({ 
-            // find user that are these roles and are not already join this event
-            role: { $in: ["cook", "guest"] },
-            _id: { $nin: actualBelongsToEventOrg.attendees, $nin: actualBelongsToEventOrg.invited },
-        } );
+        // Combine attendees and invited into a single array
+        const excludedUsers = [
+            ...(actualBelongsToEventOrg.attendees || []),
+            ...(actualBelongsToEventOrg.invited || []),
+        ];
 
-        if (!invitableUserInfo) {
-            return res.status(404).json({message: ["No user found"]});
+        // Fetch users not already in attended or invited
+        const invitableUserInfo = await User.find({
+            role: { $in: ["cook", "guest"] },
+            _id: { $nin: excludedUsers }, // Exclude users in both attendees and invited
+        });
+
+        // If no users are found, return an empty array
+        if (!invitableUserInfo || invitableUserInfo.length === 0) {
+            return res.status(200).json({
+                success: true,
+                invitableUserInfo: [], // Return an empty array
+                message: ["No users available to invite"],
+            });
         }
 
         res.status(200).json({ 
