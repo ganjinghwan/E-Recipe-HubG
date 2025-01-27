@@ -151,7 +151,20 @@ export const useEventStore = create((set) => ({
             });
             return response.data.inviteInboxRequired;
         } catch (error) {
-            set({ error: error.response.data.message || "Error getting invite attendees list", isLoading: false });
+            set({ error: error.response.data.message || "Error sending invite attendees request", isLoading: false });
+            throw error;
+        }
+    },
+
+    rejectEventInviteReq: async (specificEventURL) => {
+        set({ error: null });
+        try {
+            await axios.post(`api/events/invite/rejectInvite/${specificEventURL}`);
+            set({
+                error: null,
+            });
+        } catch (error) {
+            set({ error: error.response.data.message || "Error rejecting invite", isLoading: false });
             throw error;
         }
     }

@@ -57,6 +57,7 @@ export const getInvitableUserList = async (req, res) => {
         const excludedUsers = [
             ...(actualBelongsToEventOrg.attendees || []),
             ...(actualBelongsToEventOrg.invited || []),
+            ...(actualBelongsToEventOrg.rejected || [])
         ];
 
         // Fetch users not already in attended or invited
@@ -495,6 +496,40 @@ export const inviteAttendees = async (req, res) => {
         })
     } catch (error) {
         console.log("Failed to invite attendees", error.message);
+        res.status(500).json({ success: false, message: [error.message] });
+    }
+};
+
+export const rejectEventInvite = async (req, res) => {
+    try {
+        const {specificEventURL} = req.params;
+  
+        const user = await User.findById(req.user._id);
+
+        if (!user) {
+            return res.status(404).json({message: ["User not found"]});
+        }
+
+        const specificEventInfo = await Event.findOne({
+            eventSpecificEndUrl: specificEventURL
+        });
+
+        if (!specificEventInfo) {
+            return res.status(404).json({message: ["Event not found, please provide specific event URL"]});
+        }
+
+        specificEventInfo.invited = specificEventInfo.invited.filter(invitedId => invitedId.toString() !== user._id.toString());
+
+        specificEventInfo.rejected.push(user._id);
+
+        await specificEventInfo.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Event invite rejected successfully",
+        })
+    } catch (error) {
+        console.log("Failed to reject event invite", error.message);
         res.status(500).json({ success: false, message: [error.message] });
     }
 };

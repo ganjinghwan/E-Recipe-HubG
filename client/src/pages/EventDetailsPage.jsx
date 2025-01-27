@@ -291,8 +291,35 @@ const EventDetailsPage = () => {
                             ) : user.role !== "event-organizer" ? (
                                 // Display join button for users who are not event organizers
                                 events?.specificEventInfo?.attendees?.includes(user?._id) ? (
-                                    // Display text cannot join if user is already attending
-                                    <Text position={"absolute"} bottom="10px" right="20px" fontSize={"xl"} fontWeight={"bold"} color={"blue.500"}>You have already join this event</Text>
+                                <>
+                                    <Box
+                                        position={"absolute"}
+                                        bottom="16px"
+                                        right="20px"
+                                    >
+                                        <Flex
+                                            direction={"row"}
+                                            align={"center"}
+                                        >
+                                            <Button
+                                                colorScheme="green"
+                                                mt={2}
+                                            >
+                                                View Event Recipe
+                                            </Button>
+                                            {/* Display text cannot join if user is already attending */}
+                                            <Text 
+                                                fontSize={"xl"} 
+                                                fontWeight={"bold"} 
+                                                color={"blue.500"}
+                                                ml={"10px"}
+                                                mt={"6px"}
+                                            >
+                                                You have already join this event
+                                            </Text>
+                                        </Flex>
+                                    </Box>
+                                </>                                
                                 ) : (
                                     <>
                                     <Button

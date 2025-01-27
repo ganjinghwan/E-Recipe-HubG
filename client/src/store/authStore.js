@@ -90,6 +90,26 @@ export const useAuthStore = create((set) => ({
         }
     },
 
+    checkAcceptInviteStatus: async (eventURL) => {
+        set({ error: null, isAcceptInvite: false });
+        try {
+            const response = await axios.get(`/api/auth/check-inbox-accept-invite/${eventURL}`);
+            return response.data.alreadyJoined;
+        } catch (error) {
+            console.error("Failed to check accept invite status:", error);
+        }
+    },
+
+    checkDeclineInviteStatus: async (eventURL) => {
+        set({ error: null, isDeclineInvite: false });
+        try {
+            const response = await axios.get(`/api/auth/check-inbox-decline-invite/${eventURL}`);
+            return response.data.alreadyRejected;
+        } catch (error) {
+            console.error("Failed to check decline invite status:", error);
+        }
+    },
+
     login: async (email, password) => {
         set({ isLoading: true, error: null, isVerifiedRequired: true });
         try {

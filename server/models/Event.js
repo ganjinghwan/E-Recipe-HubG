@@ -17,6 +17,10 @@ const eventSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
     }],
+    rejected: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
     event_name: {
         type: String,
         required: true

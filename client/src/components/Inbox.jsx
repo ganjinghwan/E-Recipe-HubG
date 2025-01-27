@@ -18,10 +18,14 @@ import {
 import { CheckIcon, CloseIcon, ViewIcon } from "@chakra-ui/icons";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
+import { useEventStore } from "../store/eventStore";
 
 const InboxModal = ({ isOpen, onClose }) => {
-  const { fetchUserInbox, userInbox = [], setInboxRead } = useAuthStore(); // Access inbox from the store
+  const { fetchUserInbox, userInbox = [], setInboxRead, checkAcceptInviteStatus, checkDeclineInviteStatus } = useAuthStore(); // Access inbox from the store
+  const { rejectEventInviteReq } = useEventStore();
   const [unreadCount, setUnreadCount] = useState(0);
+  const [eventAcceptMap, setEventAcceptMap] = useState({});
+  const [eventRejectMap, setEventRejectMap] = useState({});
 
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
   const navigate = useNavigate();
@@ -40,6 +44,41 @@ const InboxModal = ({ isOpen, onClose }) => {
     setUnreadCount(userInbox.filter((msg) => !msg.readStatus).length);
   }, [userInbox]);
 
+
+  useEffect(() => {
+    const fetchEventInviteStatus = async () => {
+      const accept = {}
+      const decline = {}
+
+      const fromOrganizerInbox = userInbox.filter((msg) => msg.senderRole === "event-organizer");
+
+      // Map over the filtered message and fetch accept/decline status
+      const statusResult = fromOrganizerInbox.map(async (msg) => {
+        try {
+          const isAccepted = await checkAcceptInviteStatus(msg.additionalInformation);
+          const isRejected = await checkDeclineInviteStatus(msg.additionalInformation);
+  
+          accept[msg._id] = isAccepted;
+          decline[msg._id] = isRejected;
+        } catch (error) {
+          console.error("Error fetching accept status:", error);
+        }
+      });
+
+      await Promise.all(statusResult);
+
+      // Update accept map with the results
+      setEventAcceptMap(accept);
+      setEventRejectMap(decline);
+      console.log("Accept map updated:", eventAcceptMap);
+      console.log("Decline map updated:", eventRejectMap);
+    }
+
+    if (userInbox.length > 0) {
+      fetchEventInviteStatus();
+    }
+  }, [userInbox, checkAcceptInviteStatus]);
+
   // Mark a message as read
   const handleMarkAsRead = async (index) => {
     const updatedInbox = [...userInbox];
@@ -53,10 +92,16 @@ const InboxModal = ({ isOpen, onClose }) => {
     //setUnreadCount(updatedInbox.filter((msg) => !msg.read).length);
   };
 
-  const handleAcceptInvite = (msg) => {
+  const handleAcceptInvite = (msg, index) => {
+    handleMarkAsRead(index);
     navigate(`/events/${msg.additionalInformation}`);
     onClose();
   };
+
+  const handleRejectInvite = (msg, index) => {
+    handleMarkAsRead(index);
+    rejectEventInviteReq(msg.additionalInformation);
+  }
 
   const formatDate = (isoDate) => {
     const date = new Date(isoDate);
@@ -139,27 +184,36 @@ const InboxModal = ({ isOpen, onClose }) => {
                     </Box>
                     <Flex position={"absolute"} bottom={"8px"} right={"8px"} alignItems={"center"}>
                       {msg.senderRole === "event-organizer" && (
-                        <>                     
-                        <Tooltip label="Reject Invite" aria-label="Reject Invite tooltip">                        
-                          <IconButton
-                            size={iconButtonSize}
-                            icon={<CloseIcon />}
-                            aria-label="Reject Invite"
-                            colorScheme="red"
-                            ml={2}
-                          />
-                        </Tooltip>
-                        <Tooltip label="Accept Invite" aria-label="Accept Invite tooltip">                        
-                          <IconButton
-                            size={iconButtonSize}
-                            icon={<CheckIcon />}
-                            aria-label="Accept Invite"
-                            colorScheme="green"
-                            ml={2}
-                            mr={2}
-                            onClick={() => handleAcceptInvite(msg)}
-                          />
-                        </Tooltip>
+                        <>
+                          {eventAcceptMap[msg._id] === true ? (
+                            <Text color="green.500" fontWeight={"bold"}>Invite Accepted</Text>
+                          ) : eventRejectMap[msg._id] === true ? (
+                            <Text color="red.500" fontWeight={"bold"}>Invite Declined</Text>
+                          ) : (
+                            <>
+                              <Tooltip label="Reject Invite" aria-label="Reject Invite tooltip">
+                                <IconButton
+                                  size={iconButtonSize}
+                                  icon={<CloseIcon />}
+                                  aria-label="Reject Invite"
+                                  colorScheme="red"
+                                  ml={2}
+                                  onClick={() => handleRejectInvite(msg, index)}
+                                />
+                              </Tooltip>
+                              <Tooltip label="Accept Invite" aria-label="Accept Invite tooltip">
+                                <IconButton
+                                  size={iconButtonSize}
+                                  icon={<CheckIcon />}
+                                  aria-label="Accept Invite"
+                                  colorScheme="green"
+                                  ml={2}
+                                  mr={2}
+                                  onClick={() => handleAcceptInvite(msg, index)}
+                                />
+                              </Tooltip>
+                            </>
+                          )}
                         </>
                       )}
                       {!msg.readStatus && (
