@@ -15,12 +15,12 @@ import {
 import { useModeratorStore } from "../../store/moderatorStore";
 
 
-const UserHistoryListModal = ({ isOpen, onClose }) => {
-    const { fetchDeletedUsers, deletedUsers } = useModeratorStore();
+const EventHistoryListModal = ({ isOpen, onClose }) => {
+    const { fetchDeletedEvents, deletedEvents } = useModeratorStore();
 
     useEffect(() => {
-        fetchDeletedUsers();
-    }, [fetchDeletedUsers, deletedUsers]);
+        fetchDeletedEvents();
+    }, [fetchDeletedEvents, deletedEvents]);
 
     const formatDate = (isoDate) => {
         if (!isoDate) return "Unknown Date";
@@ -72,7 +72,7 @@ const UserHistoryListModal = ({ isOpen, onClose }) => {
         <Modal isOpen={isOpen} onClose={onClose} size="xl">
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>History of Deleted Users</ModalHeader>
+                <ModalHeader>History of Deleted Events</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <Box
@@ -103,7 +103,7 @@ const UserHistoryListModal = ({ isOpen, onClose }) => {
                     }}
         
                   >
-                    <Box minW="910px"> {/* Ensure content is wide enough for horizontal scrolling */}
+                    <Box minW="1540px"> {/* Ensure content is wide enough for horizontal scrolling */}
                     {/* Header Row */}
                     <Flex
                     alignItems="center"
@@ -124,8 +124,17 @@ const UserHistoryListModal = ({ isOpen, onClose }) => {
                         <Box flex="2" minW="220px">
                         <Text>Reason</Text>
                         </Box>
+                        <Box flex="2" minW="235px">
+                        <Text>Event Title</Text>
+                        </Box>
+                        <Box flex="1" minW="190px">
+                        <Text>Start Date</Text>
+                        </Box>
+                        <Box flex="1" minW="190px">
+                        <Text>End Date</Text>
+                        </Box>
                         <Box flex="2" minW="220px">
-                        <Text>User ID</Text>
+                        <Text>Event ID</Text>
                         </Box>
                         <Box flex="1" minW="160px">
                         <Text>Deleted Date</Text>
@@ -133,11 +142,11 @@ const UserHistoryListModal = ({ isOpen, onClose }) => {
                     </Flex>
                     </Flex>
         
-                    {/* User Rows */}
-                    {deletedUsers?.length > 0 ? (
-                    deletedUsers.map((EachUser) => (
+                    {/* Event Rows */}
+                    {deletedEvents?.length > 0 ? (
+                    deletedEvents.map((EachEvent) => (
                         <Flex
-                        key={EachUser._id}
+                        key={EachEvent._id}
                         alignItems="center"
                         justifyContent="space-between"
                         p={2}
@@ -145,28 +154,37 @@ const UserHistoryListModal = ({ isOpen, onClose }) => {
                         borderBottom="1px solid lightgray"
                         bg="white" // Ensure background color applies even during horizontal scroll
                         >
-                        {/* Recipe Data Columns */}
+                        {/* Event Data Columns */}
                         <Flex flex="1">
                             <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
-                            <Text fontWeight="bold">{truncateSentences( EachUser.userName, 15)}</Text>
+                            <Text fontWeight="bold">{truncateSentences( EachEvent.userName, 15)}</Text>
                             </Box>
                             <Box flex="1" minW="140px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{EachUser?.userRole}</Text>
+                            <Text>{EachEvent?.userRole}</Text>
                             </Box>
                             <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{truncateSentences(EachUser.reason, 15)}</Text>
+                            <Text>{truncateSentences(EachEvent.reason, 15)}</Text>
+                            </Box>
+                            <Box flex="2" minW="235px" textOverflow="ellipsis" overflow="hidden">
+                            <Text>{truncateSentences(EachEvent.eventTitle, 20)}</Text>
+                            </Box>
+                            <Box flex="1" minW="190px" textOverflow="ellipsis" overflow="hidden">
+                            <Text>{formatDate(EachEvent.eventStartDate)}</Text>
+                            </Box>
+                            <Box flex="1" minW="190px" textOverflow="ellipsis" overflow="hidden">
+                            <Text>{formatDate(EachEvent.eventEndDate)}</Text>
                             </Box>
                             <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{EachUser.userID}</Text>
+                            <Text>{EachEvent.eventID}</Text>
                             </Box>
                             <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{formatDate(EachUser.date)}</Text>
+                            <Text>{formatDate(EachEvent.date)}</Text>
                             </Box>
                         </Flex>
                         </Flex>
                     ))
                     ) : (
-                    <Text>No history of deleted users found.</Text>
+                    <Text>No history of deleted events found.</Text>
                     )}
                  </Box>
                 </Box>
@@ -181,4 +199,4 @@ const UserHistoryListModal = ({ isOpen, onClose }) => {
           );
         };
 
-export default UserHistoryListModal;
+export default EventHistoryListModal;

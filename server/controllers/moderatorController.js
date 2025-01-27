@@ -124,6 +124,7 @@ export const deleteImproperUser = async (req, res) => {
         }
 
         await User.findByIdAndDelete(id);
+        await Report.deleteMany({ reported_id: id });
 
 
         res.status(200).json({ success: true, message: 'User deleted successfully' });
@@ -181,3 +182,72 @@ export const getDeletedUserHistory = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };
+
+export const deleteEvent = async (req, res) => {
+    try {
+        const {id} = req.params;
+
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            return res.status(404).json({ success: false, message: 'Invalid Event ID' });
+        }
+
+        await Event.findByIdAndDelete(id);
+
+        res.status(200).json({ success: true, message: 'Event deleted successfully' });
+    } catch (error) {
+        console.log("Fail to delete event:", error.message);
+        res.status(400).json({ success: false, message: error.message });
+    }
+};
+
+export const addDeletedEventHistory = async (req, res) => {
+    const { eventID, eventTitle, userName, userRole, reason, eventStartDate, eventEndDate, date } = req.body;
+  
+    if (!eventTitle || !userName || !reason) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields.",
+      });
+    }
+  
+    try {
+      // Fetch the moderator
+      const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+      if (!moderator) {
+        return res.status(404).json({ success: false, message: "Moderator not found" });
+      }
+  
+      // Add to deletedEvents history
+      moderator.deletedEvents.push({
+        userName: userName,
+        userRole: userRole,
+        eventID: eventID,
+        eventTitle: eventTitle,
+        eventStartDate: eventStartDate,
+        eventEndDate: eventEndDate,
+        reason: reason,
+        date: date,  
+      });
+  
+      await moderator.save();
+  
+      res.status(200).json({ success: true, message: "Event deletion recorded in history." });
+    } catch (error) {
+      console.error("Failed to record deleted event:", error.message);      
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+
+  export const getDeletedEventHistory = async (req, res) => {
+    try {
+        const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+        if (!moderator) {
+            return res.status(404).json({ success: false, message: "Moderator not found" });
+        }
+        res.status(200).json({ success: true, data: moderator.deletedEvents });
+    } catch (error) {
+        console.error("Failed to fetch deleted event history:", error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};      

@@ -131,7 +131,7 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                         <Text>Recipe ID</Text>
                         </Box>
                         <Box flex="1" minW="160px">
-                        <Text>Date</Text>
+                        <Text>Deleted Date</Text>
                         </Box>
                     </Flex>
                     </Flex>

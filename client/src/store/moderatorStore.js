@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import axios from "axios";
-import { deleteImproperUser } from "../../../server/controllers/moderatorController";
 
 export const useModeratorStore = create((set) => ({
     moderator: null,
@@ -8,6 +7,7 @@ export const useModeratorStore = create((set) => ({
     error: null,
     deletedRecipes: [],
     deletedUsers: [],
+    deletedEvents: [],
 
     confirmModerator: async(moderatorKey) => {
         set({ isLoading: true });
@@ -103,5 +103,52 @@ export const useModeratorStore = create((set) => ({
         set({ deletedUsers: data.data });
     },
 
+    addDeletedEventHistory: async (historyData) => {
+        try {
+            const res = await fetch(`/api/moderator/add-deleted-event-history`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(historyData),
+            });
+    
+            const data = await res.json();
+    
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+    
+            return { success: true };
+        } catch (error) {
+            console.error("Error submitting deleted event history:", error);
+            return { success: false, message: "Failed to submit deleted event history." };
+        }
+    },
 
+
+    fetchDeletedEvents: async () => {
+        const res = await fetch('/api/moderator/get-deleted-event-history');
+        const data = await res.json();
+        set({ deletedEvents: data.data });
+    },
+
+    deleteEvent: async (evid) => {
+        try {
+            const res = await fetch(`/api/moderator/${evid}/delete-event`, {
+                method: 'DELETE',
+            });
+    
+            const data = await res.json();
+    
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+    
+            return { success: true, message: "Event deleted successfully." };
+        } catch (error) {
+            console.error("Error deleting event:", error);
+            return { success: false, message: "Failed to delete event." };
+        }
+    }
 }));

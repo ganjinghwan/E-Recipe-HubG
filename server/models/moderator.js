@@ -62,6 +62,41 @@ const moderatorSchema = new mongoose.Schema({
         },
     }],
     //history
+    deletedEvents: [{
+        userName: {
+            type: String,           
+            required: true
+        },
+        userRole: {
+            type: String,           
+            required: true
+        },
+        eventID: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Event",
+        },
+        eventTitle: {
+            type: String,           
+            required: true
+        },
+        eventStartDate: {
+            type: Date,           
+            required: true
+        },
+        eventEndDate: {
+            type: Date,           
+            required: true
+        },
+        reason: {
+            type: String,           
+            required: true
+        },
+        date: {
+            type: Date,
+            default: Date.now
+        },
+    }],
+    //history
     warnings: [{
         userID: {
             type: mongoose.Schema.Types.ObjectId,

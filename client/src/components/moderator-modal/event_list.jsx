@@ -20,22 +20,22 @@ import { useEventStore } from "../../store/eventStore";
 import { useAuthStore } from "../../store/authStore";
 import { useModeratorStore } from "../../store/moderatorStore";
 
-// import EventHistoryListModal from "./eventHistory";
-import { FaTrash, FaCalendarAlt } from "react-icons/fa";
+import EventHistoryListModal from "./eventHistory";
+import { FaTrash, FaCalendarAlt, FaHistory } from "react-icons/fa";
 
 import { useNavigate } from "react-router-dom";
 
 const EventListModal = ({ isOpen, onClose }) => {
     const {getAllEvents, events} = useEventStore();
     const {fetchCGE, CGEs} = useAuthStore();
-    // const {addDeletedEventHistory} = useModeratorStore();
+    const {addDeletedEventHistory, deleteEvent} = useModeratorStore();
 
-    // const [reason, setReason] = useState(""); // State for reason input
-    // const [selectedEventId, setSelectedREventId] = useState(null); // State for selected recipe
-    // const [selectedEventTitle, setSelectedEventTitle] = useState(null);
-    // const [selectedEventOrgName, setSelectedEventOrgName] = useState(null);
-    // const [selectedRole, setSelectedRole] = useState(null);
-    // const [isReasonModalOpen, setIsReasonModalOpen] = useState(false); // Modal for reason
+    const [reason, setReason] = useState(""); // State for reason input
+    const [selectedEventId, setSelectedREventId] = useState(null); // State for selected recipe
+    const [selectedEventTitle, setSelectedEventTitle] = useState(null);
+    const [selectedEventOrgName, setSelectedEventOrgName] = useState(null);
+    const [selectedRole, setSelectedRole] = useState(null);
+    const [isReasonModalOpen, setIsReasonModalOpen] = useState(false); // Modal for reason
 
     const [isEventHistoryListOpen, setIsEventHistoryListOpen] = useState(false);
     
@@ -47,102 +47,117 @@ const EventListModal = ({ isOpen, onClose }) => {
         getAllEvents();
       }, [getAllEvents]);
 
+
+  const formatDate = (isoDate) => {
+    if (!isoDate) return "Unknown Date";
+
+    const date = new Date(isoDate);
+
+    return new Intl.DateTimeFormat("en-US", {
+      dateStyle: "short",
+      timeStyle: "medium",
+    }).format(date);
+  };
+
 /***************************************Handle Delete Event*****************************************/
     // Show Reason Modal
-    // const openReasonModal = (recipeId) => {
-    //     const selectedCookName = cooks.find((EOUsername) => EOUsername._id === recipes.find((recipe) => recipe._id === recipeId).eventBelongs_id)?.name || "Unknown User";
-    //     const selectedRole = cooks.find((EOUsername) => EOUsername._id === recipes.find((recipe) => recipe._id === recipeId).eventBelongs_id)?.role || "Unknown Role";
-    //     const selectedRecipeTitle = recipes.find((recipe) => recipe._id === recipeId)?.title || "Unknown Recipe Title";
+    const openReasonModal = (eventID) => {
+        const selectedEventOrgName = CGEs.find((EOUsername) => EOUsername._id === events.find((event) => event._id === eventID).eventBelongs_id)?.name || "Unknown User";
+        const selectedRole = CGEs.find((EOUsername) => EOUsername._id === events.find((event) => event._id === eventID).eventBelongs_id)?.role || "Unknown Role";
+        const selectedEventTitle = events.find((event) => event._id === eventID)?.event_name || "Unknown Event Title";
 
-    //     setSelectedRecipeId(recipeId);
-    //     setSelectedCookName (selectedCookName);
-    //     setSelectedRole (selectedRole);
-    //     setSelectedRecipeTitle (selectedRecipeTitle);
-    //     setIsReasonModalOpen(true);
+        setSelectedREventId(eventID);
+        setSelectedEventOrgName (selectedEventOrgName);
+        setSelectedRole (selectedRole);
+        setSelectedEventTitle (selectedEventTitle);
+        setIsReasonModalOpen(true);
         
-    // };
+    };
 
-    // // Close Reason Modal
-    // const closeReasonModal = () => {
-    //     setSelectedRecipeId(null);
-    //     setSelectedRecipeTitle(null);
-    //     setSelectedCookName(null);
-    //     setSelectedRole(null);
-    //     setReason("");
-    //     setIsReasonModalOpen(false);
-    // };
+    // Close Reason Modal
+    const closeReasonModal = () => {
+        setSelectedREventId(null);
+        setSelectedEventTitle(null);
+        setSelectedEventOrgName(null);
+        setSelectedRole(null);
+        setReason("");
+        setIsReasonModalOpen(false);
+    };
 
-    // // Confirm Deletion
-    // const confirmDelete = async () => {
-    //     if (!reason.trim()) {
-    //     toast({
-    //         title: "Error",
-    //         description: "Please provide a reason for deletion.",
-    //         status: "error",
-    //         duration: 3000,
-    //         isClosable: true,
-    //     });
-    //     return;
-    //     }
+    // Confirm Deletion
+    const confirmDelete = async () => {
+        if (!reason.trim()) {
+        toast({
+            title: "Error",
+            description: "Please provide a reason for deletion.",
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+        });
+        return;
+        }
 
-    //     try {
-    //     const { success, message } = await deleteRecipes(selectedRecipeId); // Perform deletion
-    //     if (success) {
-    //         // Add deleted recipe to history
-    //         const historyData = {
-    //             userName: selectedCookName,
-    //             userRole: selectedRole,
-    //             recipeTitle: selectedRecipeTitle,
-    //             recipeId: selectedRecipeId,
-    //             reason: reason,
-    //             date: new Date().toLocaleString(),
-    //         };
-    //         const response = await addDeletedRecipeHistory(historyData);
+        try {
+        const { success, message } = await deleteEvent(selectedEventId); // Perform deletion
+        if (success) {
+            // Add deleted recipe to history
+            const historyData = {
+                userName: selectedEventOrgName,
+                userRole: selectedRole,
+                eventTitle: selectedEventTitle,
+                eventID: selectedEventId,
+                eventStartDate: events.find((event) => event._id === selectedEventId).start_date,
+                eventEndDate: events.find((event) => event._id === selectedEventId).end_date,
+                reason: reason,
+                date: new Date().toLocaleString(),
+            };
+            console.log(historyData);
+            const response = await addDeletedEventHistory(historyData);
             
-    //         if (!response.success) {
-    //         throw new Error(response.message);
-    //         }
+            if (!response.success) {
+            throw new Error(response.message);
+            }
 
-    //         toast({
-    //         title: "Recipe Deleted",
-    //         description: message,
-    //         status: "success",
-    //         duration: 3000,
-    //         isClosable: true,
-    //         });
+            toast({
+            title: "Event Deleted",
+            description: message,
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+            });
 
-    //         // fetchRecipes(); // Refresh recipes
-    //     } else {
-    //         toast({
-    //         title: "Error",
-    //         description: message,
-    //         status: "error",
-    //         duration: 3000,
-    //         isClosable: true,
-    //         });
-    //     }
-    //     } catch (error) {
-    //     toast({
-    //         title: "Error",
-    //         description: error.message,
-    //         status: "error",
-    //         duration: 3000,
-    //         isClosable: true,
-    //     });
-    //     }
+            getAllEvents(); // Refresh events
+        } else {
+            toast({
+            title: "Error",
+            description: message,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+            });
+        }
+        } catch (error) {
+        toast({
+            title: "Error",
+            description: error.message,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+        });
+        }
 
-    //     closeReasonModal(); // Close the modal
-    // };
+        closeReasonModal(); // Close the modal
+    };
 
 /**********************************************Handle Event Display*********************************************/
-    // const handleHistory = () => {
-    //     setIsRecipeHistoryListOpen(true);
-    //     onClose();
-    // }
+    const handleHistory = () => {
+        setIsEventHistoryListOpen(true);
+        onClose();
+    }
 /***********************************************Handle Navigate to Event Page*********************************************/
-    // const handleNavigateRecipePg = () => {
-    //     nav("/visitors");
-    // }
+    const handleNavigateEventPg = () => {
+        nav("/events");
+    }
 
 
     const truncateSentences = (text, charLimit) => {
@@ -214,7 +229,7 @@ const EventListModal = ({ isOpen, onClose }) => {
                     }}
         
                   >
-                    <Box minW="830px"> {/* Ensure content is wide enough for horizontal scrolling */}
+                    <Box minW="1200px"> {/* Ensure content is wide enough for horizontal scrolling */}
                     {/* Header Row */}
                     <Flex
                     alignItems="center"
@@ -234,6 +249,12 @@ const EventListModal = ({ isOpen, onClose }) => {
                         </Box>
                         <Box flex="2" minW="235px">
                         <Text>Event Title</Text>
+                        </Box>
+                        <Box flex="1" minW="190px">
+                        <Text>Start Date</Text>
+                        </Box>
+                        <Box flex="1" minW="190px">
+                        <Text>End Date</Text>
                         </Box>
                         <Box flex="2" minW="220px">
                         <Text>Event ID</Text>
@@ -266,6 +287,12 @@ const EventListModal = ({ isOpen, onClose }) => {
                             <Box flex="2" minW="235px" textOverflow="ellipsis" overflow="hidden">
                             <Text>{truncateSentences(EachEvent.event_name, 20)}</Text>
                             </Box>
+                            <Box flex="1" minW="190px" textOverflow="ellipsis" overflow="hidden">
+                            <Text>{formatDate(EachEvent.start_date)}</Text>
+                            </Box>
+                            <Box flex="1" minW="190px" textOverflow="ellipsis" overflow="hidden">
+                            <Text>{formatDate(EachEvent.end_date)}</Text>
+                            </Box>
                             <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
                             <Text>{EachEvent._id}</Text>
                             </Box>
@@ -277,7 +304,7 @@ const EventListModal = ({ isOpen, onClose }) => {
                             icon={<FaTrash />}
                             colorScheme="red"
                             size="sm"
-                            // onClick={() => openReasonModal(EachEvent._id)}
+                            onClick={() => openReasonModal(EachEvent._id)}
                             aria-label="Delete Event"
                             />
                         </Box>
@@ -295,13 +322,19 @@ const EventListModal = ({ isOpen, onClose }) => {
                     aria-label="Event Page"
                     icon={<FaCalendarAlt />}
                     size="md"
-                    // onClick={handleNavigateEventPg}
+                    onClick={handleNavigateEventPg}
                     colorScheme="blue"
                  />
                  </Tooltip>
-                  {/* <Button colorScheme="blue" onClick={handleHistory}>
-                    History
-                  </Button> */}
+                  <Tooltip label = "History">
+                    <IconButton
+                    icon={<FaHistory />}
+                    colorScheme="blue"
+                    size="md"
+                    onClick={handleHistory}
+                    aria-label="History"
+                    />
+                  </Tooltip>
                   <Button colorScheme="red" onClick={onClose}>
                     Close
                   </Button>
@@ -310,7 +343,7 @@ const EventListModal = ({ isOpen, onClose }) => {
             </Modal>
 
             {/* Reason Modal */}
-            {/* <Modal isOpen={isReasonModalOpen} onClose={closeReasonModal}>
+            <Modal isOpen={isReasonModalOpen} onClose={closeReasonModal}>
             <ModalOverlay />
             <ModalContent>
                 <ModalHeader>Reason for Deletion</ModalHeader>
@@ -329,13 +362,13 @@ const EventListModal = ({ isOpen, onClose }) => {
                 <Button onClick={closeReasonModal}>Cancel</Button>
                 </ModalFooter>
             </ModalContent>
-            </Modal> */}
+            </Modal>
 
             {/* History Modal */}
-            {/* <RecipeHistoryListModal
-                    isOpen={isRecipeHistoryListOpen}
-                    onClose={() => setIsRecipeHistoryListOpen(false)}
-            /> */}
+            <EventHistoryListModal
+                    isOpen={isEventHistoryListOpen}
+                    onClose={() => setIsEventHistoryListOpen(false)}
+            />
     </>
           );
         };
