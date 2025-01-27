@@ -15,12 +15,12 @@ import {
 import { useModeratorStore } from "../../store/moderatorStore";
 
 
-const RecipeHistoryListModal = ({ isOpen, onClose }) => {
-    const { fetchDeletedRecipes, deletedRecipes } = useModeratorStore();
+const ReportHistoryListModal = ({ isOpen, onClose }) => {
+    const {fetchPassedReports , passedReports  } = useModeratorStore();
 
     useEffect(() => {
-        fetchDeletedRecipes();
-    }, [fetchDeletedRecipes, deletedRecipes]);
+        fetchPassedReports();
+    }, [fetchPassedReports, passedReports]);
 
     const formatDate = (isoDate) => {
         if (!isoDate) return "Unknown Date";
@@ -72,7 +72,7 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
         <Modal isOpen={isOpen} onClose={onClose} size="xl">
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>History of Deleted Recipes</ModalHeader>
+                <ModalHeader>History of Reports</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <Box
@@ -101,7 +101,7 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                     }}
         
                   >
-                    <Box minW="1160px"> {/* Ensure content is wide enough for horizontal scrolling */}
+                    <Box minW="1400px"> {/* Ensure content is wide enough for horizontal scrolling */}
                     {/* Header Row */}
                     <Flex
                     alignItems="center"
@@ -113,20 +113,26 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                     zIndex="1"
                     >
                     <Flex flex="1">
-                        <Box flex="1" minW="170px">
-                        <Text>Username</Text>
+                         <Box flex="1" minW="170px">
+                        <Text>Reporter Name</Text>
                         </Box>
                         <Box flex="1" minW="140px">
-                        <Text>Role</Text>
-                        </Box>
-                        <Box flex="2" minW="220px">
-                        <Text>Reason</Text>
+                        <Text>Reporter Role</Text>
                         </Box>
                         <Box flex="2" minW="235px">
-                        <Text>Recipe Title</Text>
+                        <Text>Report Title</Text>
                         </Box>
                         <Box flex="2" minW="220px">
-                        <Text>Recipe ID</Text>
+                        <Text>Report Reason</Text>
+                        </Box>
+                        <Box flex="1" minW="170px">
+                        <Text>Reported Name</Text>
+                        </Box>
+                        <Box flex="1" minW="140px">
+                        <Text>Reported Role</Text>
+                        </Box>
+                        <Box flex="1" minW="170px">
+                        <Text>Reported Recipe</Text>
                         </Box>
                         <Box flex="1" minW="160px">
                         <Text>Deleted Date</Text>
@@ -134,11 +140,11 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                     </Flex>
                     </Flex>
         
-                    {/* Recipe Rows */}
-                    {deletedRecipes?.length > 0 ? (
-                    deletedRecipes.map((EachRecipe) => (
+                    {/* Report Rows */}
+                    {passedReports?.length > 0 ? (
+                    passedReports.map((EachReport) => (
                         <Flex
-                        key={EachRecipe._id}
+                        key={EachReport._id}
                         alignItems="center"
                         justifyContent="space-between"
                         p={2}
@@ -146,31 +152,37 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                         borderBottom="1px solid lightgray"
                         bg="white" // Ensure background color applies even during horizontal scroll
                         >
-                        {/* Recipe Data Columns */}
+                        {/* Report Data Columns */}
                         <Flex flex="1">
                             <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
-                            <Text fontWeight="bold">{truncateSentences( EachRecipe.userName, 15)}</Text>
+                            <Text fontWeight="bold">{truncateSentences(EachReport.reporterName, 15)}</Text>
                             </Box>
                             <Box flex="1" minW="140px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{EachRecipe?.userRole}</Text>
-                            </Box>
-                            <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{truncateSentences(EachRecipe.reason, 15)}</Text>
+                            <Text>{EachReport.reporterRole} </Text>
                             </Box>
                             <Box flex="2" minW="235px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{truncateSentences(EachRecipe.recipeTitle, 20)}</Text>
+                            <Text>{truncateSentences(EachReport.reportTitle, 20)}</Text>
                             </Box>
-                            <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{EachRecipe.recipeID}</Text>
+                            <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden" marginRight={"5px"}>
+                            <Text>{truncateSentences(EachReport.reportReason, 20)}</Text>
+                            </Box>
+                            <Box flex="1" minW="170px" textOverflow="ellipsis" overflow="hidden">
+                            <Text fontWeight="bold">{truncateSentences(EachReport.reportedUserName, 15)}</Text>
+                            </Box>
+                            <Box flex="1" minW="140px" textOverflow="ellipsis" overflow="hidden">
+                            <Text>{EachReport.reportedUserRole}</Text>
+                            </Box>
+                            <Box flex="1" minW="170px" textOverflow="ellipsis" overflow="hidden">
+                            <Text fontWeight="bold">{truncateSentences(EachReport.reportedRecipe, 15)}</Text>
                             </Box>
                             <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{formatDate(EachRecipe.date)}</Text>
+                            <Text>{formatDate(EachReport.date)}</Text>
                             </Box>
                         </Flex>
                         </Flex>
                     ))
                     ) : (
-                    <Text>No history of deleted recipes found.</Text>
+                    <Text>No history of reports found.</Text>
                     )}
                  </Box>
                 </Box>
@@ -185,4 +197,4 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
           );
         };
 
-export default RecipeHistoryListModal;
+export default ReportHistoryListModal;

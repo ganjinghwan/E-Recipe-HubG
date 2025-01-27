@@ -12,4 +12,18 @@ export const useReportStore = create((set) => ({
         set({ reports: data.data });
     },
 
+    deleteReport: async (rptid) => {
+        const res = await fetch(`/api/reports/${rptid}`, {
+            method: "DELETE",
+        });
+        const data = await res.json();
+        if (!data.success) {
+            return { success: false, message: data.message };
+        }
+        set((state) => ({
+            reports: state.reports.filter((report) => report._id !== rptid),
+        }));
+        return { success: true, message: "Report action being passed successfully." };
+    },  
+
 }))

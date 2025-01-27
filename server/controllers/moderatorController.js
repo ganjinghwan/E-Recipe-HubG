@@ -239,7 +239,7 @@ export const addDeletedEventHistory = async (req, res) => {
   };
 
 
-  export const getDeletedEventHistory = async (req, res) => {
+export const getDeletedEventHistory = async (req, res) => {
     try {
         const moderator = await Moderator.findOne({ moderator_id: req.user._id });
         if (!moderator) {
@@ -251,3 +251,158 @@ export const addDeletedEventHistory = async (req, res) => {
         res.status(500).json({ success: false, message: error.message });
     }
 };      
+
+
+export const addPassedReport = async (req, res) => {
+    const { reporterName, reporterRole, reportTitle, reportReason, reportedRecipe,
+        reportedUserName, reportedUserRole, date
+     } = req.body;
+  
+    if (!reporterName || !reportedUserName || !reportTitle) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields.",
+      });
+    }
+  
+    try {
+      // Fetch the moderator
+      const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+      if (!moderator) {
+        return res.status(404).json({ success: false, message: "Moderator not found" });
+      }
+  
+      // Add to deletedReports history
+      moderator.passedReports.push({
+        reporterName: reporterName,
+        reporterRole: reporterRole,
+        reportTitle: reportTitle,
+        reportReason: reportReason,
+        reportedRecipe: reportedRecipe,
+        reportedUserName: reportedUserName,
+        reportedUserRole: reportedUserRole,
+        date: date,  
+      });
+  
+      await moderator.save();
+  
+      res.status(200).json({ success: true, message: "Report deletion recorded in history." });
+    } catch (error) {
+      console.error("Failed to record deleted report:", error.message);      
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+
+
+export const getReportHistory = async (req, res) => {
+    try {
+        const moderator = await Moderator.findOne({ moderator_id: req.user._id });
+        if (!moderator) {
+            return res.status(404).json({ success: false, message: "Moderator not found" });        
+        }
+        res.status(200).json({ success: true, data: moderator.passedReports });        
+    } catch (error) {
+        console.error("Failed to fetch passed report history:", error.message);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const addWarning = async (req, res) => {
+    const { warnedUserID, warnedUserName, warnedUserRole, warnedReason, date } = req.body;
+  
+    if (!warnedUserID || !warnedUserName || !warnedReason) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields.",
+      });
+    }
+  
+    try {
+      const moderators = await Moderator.find();
+  
+      let warningUpdated = false;
+      let currentWarningCount = 0;
+  
+      // Iterate through all moderators and check for the warned user
+      for (const moderator of moderators) {
+        const existingWarning = moderator.warnings.find(
+          (warning) => warning.warnedUserID.toString() === warnedUserID
+        );
+  
+        if (existingWarning) {
+          existingWarning.warningCount += 1; // Increment the warning count
+          currentWarningCount = existingWarning.warningCount;
+  
+          // Append the new reason to the existing reasons
+          const label = `Warning Reason ${currentWarningCount}: `;
+          existingWarning.warnedReason += `\n${label}${warnedReason}`;
+  
+          warningUpdated = true;
+          await moderator.save(); // Save the updated warning
+          break;
+        }
+      }
+  
+      // If the user has no existing warning, add a new warning
+      if (!warningUpdated) {
+        const currentModerator = await Moderator.findOne({ moderator_id: req.user._id });
+        if (!currentModerator) {
+          return res.status(404).json({ success: false, message: "Moderator not found" });
+        }
+  
+        const initialLabel = "Warning Reason 1: ";
+        currentModerator.warnings.push({
+          warnedUserID,
+          warnedUserName,
+          warnedUserRole,
+          warnedReason: `${initialLabel}${warnedReason}`,
+          warningCount: 1,
+          date,
+        });
+        currentWarningCount = 1;
+        await currentModerator.save();
+      }
+  
+      // If the warning count exceeds the threshold, return a special response
+      const WARNING_THRESHOLD = 3; // Adjust as needed
+      if (currentWarningCount > WARNING_THRESHOLD) {
+        return res.status(200).json({
+          success: true,
+          warningThresholdExceeded: true,
+          message: `User ${warnedUserName} has exceeded the warning threshold with ${currentWarningCount} warnings.`,
+        });
+      }
+  
+      res.status(200).json({
+        success: true,
+        warningThresholdExceeded: false,
+        currentWarningCount,
+        warnedUserID,
+        moderatorName: req.user.name,
+        message: "Warning recorded successfully.",
+      });
+    } catch (error) {
+      console.error("Failed to record warning:", error.message);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+  
+  
+
+  export const getWarningHistory = async (req, res) => {
+    try {
+      const moderators = await Moderator.find();
+  
+      const allWarnings = moderators.reduce((acc, moderator) => {
+        return acc.concat(moderator.warnings);
+      }, []);
+  
+      res.status(200).json({ success: true, data: allWarnings });
+    } catch (error) {
+      console.error("Failed to fetch warning history:", error.message);
+      res.status(500).json({ success: false, message: error.message });
+    }
+  };
+  
+
+ 

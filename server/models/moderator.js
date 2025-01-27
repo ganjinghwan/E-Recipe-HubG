@@ -97,20 +97,59 @@ const moderatorSchema = new mongoose.Schema({
         },
     }],
     //history
+    passedReports: [{
+        reporterName: {
+            type: String,           
+            required: true
+        },
+        reporterRole: {
+            type: String,           
+            required: true
+        },
+        reportTitle: {
+            type: String,           
+            required: true
+        },
+        reportReason: {
+            type: String,           
+            required: true
+        },
+        reportedRecipe: {
+            type: String,           
+            required: true
+        },
+        reportedUserName: {
+            type: String,           
+            required: true
+        },
+        reportedUserRole: {
+            type: String,           
+            required: true
+        },
+        date: {
+            type: Date,
+            default: Date.now
+        },
+    }],
+    //history
     warnings: [{
-        userID: {
+        warnedUserID: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",
         },
-        userName: {
+        warnedUserName: {
+            type: String,           
+            required: true
+        },
+        warnedUserRole: {
             type: String,           
             required: true
         },
         warningCount: {
             type: Number,
-            required: true
+            required: false
         },
-        reason: {
+        warnedReason: {
             type: String,           
             required: true
         },

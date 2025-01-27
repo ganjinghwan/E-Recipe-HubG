@@ -15,12 +15,12 @@ import {
 import { useModeratorStore } from "../../store/moderatorStore";
 
 
-const RecipeHistoryListModal = ({ isOpen, onClose }) => {
-    const { fetchDeletedRecipes, deletedRecipes } = useModeratorStore();
+const WarningListModal = ({ isOpen, onClose }) => {
+    const {fetchWarnings , warnings  } = useModeratorStore();
 
     useEffect(() => {
-        fetchDeletedRecipes();
-    }, [fetchDeletedRecipes, deletedRecipes]);
+        fetchWarnings();
+    }, [fetchWarnings, warnings, isOpen]);
 
     const formatDate = (isoDate) => {
         if (!isoDate) return "Unknown Date";
@@ -72,7 +72,7 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
         <Modal isOpen={isOpen} onClose={onClose} size="xl">
               <ModalOverlay />
               <ModalContent>
-                <ModalHeader>History of Deleted Recipes</ModalHeader>
+                <ModalHeader>Warnings List</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <Box
@@ -101,7 +101,7 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                     }}
         
                   >
-                    <Box minW="1160px"> {/* Ensure content is wide enough for horizontal scrolling */}
+                    <Box minW="790px"> {/* Ensure content is wide enough for horizontal scrolling */}
                     {/* Header Row */}
                     <Flex
                     alignItems="center"
@@ -113,20 +113,17 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                     zIndex="1"
                     >
                     <Flex flex="1">
-                        <Box flex="1" minW="170px">
+                         <Box flex="1" minW="170px">
                         <Text>Username</Text>
                         </Box>
                         <Box flex="1" minW="140px">
-                        <Text>Role</Text>
+                        <Text>User Role</Text>
+                        </Box>
+                        <Box flex="1" minW="100px">
+                        <Text>Warning Count</Text>
                         </Box>
                         <Box flex="2" minW="220px">
-                        <Text>Reason</Text>
-                        </Box>
-                        <Box flex="2" minW="235px">
-                        <Text>Recipe Title</Text>
-                        </Box>
-                        <Box flex="2" minW="220px">
-                        <Text>Recipe ID</Text>
+                        <Text>Warning Reason</Text>
                         </Box>
                         <Box flex="1" minW="160px">
                         <Text>Deleted Date</Text>
@@ -134,11 +131,11 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                     </Flex>
                     </Flex>
         
-                    {/* Recipe Rows */}
-                    {deletedRecipes?.length > 0 ? (
-                    deletedRecipes.map((EachRecipe) => (
+                    {/* Report Rows */}
+                    {warnings?.length > 0 ? (
+                    warnings.map((EachWarning) => (
                         <Flex
-                        key={EachRecipe._id}
+                        key={EachWarning._id}
                         alignItems="center"
                         justifyContent="space-between"
                         p={2}
@@ -146,31 +143,28 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
                         borderBottom="1px solid lightgray"
                         bg="white" // Ensure background color applies even during horizontal scroll
                         >
-                        {/* Recipe Data Columns */}
+                        {/* Report Data Columns */}
                         <Flex flex="1">
                             <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
-                            <Text fontWeight="bold">{truncateSentences( EachRecipe.userName, 15)}</Text>
+                            <Text fontWeight="bold">{truncateSentences(EachWarning.warnedUserName, 15)}</Text>
                             </Box>
                             <Box flex="1" minW="140px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{EachRecipe?.userRole}</Text>
+                            <Text>{EachWarning.warnedUserRole} </Text>
                             </Box>
-                            <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{truncateSentences(EachRecipe.reason, 15)}</Text>
+                            <Box flex="1" minW="100px" textOverflow="ellipsis" overflow="hidden">
+                            <Text>{EachWarning.warningCount}</Text>
                             </Box>
-                            <Box flex="2" minW="235px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{truncateSentences(EachRecipe.recipeTitle, 20)}</Text>
-                            </Box>
-                            <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{EachRecipe.recipeID}</Text>
+                            <Box flex="2" minW="220px" textOverflow="ellipsis" overflow="hidden" marginRight={"5px"}>
+                            <Text whiteSpace="pre-wrap">{EachWarning.warnedReason}</Text> {/* Display newlines */}
                             </Box>
                             <Box flex="1" minW="160px" textOverflow="ellipsis" overflow="hidden">
-                            <Text>{formatDate(EachRecipe.date)}</Text>
+                            <Text>{formatDate(EachWarning.date)}</Text>
                             </Box>
                         </Flex>
                         </Flex>
                     ))
                     ) : (
-                    <Text>No history of deleted recipes found.</Text>
+                    <Text>No history of warnings found.</Text>
                     )}
                  </Box>
                 </Box>
@@ -185,4 +179,4 @@ const RecipeHistoryListModal = ({ isOpen, onClose }) => {
           );
         };
 
-export default RecipeHistoryListModal;
+export default WarningListModal;

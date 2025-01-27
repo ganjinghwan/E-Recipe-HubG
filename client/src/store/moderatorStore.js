@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import axios from "axios";
+import { addWarning } from "../../../server/controllers/moderatorController";
 
 export const useModeratorStore = create((set) => ({
     moderator: null,
@@ -8,6 +9,8 @@ export const useModeratorStore = create((set) => ({
     deletedRecipes: [],
     deletedUsers: [],
     deletedEvents: [],
+    passedReports: [],
+    warnings: [],
 
     confirmModerator: async(moderatorKey) => {
         set({ isLoading: true });
@@ -150,5 +153,69 @@ export const useModeratorStore = create((set) => ({
             console.error("Error deleting event:", error);
             return { success: false, message: "Failed to delete event." };
         }
-    }
+    },
+
+    addPassedReport: async (historyData) => {
+        try {
+            const res = await fetch(`/api/moderator/add-passed-report`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(historyData),
+            });
+    
+            const data = await res.json();
+    
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+    
+            return { success: true };
+        } catch (error) {
+            console.error("Error submitting passed report:", error);
+            return { success: false, message: "Failed to submit passed report." };
+        }
+    },
+
+    fetchPassedReports: async () => {
+        const res = await fetch('/api/moderator/get-report-history');
+        const data = await res.json();
+        set({ passedReports: data.data });
+    },
+
+    addWarning: async (historyData) => {
+        try {
+          const res = await fetch(`/api/moderator/add-warning`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(historyData),
+          });
+      
+          const data = await res.json();
+      
+          if (!data.success) {
+            return { success: false, message: data.message };
+          }
+      
+          // Return additional data if warning threshold is exceeded
+          return {
+            success: true,
+            warningThresholdExceeded: data.warningThresholdExceeded,
+            message: data.message,
+          };
+        } catch (error) {
+          console.error("Error submitting warning:", error);
+          return { success: false, message: "Failed to submit warning." };
+        }
+      },
+      
+
+    fetchWarnings: async () => {
+        const res = await fetch('/api/moderator/get-warning-history');
+        const data = await res.json();
+        set({ warnings: data.data });
+    },
 }));

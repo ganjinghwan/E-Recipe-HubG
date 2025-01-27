@@ -97,9 +97,7 @@ const EventHistoryListModal = ({ isOpen, onClose }) => {
                       '&::-webkit-scrollbar-track': {
                         background: 'gray.100',
                         borderRadius: '10px',
-                      },
-                      '-webkit-overflow-scrolling': 'touch', // Enable smooth touchpad scrolling
-
+                      }
                     }}
         
                   >
