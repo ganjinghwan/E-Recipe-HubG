@@ -52,17 +52,17 @@ const ProfileForm = ({ isOpen, onClose }) => {
 
   const toast = useToast();
   const colorAnimation = keyframes`
-    0% { background-color: #FFF8E1; }
-    10% { background-color: #FFECB3; }
-    20% { background-color: #FFE0B2; }
-    30% { background-color: #FFCCBC; }
-    40% { background-color: #F8BBD0; }
-    50% { background-color: #E1BEE7; }
-    60% { background-color: #D1C4E9; }
-    70% { background-color: #BBDEFB; }
-    80% { background-color: #B2EBF2; }
-    90% { background-color: #C8E6C9; }
-    100% { background-color: #FFF8E1; }
+  0% { background-color: #FF7F50; }
+  10% { background-color: #FF6B35; }
+  20% { background-color: #FF8C42; }
+  30% { background-color: #FFA559; }
+  40% { background-color: #FFB570; }
+  50% { background-color: #FFC67F; }
+  60% { background-color: #FFD98E; }
+  70% { background-color: #FFBE5C; }
+  80% { background-color: #FF9C39; }
+  90% { background-color: #FF822E; }
+  100% { background-color: #FF7F50; }
   `;
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
     Box,
     FormControl,
@@ -36,6 +36,8 @@ const CreateEventForm = ({isOpen, onClose}) => {
     const { createNewEvent, isLoading } = useEventStore();
     const maxCharacters = 250;
 
+    const fileInputRef = useRef(null);
+
     const handleDescriptionChange = (e) => {
         const description = e.target.value; 
         if (description.length <= maxCharacters) {
@@ -72,7 +74,6 @@ const CreateEventForm = ({isOpen, onClose}) => {
 
     const handleEventImageUpload = (e) => {
         const file = e.target.files[0];
-        setEventImage(file);
         
         if (!file) {
             return;
@@ -88,6 +89,11 @@ const CreateEventForm = ({isOpen, onClose}) => {
               duration: 5000,
               isClosable: true,
             });
+
+            // Reset the file input
+            if (fileInputRef.current) {
+              fileInputRef.current.value = null;
+            }
             return;
         }
 
@@ -98,6 +104,7 @@ const CreateEventForm = ({isOpen, onClose}) => {
             setEventImage(base64Image);
             console.log("Base64 image:", base64Image);
         };
+
         toast({
             position: "bottom",
             title: "Event picture uploaded successfully",
@@ -157,6 +164,11 @@ const CreateEventForm = ({isOpen, onClose}) => {
         setEventImage("");
         setCreateEventErrors({});
         setHasSubmitted(false);
+
+        // Reset file input field
+        if (fileInputRef.current) {
+            fileInputRef.current.value = null;
+        }
     }
 
     useEffect(() => {
@@ -264,6 +276,7 @@ const CreateEventForm = ({isOpen, onClose}) => {
                                     id="eventImage-upload"
                                     accept="image/*"
                                     onChange={handleEventImageUpload}
+                                    ref={fileInputRef}
                                     display={"none"}
                                 />
                             </Box>
