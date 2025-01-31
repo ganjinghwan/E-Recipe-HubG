@@ -988,7 +988,12 @@ const EventsRecipePage = () => {
                             size={iconButtonSize}
                             icon={<FaComment />}
                             aria-label="Add Comment"
-                            colorScheme="teal"
+                            bg="rgba(255, 255, 255, 0.6)"
+                            backdropFilter="blur(10px)"
+                            _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                            _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                            borderRadius="md"
+                            boxShadow="sm"
                             onClick={() => handleRCClick("comments")}
                         />
                     </Tooltip>
