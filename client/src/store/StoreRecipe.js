@@ -37,7 +37,19 @@ export const useStoreRecipe = create((set) => ({
             set((state) => ({ recipes: [...state.recipes, data.data] }));
             return { success: true, message: 'Recipe created successfully.' };
     },
-
+        
+    fetchRecipesWithoutEvent: async () => {
+        try {
+            const res = await fetch('/api/recipesinfo/withoutEvent');
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            const data = await res.json();
+            set({ recipesWithoutEvent: data.data });
+        } catch (error) {
+            console.error("Error fetching recipes without event:", error);
+        }
+    },
 
     /* only for cook recipe fetching purpose */
     fetchRecipes: async () => {
@@ -46,11 +58,6 @@ export const useStoreRecipe = create((set) => ({
         set({ recipes: data.data });
     },
 
-    // fetchRecipesWithoutEvent: async () => {
-    //     const res = await fetch("/api/recipesinfo/allWithoutEvent");
-    //     const data = await res.json();
-    //     set({ recipesWithoutEvent: data.data });
-    // },
     
     
 

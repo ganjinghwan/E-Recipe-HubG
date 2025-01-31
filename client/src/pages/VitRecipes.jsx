@@ -42,7 +42,8 @@ const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
   const { fetchCook, cooks} = useAuthStore();
   const { fetchFavoriteRecipes, toggleFavorite } = useStoreRecipe();
-  const {fetchAllRecipes, recipes, addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
+  const { addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
+  const {fetchRecipesWithoutEvent, recipesWithoutEvent} = useStoreRecipe();
 
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -156,16 +157,16 @@ const VisitorPage = () => {
   
 
   useEffect(() => {
-    fetchAllRecipes().then(() => {
+    fetchRecipesWithoutEvent().then(() => {
       setSelectedCategory("all"); // Set category to "All" after fetching recipes
     });
-  }, [fetchAllRecipes]);
+  }, [fetchRecipesWithoutEvent]);
 
 
   useEffect(() => {
-    if (selectedUser && recipes.length > 0) {
+    if (selectedUser && recipesWithoutEvent.length > 0) {
         // Filter recipes for the selected user
-        const userRecipes = recipes.filter((recipe) => recipe.user_id === selectedUser);
+        const userRecipes = recipesWithoutEvent.filter((recipe) => recipe.user_id === selectedUser);
 
         // Check if the current `selectedFood` is still valid
         const isCurrentSelectedValid = userRecipes.some(
@@ -185,13 +186,13 @@ const VisitorPage = () => {
         ).map(capitalize);
         setCategories(["All", ...uniqueCategories]);
     }
-}, [selectedUser, recipes, selectedFood]);
+}, [selectedUser, recipesWithoutEvent, selectedFood]);
 
   
 
   const filteredByUser = selectedUser
-  ? recipes.filter((recipe) => recipe.user_id === selectedUser) // Match by ID
-  : recipes;
+  ? recipesWithoutEvent.filter((recipe) => recipe.user_id === selectedUser) // Match by ID
+  : recipesWithoutEvent;
 
   const filteredRecipes = selectedCategory === "all"
   ? filteredByUser
@@ -246,8 +247,10 @@ const VisitorPage = () => {
         }
       };
   
-      fetchData();
-    }, [fetchFavoriteRecipes, setFavoriteFoods]);
+      if (user?.role === "cook" && user?.role === "guest") {
+        fetchData();
+      }
+    }, [fetchFavoriteRecipes, setFavoriteFoods, user?.role]);
 
 
     const handleToggleFavorite = async (foodId) => {
@@ -285,7 +288,7 @@ const VisitorPage = () => {
 
   const handleScrollRight = () => {
     setCarouselIndex((prevIndex) =>
-      Math.min(prevIndex + 1, recipes.length - 5)
+      Math.min(prevIndex + 1, recipesWithoutEvent.length - 5)
     );
   };
 
@@ -304,7 +307,7 @@ const VisitorPage = () => {
       return;
     }
 
-    const selectedRecipes = recipes.filter((recipe) => recipe.user_id === user._id);
+    const selectedRecipes = recipesWithoutEvent.filter((recipe) => recipe.user_id === user._id);
     // console.log("Recipe user_id format after:", recipes.map((recipe) => recipe.user_id));
 
     if (selectedRecipes.length === 0) {

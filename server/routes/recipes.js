@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.get('/',verifyToken, getCookRecipes);
 router.get('/all',verifyToken, getAllRecipes);
+router.get('/withoutEvent',verifyToken, getRecipesWithoutEvent);
 router.post('/', verifyToken, createRecipe);
 router.put('/:id',verifyToken, updateRecipe);
 router.delete('/:id',verifyToken, deleteRecipe);
@@ -20,6 +21,5 @@ router.post('/reportUser',verifyToken, addReportUser);
 
 router.get('/:id',verifyToken, getRecipeById);
 router.get('/:id/eventRecipes',verifyToken, getEventRecipes);
-// router.get('/allWithoutEvent',verifyToken, getRecipesWithoutEvent); 
 
 export default router;
