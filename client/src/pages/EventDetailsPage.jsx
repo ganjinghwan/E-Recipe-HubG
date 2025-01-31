@@ -315,6 +315,9 @@ const EventDetailsPage = () => {
                                                 ml={4}
                                                 aria-label="View Event Recipe"
                                                 colorScheme="green"
+                                                onClick={() => {
+                                                    navigate(`/eventrecipes?event_id=${events?.specificEventInfo?._id}`); // Pass event_id as query param
+                                                }}
                                             />
                                             </Tooltip>
                                             {/* Display text cannot join if user is already attending */}
@@ -324,9 +327,7 @@ const EventDetailsPage = () => {
                                                 color={"blue.500"}
                                                 ml={"10px"}
                                                 mt={"6px"}
-                                                onClick={() => {
-                                                    navigate(`/eventrecipes?event_id=${events?.specificEventInfo?._id}`); // Pass event_id as query param
-                                                }}
+                                                
                                             >
                                                 You have already join this event
                                             </Text>
