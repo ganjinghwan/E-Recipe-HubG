@@ -273,6 +273,7 @@ const EventsRecipePage = () => {
   };
 
   /*********************************************Favourite Recipe**********************************/
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -289,8 +290,10 @@ const EventsRecipePage = () => {
       }
     };
 
-    fetchData();
-  }, [fetchFavoriteRecipes, setFavoriteFoods]);
+    if (user?.role === "cook" && user?.role === "guest") {
+      fetchData();
+    }
+  }, [fetchFavoriteRecipes, setFavoriteFoods, user?.role]);
   
 
   const handleToggleFavorite = async (foodId) => {
