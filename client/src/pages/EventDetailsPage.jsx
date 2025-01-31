@@ -27,6 +27,9 @@ import UpdateEventForm from '../components/UpdateEventForm';
 import InviteAttendeesForm from '../components/InviteAttendeesForm';
 
 import { IoBook } from "react-icons/io5";
+import { FaRegEdit } from "react-icons/fa";
+import { IoIosSend } from "react-icons/io";
+import { MdDelete } from "react-icons/md";
 
 const EventDetailsPage = () => {
     const { user } = useAuthStore();
@@ -200,6 +203,7 @@ const EventDetailsPage = () => {
                             height={"90%"}
                             opacity={"1"}
                             overflowY={"auto"}
+                            overflowX={"hidden"}
                             textAlign={"left"}
                         >
                             <Text 
@@ -241,7 +245,7 @@ const EventDetailsPage = () => {
                                 position="absolute"
                                 ml="26px"
                                 mt="10px"
-                                width="100%"
+                                width="90%"
                                 display="flex"
                                 justifyContent="center"
                                 alignItems="center"
@@ -249,6 +253,9 @@ const EventDetailsPage = () => {
                                 <Image
                                     src={events?.specificEventInfo?.event_thumbnail}
                                     position={"relative"}
+                                    width={"100%"}
+                                    height={"100%"}
+                                    objectFit={"cover"}
                                 />
                             </Box>
                         </Box>
@@ -257,43 +264,61 @@ const EventDetailsPage = () => {
                         {user && events ? (
                             user.role === "event-organizer" && events?.specificEventInfo?.eventBelongs_id === user?._id ? (
                             <>
-                                <Button
-                                    position={"absolute"}
-                                    bottom="10px"
-                                    right="306px"
-                                    colorScheme="green"
-                                    size="md"
-                                    _hover={{ bg: "green.600" }}
-                                    onClick={openUpdateEventModal}
-                                >
-                                    Update Event
-                                </Button>
-                                <UpdateEventForm isOpen={isUpdateModalOpen} onClose={closeUpdateEventModal} eventURL={eventSpecificEndUrl}/>
-                                <Button
-                                    position={"absolute"}
-                                    bottom="10px"
-                                    right="150px"
-                                    colorScheme="blue"
-                                    size="md"
-                                    _hover={{ bg: "blue.600" }}
-                                    onClick={openInviteAttendeesModal}
-                                >
-                                    Invite Attendees
-                                </Button>
+                                <Tooltip label="Update Event">
+                                    <IconButton
+                                        size={iconButtonSize}
+                                        icon={<FaRegEdit />}
+                                        position={"absolute"}
+                                        aria-label='Update Event'
+                                        colorScheme='green'
+                                        bottom="10px"
+                                        right="170px"
+                                        onClick={openUpdateEventModal}
+                                    />
+                                </Tooltip>
+                                <UpdateEventForm isOpen={isUpdateModalOpen} onClose={closeUpdateEventModal} eventURL={eventSpecificEndUrl} eventsNowInfo={events?.specificEventInfo}/>
+
+                                <Tooltip label="Invite Attendees">
+                                    <IconButton
+                                        size={iconButtonSize}
+                                        icon={<IoIosSend />}
+                                        position={"absolute"}
+                                        aria-label='Invite Attendees'
+                                        colorScheme='blue'
+                                        bottom={"10px"}
+                                        right={"120px"}
+                                        onClick={openInviteAttendeesModal}
+                                    />
+                                </Tooltip>
                                 <InviteAttendeesForm isOpen={isInviteModalOpen} onClose={closeInviteAttendeesModal} eventURL={eventSpecificEndUrl}/>
-                                <Button
-                                    position={"absolute"}
-                                    bottom="10px"
-                                    right="20px"
-                                    colorScheme="red"
-                                    size="md"
-                                    _hover={{ bg: "red.600" }}
-                                    onClick={() => setIsAlertOpen(true)}
-                                    isLoading={isLoading}
-                                    loadingText="Deleting..."
-                                >
-                                    Delete Event
-                                </Button>
+                                
+                                <Tooltip label="Delete Event">
+                                    <IconButton
+                                        size={iconButtonSize}
+                                        icon={<MdDelete />}
+                                        position={"absolute"}
+                                        aria-label='Delete Event'
+                                        colorScheme='red'
+                                        bottom={"10px"}
+                                        right={"70px"}
+                                        onClick={() => setIsAlertOpen(true)}
+                                    />
+                                </Tooltip>
+
+                                <Tooltip label="View Event Recipe">
+                                    <IconButton
+                                        size={iconButtonSize}
+                                        icon={<IoBook />}
+                                        position={"absolute"}
+                                        aria-label="View Event Recipe"
+                                        colorScheme="orange"
+                                        bottom="10px"
+                                        right="20px"
+                                        onClick={() => {
+                                            navigate(`/eventrecipes?event_id=${events?.specificEventInfo?._id}`); // Pass event_id as query param
+                                        }}
+                                    />
+                                </Tooltip>
                             </>
                             ) : user.role !== "event-organizer" ? (
                                 // Display join button for users who are not event organizers

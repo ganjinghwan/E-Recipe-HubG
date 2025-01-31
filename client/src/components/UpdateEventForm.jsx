@@ -28,12 +28,12 @@ import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
 import { useEventStore } from '../store/eventStore';
 
-const UpdateEventForm = ({isOpen, onClose, eventURL}) => {
-    const [newEventName, setNewEventName] = useState("");
-    const [newEventDescription, setNewEventDescription] = useState("");
-    const [newEventStartDate, setNewEventStartDate] = useState("");
-    const [newEventEndDate, setNewEventEndDate] = useState("");
-    const [newEventImage, setNewEventImage] = useState("");
+const UpdateEventForm = ({isOpen, onClose, eventURL, eventsNowInfo}) => {
+    const [newEventName, setNewEventName] = useState(eventsNowInfo.event_name);
+    const [newEventDescription, setNewEventDescription] = useState(eventsNowInfo.event_description);
+    const [newEventStartDate, setNewEventStartDate] = useState(new Date(eventsNowInfo.start_date));
+    const [newEventEndDate, setNewEventEndDate] = useState(new Date(eventsNowInfo.end_date));
+    const [newEventImage, setNewEventImage] = useState(eventsNowInfo.event_thumbnail);
 
     const [updateEventErrors, setUpdateEventErrors] = useState([]);
     const [hasSubmitted, setHasSubmitted] = useState(false);
@@ -63,10 +63,17 @@ const UpdateEventForm = ({isOpen, onClose, eventURL}) => {
         }
 
         if (!newEventName && !newEventDescription && !newEventStartDate && !newEventEndDate && !newEventImage) {
-            errorHandling.sendEmptyFields = "Please enter at least one field to update the event.";
+            errorHandling.noInputValue = "Empty input is not allowed";
+        }
+
+        // Show error if all useState fields remains the same/ did not make changes
+        if ((newEventName === eventsNowInfo.event_name) && (newEventDescription === eventsNowInfo.event_description) && (newEventStartDate.getTime() === new Date(eventsNowInfo.start_date).getTime()) && (newEventEndDate.getTime() === new Date(eventsNowInfo.end_date).getTime()) && (newEventImage === eventsNowInfo.event_thumbnail)) {
+            errorHandling.noChangesMade = "Please make any changes to update the event";
         }
 
         setUpdateEventErrors(errorHandling);
+        console.log("Something is happening right here");
+        console.log("Error handling:", errorHandling);
         return errorHandling;
     }
 
@@ -147,16 +154,16 @@ const UpdateEventForm = ({isOpen, onClose, eventURL}) => {
                 });
             });
 
-            clearForm();
+            resetForm();
         }
     }
 
-    const clearForm = () => {
-        setNewEventName("");
-        setNewEventDescription("");
-        setNewEventStartDate("");
-        setNewEventEndDate("");
-        setNewEventImage("");
+    const resetForm = () => {
+        setNewEventName(eventsNowInfo.event_name);
+        setNewEventDescription(eventsNowInfo.event_description);
+        setNewEventStartDate(new Date(eventsNowInfo.start_date));
+        setNewEventEndDate(new Date(eventsNowInfo.end_date));
+        setNewEventImage(eventsNowInfo.event_thumbnail);
         setUpdateEventErrors([]);
         setHasSubmitted(false);
     };
@@ -168,7 +175,7 @@ const UpdateEventForm = ({isOpen, onClose, eventURL}) => {
     }, [newEventStartDate, newEventEndDate, hasSubmitted]);
 
     return (
-        <Modal isOpen={isOpen} onClose={() => { clearForm(); onClose(); }} isCentered>
+        <Modal isOpen={isOpen} onClose={() => { resetForm(); onClose(); }} isCentered>
             <ModalOverlay />
             <ModalContent
                 maxW={{ base: "100%", sm: "90%", md: "80%", lg: "50%" }}
@@ -268,9 +275,15 @@ const UpdateEventForm = ({isOpen, onClose, eventURL}) => {
                             </Box>
                         </FormControl>
 
-                        {updateEventErrors.sendEmptyFields && (
+                        {updateEventErrors.noChangesMade && (
                             <Text color="red.500" mb="4">
-                                {updateEventErrors.sendEmptyFields}
+                                {updateEventErrors.noChangesMade}
+                            </Text>
+                        )}
+
+                        {updateEventErrors.noInputValue && (
+                            <Text color="red.500" mb="4">
+                                {updateEventErrors.noInputValue}
                             </Text>
                         )}
                     </Box>

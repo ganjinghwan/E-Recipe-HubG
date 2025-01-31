@@ -277,24 +277,16 @@ export const updateEvents = async (req, res) => {
         const updateEventErrors = [];
 
         if (newEvent_name) {
-            if (specificEventValid.event_name === newEvent_name) {
-                updateEventErrors.push("Same event name, please use a different one");
+            const eventNameExists = await Event.findOne({ event_name: newEvent_name });
+            if (eventNameExists && eventNameExists.eventBelongs_id.toString() !== user._id.toString()) {
+                updateEventErrors.push("Event name already exists.");
             } else {
-                const eventNameExists = await Event.findOne({ event_name: newEvent_name });
-                if (eventNameExists) {
-                    updateEventErrors.push("Event name already exists.");
-                } else {
-                    specificEventValid.event_name = newEvent_name;
-                }
+                specificEventValid.event_name = newEvent_name;
             }
         }
 
         if (newEvent_description) {
-            if (specificEventValid.event_description === newEvent_description) {
-                updateEventErrors.push("Same event description, please use a different one");
-            } else {
-                specificEventValid.event_description = newEvent_description;
-            }
+            specificEventValid.event_description = newEvent_description;
         }
 
         if (newStart_date && newEnd_date) {
@@ -309,20 +301,12 @@ export const updateEvents = async (req, res) => {
                 updateEventErrors.push("Invalid end date.");
             }
 
-            if (specificEventValid.start_date.getTime() === updateNewEventStartDate.getTime() && specificEventValid.end_date.getTime() === updateNewEventEndDate.getTime()) {
-                updateEventErrors.push("Same start and end date, please use a different one");
-            }
-
             if (updateNewEventStartDate.getTime() === updateNewEventEndDate.getTime()) {
                 updateEventErrors.push("Start date and end date cannot be the same.");
             }
 
             if (updateNewEventStartDate > updateNewEventEndDate) {
                 updateEventErrors.push("Start date cannot be after end date.");
-            }
-
-            if (updateNewEventStartDate < Date.now()) {
-                updateEventErrors.push("Start date cannot be in the past.");
             }
         }
 

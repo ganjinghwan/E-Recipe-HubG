@@ -123,7 +123,7 @@ const EventsPage = () => {
                       alignItems={"center"}
                       _hover={{ bg: "blue.100" }}
                     >
-                      <Box flex={4} minW={"0"}>
+                      <Box flex={9} minW={"0"}>
                         <Text fontSize="2xl" fontWeight="bold" color={"orange.800"} isTruncated>
                           {event.event_name}
                         </Text>
@@ -135,9 +135,9 @@ const EventsPage = () => {
                       {/* Buttons */}
                       <Box flex={1}
                         display={"absolute"}
-                        justifyContent={"center"}
-                        alignItems={"center"}
-                        justifyItems={"center"}
+                        justifyContent={"right"}
+                        alignItems={"right"}
+                        justifyItems={"right"}
                       >
                         <Tooltip label="More Info">
                           <IconButton
