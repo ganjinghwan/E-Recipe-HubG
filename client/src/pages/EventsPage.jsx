@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Flex, Text, VStack } from "@chakra-ui/react";
+import { Box, Button, Flex, IconButton, Text, Tooltip, useBreakpointValue, VStack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import eventBlur from "../pic/event-blur.png";
@@ -8,6 +8,8 @@ import { useEventStore } from "../store/eventStore";
 
 import CreateEventForm from "../components/CreateEventForm";
 import { useNavigate } from "react-router-dom";
+import { FaInfoCircle } from "react-icons/fa";
+import { IoBook } from "react-icons/io5";
 
 const EventsPage = () => {
   const { user } = useAuthStore();
@@ -16,6 +18,8 @@ const EventsPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
+
+  const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -135,26 +139,30 @@ const EventsPage = () => {
                         alignItems={"center"}
                         justifyItems={"center"}
                       >
-                        <Button
-                          display={"flex"}
-                          colorScheme="orange"
-                          onClick={() => {
-                            navigate(`/events/${event.eventSpecificEndUrl}`);
-                          }}
-                          >
-                          More Info
-                        </Button>
+                        <Tooltip label="More Info">
+                          <IconButton
+                            size={iconButtonSize}
+                            icon={<FaInfoCircle />}
+                            aria-label="More Info"
+                            colorScheme="orange"
+                            onClick={() => {
+                              navigate(`/events/${event.eventSpecificEndUrl}`);
+                            }}
+                          />
+                        </Tooltip>
                           {event.attendees?.includes(user?._id) && (
-                            <Button
-                              display={"flex"}
-                              colorScheme="green"
-                              mt={2}
-                              onClick={() => {
-                                navigate(`/eventrecipes?event_id=${event._id}`); // Pass event_id as query param
-                              }}
-                            >
-                              View Event Recipe
-                            </Button>
+                            <Tooltip label="View Event Recipe">
+                              <IconButton
+                                size={iconButtonSize}
+                                icon={<IoBook />}
+                                ml={4}
+                                aria-label="View Event Recipe"
+                                colorScheme="green"
+                                onClick={() => {
+                                  navigate(`/eventrecipes?event_id=${event._id}`); // Pass event_id as query param
+                                }}
+                              />
+                            </Tooltip>
                           )}
                       </Box>
                     </Flex>
