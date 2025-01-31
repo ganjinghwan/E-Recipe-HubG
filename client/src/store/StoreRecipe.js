@@ -46,11 +46,11 @@ export const useStoreRecipe = create((set) => ({
         set({ recipes: data.data });
     },
 
-    fetchRecipesWithoutEvent: async () => {
-        const res = await fetch("/api/recipesinfo/allWithoutEvent");
-        const data = await res.json();
-        set({ recipesWithoutEvent: data.data });
-    },
+    // fetchRecipesWithoutEvent: async () => {
+    //     const res = await fetch("/api/recipesinfo/allWithoutEvent");
+    //     const data = await res.json();
+    //     set({ recipesWithoutEvent: data.data });
+    // },
     
     
 

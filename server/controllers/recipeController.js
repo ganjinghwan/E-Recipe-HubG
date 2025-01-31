@@ -23,23 +23,23 @@ export const getCookRecipes = async (req, res) => {
 }
 
 
-export const getRecipesWithoutEvent = async (req, res) => {
-    console.log("Fetching recipes without event..."); // Log the call
+// export const getRecipesWithoutEvent = async (req, res) => {
+//     console.log("Fetching recipes without event..."); // Log the call
 
-    try {
-        // Fetch recipes that do not have an event_id (null or undefined)
-        const recipesWithoutEvent = await Recipe.find({ 
-            $or: [{ event_id: null }, { event_id: { $exists: false } }] 
-        });
-        console.log("Found recipes:", recipesWithoutEvent.length); // Log number of recipes found
+//     try {
+//         // Fetch recipes that do not have an event_id (null or undefined)
+//         const recipesWithoutEvent = await Recipe.find({ 
+//             $or: [{ event_id: null }, { event_id: { $exists: false } }] 
+//         });
+//         console.log("Found recipes:", recipesWithoutEvent.length); // Log number of recipes found
 
 
-        res.status(200).json({ success: true, data: recipesWithoutEvent });
-    } catch (error) {
-        console.error("Error fetching recipes without event:", error);
-        res.status(500).json({ success: false, message: "Server Error" });
-    }
-};
+//         res.status(200).json({ success: true, data: recipesWithoutEvent });
+//     } catch (error) {
+//         console.error("Error fetching recipes without event:", error);
+//         res.status(500).json({ success: false, message: "Server Error" });
+//     }
+// };
 
 
 export const getEventRecipes = async (req, res) => {

@@ -427,6 +427,32 @@ const EventsRecipePage = () => {
 
 
   const handleDeleteRecipe = async (rid) => {
+   // Fetch recipe details first to check ownership
+   const recipeData = await fetchRecipeById(rid);
+   if (!recipeData.success) {
+       toast({
+           title: "Error",
+           description: "Recipe not found!",
+           status: "error",
+           duration: 5000,
+           isClosable: true,
+       });
+       return;
+   }
+
+   // Check if current user is the owner
+   if (recipeData.data.user_id !== user?._id) {
+       toast({
+           title: "Unauthorized",
+           description: "You are not the author of this recipe. Cannot delete.",
+           status: "error",
+           duration: 5000,
+           isClosable: true,
+       });
+       return;
+   }
+
+    // Proceed with deletion if the user is the owner
    const {success,message} = await deleteRecipes(rid);
    if (!success) {
      toast({
@@ -444,12 +470,37 @@ const EventsRecipePage = () => {
        duration: 5000,
        isClosable: true,
      });
+     fetchEventRecipes(event_id);
    }
    onClose();
   };
 
 
   const handleUpdateRecipe = async (rid,updatedRecipe) => {
+    // Fetch recipe details first to check ownership
+    const recipeData = await fetchRecipeById(rid);
+    if (!recipeData.success) {
+        toast({
+            title: "Error",
+            description: "Recipe not found!",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+        });
+        return;
+    }
+
+    // Check if current user is the owner
+    if (recipeData.data.user_id !== user?._id) {
+        toast({
+            title: "Unauthorized",
+            description: "You are not the author of this recipe. Cannot update.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+        });
+        return;
+    }
 
     // Validate the image URL
     if (updatedRecipe.image && !isValidUrl(updatedRecipe.image)) {
@@ -812,7 +863,7 @@ const EventsRecipePage = () => {
                     display="flex"
                     alignItems="center"
                     justifyContent="center"
-                    onClick={() => handleIconClick("rate")}
+                    onClick={() => handleRCClick("rate")}
                     >
                     <FaStar size="20px" color="gold" />
                     </Box>
@@ -851,20 +902,7 @@ const EventsRecipePage = () => {
             
               
               <HStack spacing={5} marginLeft="30px"> {/* Wider gap for icons */}
-                <Tooltip label="Create">
-                <IconButton
-                  size={iconButtonSize}
-                  icon={<FaPlus />}
-                  aria-label="Create"
-                  bg="rgba(255, 255, 255, 0.6)" // Semi-transparent background
-                  backdropFilter="blur(10px)" // Apply blur effect
-                  _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                  _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                  borderRadius="md" // Medium border radius for rounded corners
-                  boxShadow="sm" // Subtle shadow for depth
-                  onClick={() => handleIconClick("create")}
-                />
-                </Tooltip>
+                
                 <Tooltip label="Video">
                 <IconButton
                   size={iconButtonSize}
@@ -914,34 +952,49 @@ const EventsRecipePage = () => {
 
                 {user?.role === "cook" ? (
                 <>
+                    <Tooltip label="Create">
+                    <IconButton
+                      size={iconButtonSize}
+                      icon={<FaPlus />}
+                      aria-label="Create"
+                      bg="rgba(255, 255, 255, 0.6)" // Semi-transparent background
+                      backdropFilter="blur(10px)" // Apply blur effect
+                      _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                      _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                      borderRadius="md" // Medium border radius for rounded corners
+                      boxShadow="sm" // Subtle shadow for depth
+                      onClick={() => handleIconClick("create")}
+                    />
+                    </Tooltip>
+
                     <Tooltip label="Update">
-                        <IconButton
-                            size={iconButtonSize}
-                            icon={<FaEdit />}
-                            aria-label="Update"
-                            bg="rgba(255, 255, 255, 0.6)"
-                            backdropFilter="blur(10px)"
-                            _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                            _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                            borderRadius="md"
-                            boxShadow="sm"
-                            onClick={() => handleIconClick("update")}
-                        />
+                    <IconButton
+                        size={iconButtonSize}
+                        icon={<FaEdit />}
+                        aria-label="Update"
+                        bg="rgba(255, 255, 255, 0.6)"
+                        backdropFilter="blur(10px)"
+                        _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                        _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                        borderRadius="md"
+                        boxShadow="sm"
+                        onClick={() => handleIconClick("update")}
+                    />
                     </Tooltip>
 
                     <Tooltip label="Delete">
-                        <IconButton
-                            size={iconButtonSize}
-                            icon={<FaTrash />}
-                            bg="rgba(255, 255, 255, 0.6)"
-                            backdropFilter="blur(10px)"
-                            _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                            _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                            borderRadius="md"
-                            boxShadow="sm"
-                            aria-label="Delete"
-                            onClick={() => handleIconClick("delete")}
-                        />
+                    <IconButton
+                        size={iconButtonSize}
+                        icon={<FaTrash />}
+                        bg="rgba(255, 255, 255, 0.6)"
+                        backdropFilter="blur(10px)"
+                        _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                        _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                        borderRadius="md"
+                        boxShadow="sm"
+                        aria-label="Delete"
+                        onClick={() => handleIconClick("delete")}
+                    />
                     </Tooltip>
                 </>
             ) : (
@@ -952,7 +1005,7 @@ const EventsRecipePage = () => {
                             icon={<FaComment />}
                             aria-label="Add Comment"
                             colorScheme="teal"
-                            onClick={() => handleIconClick("comments")}
+                            onClick={() => handleRCClick("comments")}
                         />
                     </Tooltip>
                 )

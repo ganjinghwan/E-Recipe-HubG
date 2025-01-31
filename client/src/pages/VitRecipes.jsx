@@ -42,7 +42,7 @@ const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
   const { fetchCook, cooks} = useAuthStore();
   const { fetchFavoriteRecipes, toggleFavorite } = useStoreRecipe();
-  const {fetchRecipesWithoutEvent, recipesWithoutEvent, addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
+  const {fetchAllRecipes, recipes, addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
 
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -156,16 +156,16 @@ const VisitorPage = () => {
   
 
   useEffect(() => {
-    fetchRecipesWithoutEvent().then(() => {
+    fetchAllRecipes().then(() => {
       setSelectedCategory("all"); // Set category to "All" after fetching recipes
     });
-  }, [fetchRecipesWithoutEvent]);
+  }, [fetchAllRecipes]);
 
 
   useEffect(() => {
-    if (selectedUser && recipesWithoutEvent.length > 0) {
+    if (selectedUser && recipes.length > 0) {
         // Filter recipes for the selected user
-        const userRecipes = recipesWithoutEvent.filter((recipe) => recipe.user_id === selectedUser);
+        const userRecipes = recipes.filter((recipe) => recipe.user_id === selectedUser);
 
         // Check if the current `selectedFood` is still valid
         const isCurrentSelectedValid = userRecipes.some(
@@ -185,13 +185,13 @@ const VisitorPage = () => {
         ).map(capitalize);
         setCategories(["All", ...uniqueCategories]);
     }
-}, [selectedUser, recipesWithoutEvent, selectedFood]);
+}, [selectedUser, recipes, selectedFood]);
 
   
 
   const filteredByUser = selectedUser
-  ? recipesWithoutEvent.filter((recipe) => recipe.user_id === selectedUser) // Match by ID
-  : recipesWithoutEvent;
+  ? recipes.filter((recipe) => recipe.user_id === selectedUser) // Match by ID
+  : recipes;
 
   const filteredRecipes = selectedCategory === "all"
   ? filteredByUser
@@ -285,7 +285,7 @@ const VisitorPage = () => {
 
   const handleScrollRight = () => {
     setCarouselIndex((prevIndex) =>
-      Math.min(prevIndex + 1, recipesWithoutEvent.length - 5)
+      Math.min(prevIndex + 1, recipes.length - 5)
     );
   };
 
@@ -304,7 +304,7 @@ const VisitorPage = () => {
       return;
     }
 
-    const selectedRecipes = recipesWithoutEvent.filter((recipe) => recipe.user_id === user._id);
+    const selectedRecipes = recipes.filter((recipe) => recipe.user_id === user._id);
     // console.log("Recipe user_id format after:", recipes.map((recipe) => recipe.user_id));
 
     if (selectedRecipes.length === 0) {

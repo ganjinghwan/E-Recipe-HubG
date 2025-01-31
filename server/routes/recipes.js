@@ -20,6 +20,6 @@ router.post('/reportUser',verifyToken, addReportUser);
 
 router.get('/:id',verifyToken, getRecipeById);
 router.get('/:id/eventRecipes',verifyToken, getEventRecipes);
-router.get('/allWithoutEvent',verifyToken, getRecipesWithoutEvent); 
+// router.get('/allWithoutEvent',verifyToken, getRecipesWithoutEvent); 
 
 export default router;
