@@ -12,7 +12,10 @@ import {
     AlertDialogHeader,
     AlertDialogBody,
     AlertDialogFooter,
-    AlertDialogContent
+    AlertDialogContent,
+    Tooltip,
+    IconButton,
+    useBreakpointValue
 } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useEventStore } from '../store/eventStore';
@@ -22,6 +25,8 @@ import { useAuthStore } from '../store/authStore';
 
 import UpdateEventForm from '../components/UpdateEventForm';
 import InviteAttendeesForm from '../components/InviteAttendeesForm';
+
+import { IoBook } from "react-icons/io5";
 
 const EventDetailsPage = () => {
     const { user } = useAuthStore();
@@ -38,6 +43,8 @@ const EventDetailsPage = () => {
 
     const navigate = useNavigate();
     const toast = useToast();
+
+    const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
 
     useEffect(() => {
         const fetchEventData = async () => {
@@ -301,12 +308,15 @@ const EventDetailsPage = () => {
                                             direction={"row"}
                                             align={"center"}
                                         >
-                                            <Button
+                                            <Tooltip label="View Event Recipe">
+                                            <IconButton
+                                                size={iconButtonSize}
+                                                icon={<IoBook />}
+                                                ml={4}
+                                                aria-label="View Event Recipe"
                                                 colorScheme="green"
-                                                mt={2}
-                                            >
-                                                View Event Recipe
-                                            </Button>
+                                            />
+                                            </Tooltip>
                                             {/* Display text cannot join if user is already attending */}
                                             <Text 
                                                 fontSize={"xl"} 
