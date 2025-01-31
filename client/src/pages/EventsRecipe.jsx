@@ -933,23 +933,6 @@ const EventsRecipePage = () => {
                 />
                 </Tooltip>
 
-                {/* Report IconButton */}
-                <Tooltip label="Report User">
-                    <IconButton
-                    size={iconButtonSize}
-                    icon={<FaFlag />}
-                    aria-label="Report User"
-                    bg="rgba(255, 255, 255, 0.6)"
-                    backdropFilter="blur(10px)"
-                    _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                    _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                    borderRadius="md"
-                    boxShadow="sm"
-
-                    onClick={() => handleIconClick("report")}
-                    />
-                </Tooltip>
-
                 {user?.role === "cook" ? (
                 <>
                     <Tooltip label="Create">
@@ -999,6 +982,7 @@ const EventsRecipePage = () => {
                 </>
             ) : (
                 (user?.role === "event-organizer" || user?.role === "guest") && (
+                <>
                     <Tooltip label="Comments">
                         <IconButton
                             size={iconButtonSize}
@@ -1008,6 +992,25 @@ const EventsRecipePage = () => {
                             onClick={() => handleRCClick("comments")}
                         />
                     </Tooltip>
+
+                     {/* Report IconButton */}
+                    <Tooltip label="Report User">
+                      <IconButton
+                        size={iconButtonSize}
+                        icon={<FaFlag />}
+                        aria-label="Report User"
+                        bg="rgba(255, 255, 255, 0.6)"
+                        backdropFilter="blur(10px)"
+                        _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
+                        _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
+                        borderRadius="md"
+                        boxShadow="sm"
+
+                        onClick={() => handleIconClick("report")}
+                      />
+                    </Tooltip>
+                
+                </>
                 )
             )}
 
