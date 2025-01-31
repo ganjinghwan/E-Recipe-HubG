@@ -149,6 +149,9 @@ const EventsPage = () => {
                               display={"flex"}
                               colorScheme="green"
                               mt={2}
+                              onClick={() => {
+                                navigate(`/eventrecipes?event_id=${event._id}`); // Pass event_id as query param
+                              }}
                             >
                               View Event Recipe
                             </Button>

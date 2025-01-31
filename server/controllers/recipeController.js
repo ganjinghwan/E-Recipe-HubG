@@ -8,15 +8,64 @@ import { isValidURL } from "../utils/validation.js"; // A utility to validate UR
 import cloudinary from "../cloudinary/cloudinary.js";
 
 
-export const getRecipes = async (req, res) => {
+export const getCookRecipes = async (req, res) => {
     try{
         const userId = req.userId;
-        const recipe = await Recipe.find({ user_id: userId });
-        res.status(200).json({ success: true, data: recipe });
+        // Fetch recipes for the authenticated cook and filter only those without an event_id
+        const recipes = await Recipe.find({
+            user_id: userId,
+            $or: [{ event_id: null }, { event_id: { $exists: false } }] // Filter out recipes with event_id
+        });
+        res.status(200).json({ success: true, data: recipes });
     }catch(error){
         res.status(500).json({ success: false, message: 'Server Error' });
     }
 }
+
+
+export const getRecipesWithoutEvent = async (req, res) => {
+    console.log("Fetching recipes without event..."); // Log the call
+
+    try {
+        // Fetch recipes that do not have an event_id (null or undefined)
+        const recipesWithoutEvent = await Recipe.find({ 
+            $or: [{ event_id: null }, { event_id: { $exists: false } }] 
+        });
+        console.log("Found recipes:", recipesWithoutEvent.length); // Log number of recipes found
+
+
+        res.status(200).json({ success: true, data: recipesWithoutEvent });
+    } catch (error) {
+        console.error("Error fetching recipes without event:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+
+export const getEventRecipes = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // If no event_id is provided, return an empty array
+        if (!id) {
+            return res.status(200).json({ success: true, data: [] });
+        }
+
+        // Validate event_id as a MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Event ID" });
+        }
+
+        // Fetch recipes that belong to the given event_id
+        const recipes = await Recipe.find({ event_id: id });
+
+        res.status(200).json({ success: true, data: recipes });
+    } catch (error) {
+        console.error("Error fetching event recipes:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
 
 export const getRecipeById = async (req, res) => {
     const { id } = req.params;
@@ -78,6 +127,7 @@ export const createRecipe = async (req, res) => {
         const newRecipe = new Recipe({
             ...recipe, // Spread existing recipe data
             user_id: userId, // Add user ID to recipe
+            event_id: recipe.event_id || null, // Store event_id if provided
             image: imageUrl, // Add final image URL
         });
 

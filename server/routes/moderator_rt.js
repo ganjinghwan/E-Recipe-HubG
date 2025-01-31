@@ -21,4 +21,5 @@ router.post("/add-passed-report", verifyToken, addPassedReport);
 router.get("/get-report-history", verifyToken, getReportHistory);
 router.post("/add-warning", verifyToken, addWarning);
 router.get("/get-warning-history", verifyToken, getWarningHistory);
+
 export default router;

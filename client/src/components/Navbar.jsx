@@ -148,30 +148,36 @@ const Navbar = () => {
         align="center"
         listStyleType="none"
       >
-        <ChakraLink as={RouterLink} to="/" fontSize="lg" _hover={{ color: "orange.300" }}>
+        <ChakraLink as={RouterLink} to="/" fontSize="lg" _hover={{ color: "orange.300" }}
+          color={location.pathname === "/" ? "orange.300" : "inherit"}>
           Home
         </ChakraLink>
-        <ChakraLink as={RouterLink} to="/about" fontSize="lg" _hover={{ color: "orange.300" }}>
+        <ChakraLink as={RouterLink} to="/about" fontSize="lg" _hover={{ color: "orange.300" }}
+          color={location.pathname === "/about" ? "orange.300" : "inherit"}>
           About
         </ChakraLink>
         {/* Role based links */}
         {user?.role === "cook" && (
-        <ChakraLink as={RouterLink} to="/recipes" fontSize="lg" _hover={{ color: "orange.300" }}>
+        <ChakraLink as={RouterLink} to="/recipes" fontSize="lg" _hover={{ color: "orange.300" }}
+         color={location.pathname === "/recipes" ? "orange.300" : "inherit"}>
           Recipe
         </ChakraLink>
         )}
         {user?.role === "guest" && (
-          <ChakraLink as={RouterLink} to="/visitors" fontSize="lg" _hover={{ color: "orange.300" }}>
+          <ChakraLink as={RouterLink} to="/visitors" fontSize="lg" _hover={{ color: "orange.300" }}
+          color={location.pathname === "/visitors" ? "orange.300" : "inherit"}>
             Recipe
           </ChakraLink>
         )}
         {user?.role === "moderator" && (
-          <ChakraLink as={RouterLink} to="/moderatorpg" fontSize="lg" _hover={{ color: "orange.300" }}>
+          <ChakraLink as={RouterLink} to="/moderatorpg" fontSize="lg" _hover={{ color: "orange.300" }}
+          color={location.pathname === "/moderatorpg" ? "orange.300" : "inherit"}>
             DashBoard
           </ChakraLink>
         )}
         {isAuthenticated && user?.role !== "moderator" && (
-          <ChakraLink as={RouterLink} to="/events" fontSize="lg" _hover={{ color: "orange.300" }}>
+          <ChakraLink as={RouterLink} to="/events" fontSize="lg" _hover={{ color: "orange.300" }}
+          color={location.pathname === "/events" ? "orange.300" : "inherit"}>
             Event
           </ChakraLink> 
         )}
@@ -208,6 +214,7 @@ const Navbar = () => {
               py="2"
               _hover={{ color: "orange.300" }}
               onClick={toggleMobileMenu}
+              color={location.pathname === "/" ? "orange.300" : "inherit"}
             >
               Home
             </ChakraLink>
@@ -218,6 +225,7 @@ const Navbar = () => {
               py="2"
               _hover={{ color: "orange.300" }}
               onClick={toggleMobileMenu}
+              color={location.pathname === "/about" ? "orange.300" : "inherit"}
             >
               About
             </ChakraLink>
@@ -229,6 +237,7 @@ const Navbar = () => {
               py="2"
               _hover={{ color: "orange.300" }}
               onClick={toggleMobileMenu}
+              color={location.pathname === "/recipes" ? "orange.300" : "inherit"}
             >
               Recipe
             </ChakraLink>
@@ -241,6 +250,7 @@ const Navbar = () => {
                 py="2"
                 _hover={{ color: "orange.300" }}
                 onClick={toggleMobileMenu}
+                color={location.pathname === "/visitors" ? "orange.300" : "inherit"}
               >
                 Recipe
               </ChakraLink>
@@ -253,6 +263,7 @@ const Navbar = () => {
                 py="2"
                 _hover={{ color: "orange.300" }}
                 onClick={toggleMobileMenu}
+                color={location.pathname === "/moderatorpg" ? "orange.300" : "inherit"}
               >
                 DashBoard
               </ChakraLink>
@@ -265,6 +276,7 @@ const Navbar = () => {
                 py="2"
                 _hover={{ color: "orange.300" }}
                 onClick={toggleMobileMenu}
+                color={location.pathname === "/events" ? "orange.300" : "inherit"}
               >
                 Events
               </ChakraLink>

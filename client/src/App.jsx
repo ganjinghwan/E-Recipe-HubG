@@ -9,10 +9,7 @@ import Visitors from './pages/VitRecipes';
 import Favourite from './pages/Favourite';
 
 import ModeratorPg from './pages/ModeratorPg';
-import UserListModal from "./components/moderator-modal/user_list";
-// import ReportListModal from "./components/moderator-modal/report_list";
-// import RecipeListModal from "./components/moderator-modal/recipe_list";
-// import WarningListModal from "./components/moderator-modal/warning_list";
+import EventRecipePage from './pages/EventsRecipe';
 
 import EmailVerificationPage from './pages/EmailVerificationPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
@@ -40,10 +37,10 @@ function App() {
 
   if (isCheckingAuth) return <LoadingSpinner />;
 
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("user", user);
-  console.log("isVerifiedRequired", isVerifiedRequired);
-  console.log("isRoleInfoCreated", isRoleInfoCreated);
+  // console.log("isAuthenticated", isAuthenticated);
+  // console.log("user", user);
+  // console.log("isVerifiedRequired", isVerifiedRequired);
+  // console.log("isRoleInfoCreated", isRoleInfoCreated);
 
   // Define which routes will not show Navbar
   const noNavbarRoutes = ["/verify-email", "/forgot-password", "/reset-password/:token", "/new-event-organizer", "/new-moderator", "/new-cook", "/verify-update"];
@@ -123,14 +120,17 @@ function App() {
             } 
         />
 
-        {/* Moderator Component Routes */}
-        <Route path="/user-list" element={<UserListModal />} />
-        {/* <Route path="/report-list" element={<ReportListModal />} />
-        <Route path="/recipe-list" element={<RecipeListModal />} />
-        <Route path="/warning-list" element={<WarningListModal />} />
-       */}
+       
 
         {/* Protected Routes */}
+        <Route 
+          path = "/eventrecipes"
+          element={
+            <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <EventRecipePage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/recipes"
           element={

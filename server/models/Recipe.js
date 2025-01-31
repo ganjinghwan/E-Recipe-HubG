@@ -35,6 +35,11 @@ const recipeSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    event_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Event',
+        required: false
+    },
     ratings: [
         {
             user:{

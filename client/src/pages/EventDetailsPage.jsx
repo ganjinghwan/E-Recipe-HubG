@@ -304,6 +304,9 @@ const EventDetailsPage = () => {
                                             <Button
                                                 colorScheme="green"
                                                 mt={2}
+                                                onClick={() => {
+                                                    navigate(`/eventrecipes?event_id=${events?.specificEventInfo?._id}`); // Pass event_id as query param
+                                                }}
                                             >
                                                 View Event Recipe
                                             </Button>

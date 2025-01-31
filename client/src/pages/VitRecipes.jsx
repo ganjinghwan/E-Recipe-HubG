@@ -29,7 +29,7 @@ import {
   MenuButton,
   MenuList,
   MenuItem,
-  useBreakpointValue 
+  useBreakpointValue
 } from "@chakra-ui/react";
 import { FaHeart, FaComment, FaFlag, FaClock, FaYoutube, FaUser, FaStar} from "react-icons/fa";
 import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; // Import specific icons
@@ -41,8 +41,8 @@ import StarRatings from "react-star-ratings";
 const VisitorPage = () => {
   const { user } = useAuthStore(); // Access current user info
   const { fetchCook, cooks} = useAuthStore();
-  const { fetchFavoriteRecipes, favoriteRecipes, toggleFavorite } = useStoreRecipe();
-  const {fetchAllRecipes, recipes, addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
+  const { fetchFavoriteRecipes, toggleFavorite } = useStoreRecipe();
+  const {fetchRecipesWithoutEvent, recipesWithoutEvent, addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
 
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -156,16 +156,16 @@ const VisitorPage = () => {
   
 
   useEffect(() => {
-    fetchAllRecipes().then(() => {
+    fetchRecipesWithoutEvent().then(() => {
       setSelectedCategory("all"); // Set category to "All" after fetching recipes
     });
-  }, [fetchAllRecipes]);
+  }, [fetchRecipesWithoutEvent]);
 
 
   useEffect(() => {
-    if (selectedUser && recipes.length > 0) {
+    if (selectedUser && recipesWithoutEvent.length > 0) {
         // Filter recipes for the selected user
-        const userRecipes = recipes.filter((recipe) => recipe.user_id === selectedUser);
+        const userRecipes = recipesWithoutEvent.filter((recipe) => recipe.user_id === selectedUser);
 
         // Check if the current `selectedFood` is still valid
         const isCurrentSelectedValid = userRecipes.some(
@@ -185,13 +185,13 @@ const VisitorPage = () => {
         ).map(capitalize);
         setCategories(["All", ...uniqueCategories]);
     }
-}, [selectedUser, recipes, selectedFood]);
+}, [selectedUser, recipesWithoutEvent, selectedFood]);
 
   
 
   const filteredByUser = selectedUser
-  ? recipes.filter((recipe) => recipe.user_id === selectedUser) // Match by ID
-  : recipes;
+  ? recipesWithoutEvent.filter((recipe) => recipe.user_id === selectedUser) // Match by ID
+  : recipesWithoutEvent;
 
   const filteredRecipes = selectedCategory === "all"
   ? filteredByUser
@@ -285,13 +285,12 @@ const VisitorPage = () => {
 
   const handleScrollRight = () => {
     setCarouselIndex((prevIndex) =>
-      Math.min(prevIndex + 1, recipes.length - 5)
+      Math.min(prevIndex + 1, recipesWithoutEvent.length - 5)
     );
   };
 
   const handleUserSelection = () => {
     const user = cooks.find((user) => user.name === tempUserName); // Match user by name
-    console.log("Selected User:", user);
 
     if (!user) {
       toast({
@@ -305,7 +304,7 @@ const VisitorPage = () => {
       return;
     }
 
-    const selectedRecipes = recipes.filter((recipe) => recipe.user_id === user._id);
+    const selectedRecipes = recipesWithoutEvent.filter((recipe) => recipe.user_id === user._id);
     // console.log("Recipe user_id format after:", recipes.map((recipe) => recipe.user_id));
 
     if (selectedRecipes.length === 0) {
@@ -660,7 +659,7 @@ const VisitorPage = () => {
                 )}
                 
               </HStack>
-              <Text marginLeft="30px" fontSize="md" fontWeight="semibold" color="gray.600">
+              <Text marginLeft="30px" fontSize={{ base: "sm", md: "md" }} fontWeight="semibold" color="gray.600">
                 Author: {truncateText(cooks.find((u) => u._id === selectedUser)?.name || "Unknown",15)}
             </Text>
 

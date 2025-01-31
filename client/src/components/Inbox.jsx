@@ -70,8 +70,8 @@ const InboxModal = ({ isOpen, onClose }) => {
       // Update accept map with the results
       setEventAcceptMap(accept);
       setEventRejectMap(decline);
-      console.log("Accept map updated:", eventAcceptMap);
-      console.log("Decline map updated:", eventRejectMap);
+      // console.log("Accept map updated:", eventAcceptMap);
+      // console.log("Decline map updated:", eventRejectMap);
     }
 
     if (userInbox.length > 0) {
@@ -85,7 +85,7 @@ const InboxModal = ({ isOpen, onClose }) => {
     updatedInbox[index].readStatus = true;
 
     await setInboxRead(index);
-    console.log("Message marked as read");
+    // console.log("Message marked as read");
 
     fetchUserInbox();
     // Update the store with the updated inbox

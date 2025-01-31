@@ -4,7 +4,10 @@ import { useAuthStore } from "../store/authStore";
 
 export const useStoreRecipe = create((set) => ({
     recipes: [],
+    eventRecipes: [],
     favoriteRecipes:[],
+    recipesWithoutEvent: [],
+
     setRecipes: (recipes) => set({ recipes }),
     createRecipe: async (newRecipe) =>{
         console.log("Recipe being sent:", newRecipe);
@@ -26,6 +29,11 @@ export const useStoreRecipe = create((set) => ({
             body: JSON.stringify(newRecipe)
             });
             const data = await res.json();
+
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+
             set((state) => ({ recipes: [...state.recipes, data.data] }));
             return { success: true, message: 'Recipe created successfully.' };
     },
@@ -37,6 +45,14 @@ export const useStoreRecipe = create((set) => ({
         const data = await res.json();
         set({ recipes: data.data });
     },
+
+    fetchRecipesWithoutEvent: async () => {
+        const res = await fetch("/api/recipesinfo/allWithoutEvent");
+        const data = await res.json();
+        set({ recipesWithoutEvent: data.data });
+    },
+    
+    
 
     /* Fetch all recipes */
     fetchAllRecipes: async () => {
@@ -70,7 +86,27 @@ export const useStoreRecipe = create((set) => ({
         }
     },
     
+    fetchEventRecipes: async (event_id) => {
+        try {
+            if (!event_id) {
+                return { success: true, data: [] }; // No event_id, return empty list
+            }
 
+            const res = await fetch(`/api/recipesinfo/${event_id}/eventRecipes`);
+            const data = await res.json();
+
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+
+            set({ eventRecipes: data.data }); // Store fetched event recipes
+
+            return { success: true, data: data.data };
+        } catch (error) {
+            console.error("Error fetching event recipes:", error);
+            return { success: false, message: "Failed to fetch event recipes." };
+        }
+    },
 
 
     deleteRecipes: async (rid) => {
