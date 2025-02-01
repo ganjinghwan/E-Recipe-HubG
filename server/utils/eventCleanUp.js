@@ -21,12 +21,11 @@ export const eventCleanUpExpiredEvents = async () => {
         // Remove expired events from each organizer's events_list
         await Promise.all(eventOrganizers.map(async (organizer) => {
             organizer.events_list = organizer.events_list.filter(
-                eventId => !expiredEventIds.includes(eventId.toString())
+                eventId => eventId.toString() !== expiredEventIds.toString()
             );
             await organizer.save();
         }));
 
-        // Delete expired events
         await Event.deleteMany({ _id: { $in: expiredEventIds } });
 
         console.log(`Successfully cleaned up ${expiredEvents.length} expired events.`);
