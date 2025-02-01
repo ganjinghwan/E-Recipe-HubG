@@ -7,7 +7,7 @@ export const generateTokenAndSetCookie = (res, userId) => {
         httpOnly: true, //cookie cannot be accessed by the client side js
         secure: process.env.NODE_ENV === 'production', 
         sameSite: "strict",
-        maxAge: 3 * 24 * 60 * 60 * 1000,
+        maxAge: 12 * 60 * 60 * 1000, // 12 hours
     });
 
     return token;

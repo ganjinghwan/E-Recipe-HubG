@@ -27,7 +27,8 @@ export const getEventOrganizerCreatedEvents = async (req, res) => {
 export const getAllEvents = async (req, res) => {
     try {
         const Allevents = await Event.find({
-            //eventStartDate: { $gte: Date.now() }
+            start_date: { $lte: new Date() },
+            end_date: { $gte: new Date() }
         })
 
         res.status(200).json({
