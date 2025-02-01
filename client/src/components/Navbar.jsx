@@ -44,6 +44,12 @@ const Navbar = () => {
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
   const [isInboxOpen, setIsInboxOpen] = useState(false);
 
+  // Define pages where the search bar should be shown
+  const pagesWithSearch = ["/recipes", "/visitors", "/eventrecipes", "/favourite"];
+  
+  // Check if current pathname matches one of the allowed pages
+  const shouldShowSearch = pagesWithSearch.includes(location.pathname);
+
   const handleSearch = (query) => {
     console.log("Search query:", query);
   }
@@ -290,7 +296,9 @@ const Navbar = () => {
       {isAuthenticated ? (
         <>
         {/* Search Bar */}
-        <SearchBar onSearch={handleSearch}  />
+        {shouldShowSearch && (
+            <SearchBar onSearch={handleSearch}  />
+          )}
 
         {/* Favorites Button */}
         {(user?.role === "cook" || user?.role === "guest") && (
