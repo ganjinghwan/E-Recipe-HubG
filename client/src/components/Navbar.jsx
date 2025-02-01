@@ -290,17 +290,17 @@ const Navbar = () => {
       {isAuthenticated ? (
         <>
         {/* Search Bar */}
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar onSearch={handleSearch}  />
 
         {/* Favorites Button */}
         {(user?.role === "cook" || user?.role === "guest") && (
         <IconButton
             icon={<i className="fas fa-heart"></i>}
             aria-label="Favorite"
+            bg={"transparent"}
             onClick={handleFavoriteClick}
-            colorScheme={isFavorite ? "red" : "white"} // Toggle red color when favorite
-            variant={isFavorite ? "solid" : ""}
-            _hover={{ color: "orange.300" }}
+            _hover={{ bg: "whiteAlpha.200", color: "orange.300" }}
+            color={location.pathname === "/favourite" ? "red" : "inherit"}
           />
         )}
 
@@ -313,7 +313,8 @@ const Navbar = () => {
             onClick={openInbox}
             color="white"
             variant=""
-            _hover={{ bg: "whiteAlpha.200" }}
+            _hover={{ bg: "whiteAlpha.200", color: "orange.300" }}
+            
           />
 
           {unreadNum > 0 && (
@@ -348,7 +349,7 @@ const Navbar = () => {
             icon={<i className="fas fa-user"></i>}
             variant="outline"
             color="white"
-            _hover={{ bg: "whiteAlpha.200" }}
+            _hover={{ bg: "whiteAlpha.200", color: "orange.300" }}
           />
           <MenuList bg="gray.800" color="black">
                 <MenuItem onClick={openProfileForm} _hover={{ bg: "orange.300" }}> 
