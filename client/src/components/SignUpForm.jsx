@@ -178,6 +178,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             placeholder="Enter your username"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            borderColor={"black"}
           />
           {signUpFormError.name && <FormErrorMessage>{signUpFormError.name}</FormErrorMessage>}
         </FormControl>
@@ -189,6 +190,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            borderColor={"black"}
           />
           {signUpFormError.email && <FormErrorMessage>{signUpFormError.email}</FormErrorMessage>}
         </FormControl>
@@ -200,6 +202,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             placeholder="Enter your password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            borderColor={"black"}
           />
           {signUpFormError.password && <FormErrorMessage>{signUpFormError.password}</FormErrorMessage>}
         </FormControl>
@@ -213,6 +216,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             placeholder="Confirm your password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
+            borderColor={"black"}
           />
           {signUpFormError.confirmPassword && <FormErrorMessage>{signUpFormError.confirmPassword}</FormErrorMessage>}
           {authError && <FormErrorMessage>{authError}</FormErrorMessage>}
@@ -227,6 +231,7 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
                 onClick={() => setRole(option.value)}
                 variant={role === option.value ? "solid" : "outline"}
                 colorScheme={role === option.value ? "teal" : "gray"}
+                borderColor={"black"}
               >
                 {option.label}
               </Button>

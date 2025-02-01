@@ -148,6 +148,7 @@ const LoginForm = ({onClose, switchToSignUp}) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
+            borderColor={"black"}
           />
           {loginFormError.email && <FormErrorMessage>{loginFormError.email}</FormErrorMessage>}
         </FormControl>
@@ -159,6 +160,7 @@ const LoginForm = ({onClose, switchToSignUp}) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
+            borderColor={"black"}
           />
           {loginFormError.password && <FormErrorMessage>{loginFormError.password}</FormErrorMessage>}
         </FormControl>
