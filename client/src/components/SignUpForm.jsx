@@ -135,8 +135,8 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             alt="Cookbook"
             position="absolute"
             top={{ base: "-194px", md: "-192px" }}
-            width={{ base: "78%", md: "82%" }}
-            left={{ base: "4%", md: "0%" }}
+            width="66%"
+            left="9%"
             initial={{ opacity: 0, x: 34, y: 70 }}
             animate={{ opacity: 1, x: 34, y: -40 }}
             transition={{ duration: 0.7, delay: 0.3 }}
@@ -146,9 +146,9 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             src={sandwich}
             alt="Sandwich"
             position="absolute"
-            top={{ base: "-12px", md: "-24px" }}
-            left={{ base: "-30px", md: "-60px" }}
-            width={{ base: "100px", md: "116px" }}
+            top={{ base: "-12px", md: "-16px" }}
+            left={{ base: "-22px", md: "-16px" }}
+            width="26%"
             initial={{ opacity: 0, x: 120, y: 100, rotate: -180 }}
             animate={{ opacity: 1, x: 0, y: -70, rotate: -20 }}
             transition={{ duration: 1, delay: 0.4 }}
@@ -158,9 +158,9 @@ const SignUpForm = ({ onClose, switchToLogin }) => {
             src={cupcake}
             alt="Cupcake"
             position="absolute"
-            bottom={{ base: "600px", md: "600px" }}
-            right={{ base: "-70px", md: "-70px" }}
-            width={{ base: "108px", md: "120px" }}
+            top={{ base: "-6px", md: "-10px" }}
+            right={{ base: "-20px", md: "-26px" }}
+            width="24%"
             initial={{ opacity: 0, x: -200, y: 100, rotate: -140 }}
             animate={{ opacity: 1, x: 0, y: -206, rotate: 10 }}
             transition={{ duration: 1, delay: 0.4 }}

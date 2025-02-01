@@ -127,11 +127,11 @@ const LoginForm = ({onClose, switchToSignUp}) => {
         src={pizza}
         alt="Pizza"
         position="absolute"
-        bottom={{ base: "220px", md: "240px" }}
-        right={{ base: "-18px", md: "-50px" }}
+        bottom={{ base: "200px", md: "240px" }}
+        right={{ base: "-30px", md: "-50px" }}
         width={{ base: "104px", md: "110px" }}
-        initial={{ opacity: 0, x: -180, y: -100, rotate: -60 }}
-        animate={{ opacity: 1, x: 0, y: -160, rotate: 10 }}
+        initial={{ opacity: 0, x: -180, y: 0, rotate: -180 }}
+        animate={{ opacity: 1, x: 0, y: -210, rotate: 10 }}
         transition={{ duration: 1, delay: 0.4 }}
       />
 
