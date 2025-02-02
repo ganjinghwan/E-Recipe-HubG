@@ -22,6 +22,20 @@ export const getCookRecipes = async (req, res) => {
     }
 }
 
+export const getRecipeByUserId = async (req, res) => {
+    try{
+        const { id } = req.params;
+        // Fetch recipes for the authenticated user and filter only those without an event_id
+        const recipes = await Recipe.find({
+            user_id: id,
+            $or: [{ event_id: null }, { event_id: { $exists: false } }] // Filter out recipes with event_id
+        });
+        res.status(200).json({ success: true, data: recipes });
+    }catch(error){
+        res.status(500).json({ success: false, message: 'Server Error' });
+    }
+}
+
 
 export const getRecipesWithoutEvent = async (req, res) => {
 

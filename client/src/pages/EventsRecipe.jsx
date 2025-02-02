@@ -290,7 +290,7 @@ const EventsRecipePage = () => {
       }
     };
 
-    if (user?.role === "cook" && user?.role === "guest") {
+    if (user?.role === "cook" || user?.role === "guest") {
       fetchData();
     }
   }, [fetchFavoriteRecipes, setFavoriteFoods, user?.role]);

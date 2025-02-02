@@ -5,6 +5,7 @@ import { useAuthStore } from "../store/authStore";
 export const useStoreRecipe = create((set) => ({
     recipes: [],
     eventRecipes: [],
+    userRecipes: [],
     favoriteRecipes:[],
     recipesWithoutEvent: [],
 
@@ -90,6 +91,24 @@ export const useStoreRecipe = create((set) => ({
         } catch (error) {
             console.error("Error fetching recipe by ID:", error);
             return { success: false, message: "Failed to fetch recipe." };
+        }
+    },
+
+    fetchRecipesByUserId: async (user_id) => {
+        try {
+            const res = await fetch(`/api/recipesinfo/${user_id}/userRecipes`);
+            const data = await res.json();
+    
+            if (!data.success) {
+                return { success: false, message: data.message };
+            }
+    
+            set({ userRecipes: data.data });
+    
+            return { success: true, data: data.data };
+        } catch (error) {
+            console.error("Error fetching recipes by user ID:", error);
+            return { success: false, message: "Failed to fetch recipes." };
         }
     },
     
@@ -237,8 +256,6 @@ export const useStoreRecipe = create((set) => ({
             endpoint = "/api/guests/Gfavorites";
         } else if (user?.role === "cook") {
             endpoint = "/api/cooks/favorites";
-        } else if (user?.role === "event-organizer") {
-            endpoint = "/api/eventorg/EOfavorites";
         } else {
             console.error("Unknown user role or user is not authenticated");
             return { success: false, data: [] };

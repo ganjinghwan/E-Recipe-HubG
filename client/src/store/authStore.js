@@ -4,6 +4,7 @@ import axios from "axios";
 axios.defaults.withCredentials = true;
 export const useAuthStore = create((set) => ({
     user: null,
+    selectedUserId: null, // ✅ Add selectedUserId to global state
     cooks:[],
     CGEs:[],
     dailyLogins: [],
@@ -16,6 +17,7 @@ export const useAuthStore = create((set) => ({
     isUploadingProfilePicture: false,
     message: null,
 
+    setSelectedUserId: (id) => set({ selectedUserId: id }), // ✅ Function to update item in global state
 
     fetchUserInbox: async () => {
         try {
@@ -192,6 +194,7 @@ export const useAuthStore = create((set) => ({
         await axios.post(`/api/auth/logout`);
         set({ 
             user: null, 
+            selectedUserId: null,
             isAuthenticated: false, 
             isLoading: false, 
             isVerifiedRequired: false, 

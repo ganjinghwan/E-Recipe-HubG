@@ -2,94 +2,120 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, IconButton, Input, List, ListItem, Text, useToast } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import { useStoreRecipe } from '../store/StoreRecipe';
+import { useAuthStore } from '../store/authStore';
+import { useLocation } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
-const SearchBar = ({ onSearch }) => {
-    /***************************************Search Bar things*************************************/
-    const [isSearchBarActive, setIsSearchBarActive] = useState(false);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [hasFetched, setHasFetched] = useState(false);
-    const [searchRecipeResults, setSearchRecipeResults] = useState([]);
-
-    /****************************************For fetching recipes**********************************/
-    const { fetchAllRecipes, recipes } = useStoreRecipe();
-
-    /*****************************************For toast messages***********************************/
+const SearchBar = ({ setSelectedFood, selectedUserId }) => {
+    const location = useLocation();
+    const { user } = useAuthStore();
+    const searchBarRef = useRef(null);
     const toast = useToast();
 
-    /*****************************************For handling outside clicks***************************/
-    const searchBarRef = useRef(null);
+    /*********************************** State ***********************************/
+    const [isSearchBarActive, setIsSearchBarActive] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [recipesData, setRecipesData] = useState([]); // Store all recipes
+    const [searchResults, setSearchResults] = useState([]); // Filtered results
 
-    /*****************************************For handling search bar when clicked*******************************/
+    /*********************************** Fetch Recipes ***********************************/
+    /**************For cook user directly access the /recipes */
+    const {fetchRecipes, recipes} = useStoreRecipe();
+    /**************For guest and moderator user access the /visitors */
+    /* so it must pass the cook user id but not the current user id */
+    const {fetchRecipesByUserId, userRecipes} = useStoreRecipe();
+    /**************For all user access the /eventrecipes */
+    const {fetchEventRecipes, eventRecipes} = useStoreRecipe();
+    /**************For guest and cook user access the /favourite */
+    const {fetchFavoriteRecipes, favoriteRecipes} = useStoreRecipe();
+
+    /*********************************** Get IDs ***********************************/
+    const searchParams = new URLSearchParams(location.search);
+    const event_id = searchParams.get("event_id");
+
+
+    /*********************************** Handle Search Toggle ***********************************/
     const toggleSearchBar = () => {
-        setIsSearchBarActive(!isSearchBarActive); // Make the search bar visible
-        if (!isSearchBarActive) { // If the search bar is opened
-            setHasFetched(false); // Reset the hasFetched state
-            setSearchQuery(''); // Clear the search query
-            setSearchRecipeResults([]); // Clear the search results
+        setIsSearchBarActive(!isSearchBarActive);
+        if (!isSearchBarActive) {
+            setSearchQuery('');
+            setSearchResults([]); 
         }
     };
 
-    // Fetch recipes once when search bar is opened
+    /*********************************** Fetch Data When Search Bar Opens ***********************************/
     useEffect(() => {
-        // Fetch recipes when the search bar is opened and has not been fetched
-        if (isSearchBarActive && !hasFetched) { 
-            fetchAllRecipes();
-            setHasFetched(true); // Set hasFetched to true so it doesn't fetch again
-        }
-    }, [isSearchBarActive, fetchAllRecipes, hasFetched]);
+        if (!isSearchBarActive) return;  
 
-    // Update search results based on query
-    useEffect(() => {
-        if (searchQuery) { // If there is a search query
-            // Filter the recipes based on the search query
-            const matchRecipeResults = recipes.filter((recipe) =>
-                recipe.title.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+        const fetchRelevantRecipes = async () => {
+            try {
+                let fetchedData = [];
 
-            // Update the search results
-            setSearchRecipeResults(matchRecipeResults);
-        } else {
-            // If there is no search query, clear the search results
-            setSearchRecipeResults([]);
-        }
-    }, [recipes, searchQuery]);
+                if (location.pathname === "/recipes") {
+                    await fetchRecipes();
+                    fetchedData = recipes;
+                } else if (location.pathname === "/visitors" && selectedUserId) {
+                    await fetchRecipesByUserId(selectedUserId);
+                    fetchedData = userRecipes;
+                } else if (location.pathname === "/eventrecipes" && event_id) {
+                    await fetchEventRecipes(event_id);
+                    fetchedData = eventRecipes;
+                } else if (location.pathname === "/favourite") {
+                    await fetchFavoriteRecipes();
+                    fetchedData = favoriteRecipes;
+                }
 
-    // Handle clicking outside of the search bar
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            // Check if the click event occurred outside of the search bar
-            if (searchBarRef.current && !searchBarRef.current.contains(event.target)) {
-                setIsSearchBarActive(false); // Close the search bar
+                setRecipesData(fetchedData);
+            } catch (error) {
+                console.error("Error fetching recipes:", error);
             }
         };
 
-        // Add event listener
-        document.addEventListener('click', handleClickOutside);
+        fetchRelevantRecipes();
+    }, [isSearchBarActive, location.pathname, selectedUserId, event_id]);
 
-        return () => {
-            // Remove event listener
-            document.removeEventListener('click', handleClickOutside);
+    /*********************************** Handle Click Outside to Close Search Bar ***********************************/
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchBarRef.current && !searchBarRef.current.contains(event.target)) {
+                setIsSearchBarActive(false);
+            }
         };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
     }, []);
 
-    /******************************************For handling search bar input*******************************/
+    /*********************************** Search Filtering Logic ***********************************/
     const handleInputChange = (e) => {
-        const query = e.target.value; // Get the current input value
-        setSearchQuery(query); // Update the search query
-        if (onSearch) { // If onSearch prop is provided, call it with the search query
-            onSearch(query);
+        const query = e.target.value.trim(); // Remove extra spaces
+        setSearchQuery(query);
+    
+        if (!query) {
+            setSearchResults([]);
+            return;
         }
+    
+        const lowercaseQuery = query.toLowerCase();
+    
+        // Filter only if the recipe title starts with the entered text
+        const filteredResults = recipesData.filter((recipe) =>
+            recipe.title.toLowerCase().startsWith(lowercaseQuery) // ✅ Match only from the start
+        );
+    
+        setSearchResults(filteredResults);
     };
+    
 
-    /******************************************For handling search bar input*******************************/
-    const handleItemClick = (item) => {
-        setIsSearchBarActive(false); // Close the search bar
+    /*********************************** Handle Selecting a Recipe ***********************************/
+    const handleItemClick = (recipe) => {
+        setIsSearchBarActive(false);
+        setSelectedFood(recipe); 
+
         toast({
-            title: `You clicked a recipe`,
-            description: item.title,
-            status: 'success',
+            title: "Recipe Selected",
+            description: recipe.title,
+            status: "success",
             duration: 3000,
             isClosable: true,
         });
@@ -101,15 +127,15 @@ const SearchBar = ({ onSearch }) => {
                 display="flex"
                 alignItems="center"
                 justifyContent="space-between"
-                bg={isSearchBarActive ? "white" : "transparent"} // when active, show white background, otherwise transparent
-                color={isSearchBarActive ? "black" : "white"} // when active, show black text, otherwise white
+                bg={isSearchBarActive ? "white" : "transparent"}
+                color={isSearchBarActive ? "black" : "white"}
                 borderRadius="full"
                 px="2"
-                width={isSearchBarActive ? "250px" : "40px"}
+                width={{ base: "180px", md: "250px" }} 
                 height="40px"
                 initial={{ width: "40px" }}
                 animate={{
-                    width: isSearchBarActive ? "250px" : "40px",
+                    width: isSearchBarActive ? "100%" : "40px",
                     backgroundColor: isSearchBarActive ? "#FFFFFF" : "transparent",
                 }}
                 transition={{ duration: 0.3 }}
@@ -132,16 +158,15 @@ const SearchBar = ({ onSearch }) => {
                         border="none"
                         placeholder="Search..."
                         flex="1"
-                        value={searchQuery} // Bind the search query
-                        onChange={handleInputChange} // Handle input changes
+                        value={searchQuery}
+                        onChange={handleInputChange}
                         _focus={{ outline: "none" }}
                     />
                 )}
             </MotionBox>
 
             {/* Search results */}
-            {searchRecipeResults.length > 0 && isSearchBarActive && (
-                // Display the search results when the search bar is active and there are results
+            {isSearchBarActive && (
                 <Box
                     position="absolute"
                     top="100%"
@@ -150,43 +175,32 @@ const SearchBar = ({ onSearch }) => {
                     width="100%"
                     borderRadius="md"
                     mt={2}
-                    maxH="300px"
+                    maxH="250px"
                     overflowY="auto"
+                    boxShadow="lg"
                 >
-                    <List spacing={2}>
-                        {/* Map over the search results and display each of the as list items */}
-                        {searchRecipeResults.map((recipe, index) => (
-                            <ListItem
-                                key={index}
-                                px="4"
-                                py="2"
-                                borderBottom="1px solid #ddd"
-                                textColor="black"
-                                _hover={{ bg: "#FBBF77" }}
-                                onClick={() => handleItemClick(recipe)}
-                                cursor="pointer"
-                            >
-                                Recipe: {recipe.title}
-                            </ListItem>
-                        ))}
-                    </List>
-                </Box>
-            )}
-
-            {/* No results message */}
-            {searchRecipeResults.length === 0 && isSearchBarActive && (
-                // Display a message when there are no search results
-                <Box
-                    position="absolute"
-                    top="100%"
-                    left="0"
-                    bg="white"
-                    width="100%"
-                    borderRadius="md"
-                    mt={2}
-                    p={4}
-                >
-                    <Text textColor="black">No results found.</Text>
+                    {searchResults.length > 0 ? (
+                        <List spacing={2}>
+                            {searchResults.map((recipe, index) => (
+                                <ListItem
+                                    key={index}
+                                    px="4"
+                                    py="2"
+                                    borderBottom="1px solid #ddd"
+                                    textColor="black"
+                                    _hover={{ bg: "#FBBF77" }}
+                                    onClick={() => handleItemClick(recipe)}
+                                    cursor="pointer"
+                                >
+                                    {recipe.title}
+                                </ListItem>
+                            ))}
+                        </List>
+                    ) : (
+                        <Box p={4}>
+                            <Text textColor="black">No results found.</Text>
+                        </Box>
+                    )}
                 </Box>
             )}
         </Box>

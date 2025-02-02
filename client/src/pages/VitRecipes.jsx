@@ -39,7 +39,7 @@ import { useAuthStore } from "../store/authStore";
 import StarRatings from "react-star-ratings";
 
 const VisitorPage = () => {
-  const { user } = useAuthStore(); // Access current user info
+  const { user, setSelectedUserId } = useAuthStore(); // Access current user info
   const { fetchCook, cooks} = useAuthStore();
   const { fetchFavoriteRecipes, toggleFavorite } = useStoreRecipe();
   const { addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
@@ -247,7 +247,7 @@ const VisitorPage = () => {
         }
       };
   
-      if (user?.role === "cook" && user?.role === "guest") {
+      if (user?.role === "cook" || user?.role === "guest") {
         fetchData();
       }
     }, [fetchFavoriteRecipes, setFavoriteFoods, user?.role]);
@@ -321,7 +321,8 @@ const VisitorPage = () => {
       });
       return; // Don't close the modal if no recipes exist
     }
-  
+    
+    setSelectedUserId(user._id); // ✅ Update global state with selectedUserId
     setSelectedUser(user._id); // Store user ID instead of name
     setSelectedUserName(user.name);
     setSelectedFood(selectedRecipes[0]);// Set the first recipe from this user

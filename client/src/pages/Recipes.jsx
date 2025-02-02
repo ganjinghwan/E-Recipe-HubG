@@ -37,6 +37,8 @@ import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
 
+import SearchBar from "../components/SearchBar";
+
 const Recipes = () => {
   const [selectedFood, setSelectedFood] = useState(null);
   const [animationState, setAnimationState] = useState("");

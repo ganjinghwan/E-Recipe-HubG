@@ -36,6 +36,8 @@ const Navbar = () => {
   const { isOpen: isOpenProfile, onOpen: onOpenProfile, onClose: onCloseProfile } = useDisclosure();
   const location = useLocation();
 
+  const { selectedUserId } = useAuthStore(); // ✅ Get selectedUserId from global state
+
   const [unreadNum, setUnreadNum] = useState(0);
 
   const [isFavorite, setIsFavorite] = useState(false); // Track favorite state
@@ -49,10 +51,6 @@ const Navbar = () => {
   
   // Check if current pathname matches one of the allowed pages
   const shouldShowSearch = pagesWithSearch.includes(location.pathname);
-
-  const handleSearch = (query) => {
-    console.log("Search query:", query);
-  }
 
   const openLoginForm = () => {
     setIsSignUp(false);
@@ -297,7 +295,8 @@ const Navbar = () => {
         <>
         {/* Search Bar */}
         {shouldShowSearch && (
-            <SearchBar onSearch={handleSearch}  />
+            <SearchBar selectedUserId={selectedUserId} /> // ✅ Pass to SearchBar
+
           )}
 
         {/* Favorites Button */}
