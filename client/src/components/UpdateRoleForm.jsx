@@ -144,6 +144,8 @@ const UpdateRoleForm = ({ isOpen, onClose, switchToProfile }) => {
             maxW={{ base: "100%", sm: "80%", md: "60%", lg: "50%" }}
             maxH="90vh"
             overflowY={"auto"}
+            bg="linear-gradient(to top left, #ffecd2, #fcb69f)"
+            border={"2px solid black"}
         >
             <ModalHeader>Update Role Information</ModalHeader>
             <ModalCloseButton />
@@ -170,6 +172,7 @@ const UpdateRoleForm = ({ isOpen, onClose, switchToProfile }) => {
                                   placeholder="Enter your new specialty here"
                                   value={cookSpecialty}
                                   onChange={(e) => setCookSpecialty(e.target.value)}
+                                  borderColor={"black"}
                                 />
                              </FormControl>
 
@@ -181,6 +184,7 @@ const UpdateRoleForm = ({ isOpen, onClose, switchToProfile }) => {
                                   value={cookExperience}
                                   onChange={(e) => setCookExperience(e.target.value)}
                                   onWheel={(e) => e.target.blur()} // Prevent scrolling from messing with numbers
+                                  borderColor={"black"}
                                 />
                              </FormControl>
                             </>
@@ -195,6 +199,7 @@ const UpdateRoleForm = ({ isOpen, onClose, switchToProfile }) => {
                                   placeholder="Enter your new organization name here"
                                   value={eventOrganizerName}
                                   onChange={(e) => setEventOrganizerName(e.target.value)}
+                                  borderColor={"black"}
                                 />
                               </FormControl>
 
@@ -208,6 +213,7 @@ const UpdateRoleForm = ({ isOpen, onClose, switchToProfile }) => {
                                   maxH={"180px"}
                                   minH={"180px"}
                                   resize={"vertical"}
+                                  borderColor={"black"}
                                 />
                                   <Text mt="2" color={eventOrganizerDescription.length == maxCharacters ? "red.500" : "gray.500"}>
                                     {`Words: ${eventOrganizerDescription.length} / ${maxCharacters}`}
@@ -222,6 +228,7 @@ const UpdateRoleForm = ({ isOpen, onClose, switchToProfile }) => {
                                   value={eventOrganizerContact}
                                   onChange={(e) => setEventOrganizerContact(e.target.value)}
                                   onWheel={(e) => e.target.blur()} // Prevent scrolling from messing with numbers
+                                  borderColor={"black"}
                                 />
                               </FormControl>
 
@@ -235,6 +242,7 @@ const UpdateRoleForm = ({ isOpen, onClose, switchToProfile }) => {
                                   maxH={"70px"}
                                   minH={"70px"}
                                   resize={"vertical"}
+                                  borderColor={"black"}
                                 />
                               </FormControl>
                             </>

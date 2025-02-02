@@ -117,7 +117,7 @@ export const updateCookInformation = async (req, res) => {
         }
 
         // Role update cooldown time
-        cookInfo.updateResetTimeAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+        cookInfo.updateResetTimeAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
 
         if (cookError.length > 0) {
             return res.status(400).json({ success: false, message: cookError });

@@ -132,7 +132,7 @@ export const updateEventOrganizerInformation = async (req, res) => {
         }
 
         //Role update cooldown time
-        eventOrgInfo.updateResetTimeAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+        eventOrgInfo.updateResetTimeAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
 
         if (eventOrgError.length > 0) {
             return res.status(400).json({ success: false, message: eventOrgError });

@@ -226,7 +226,7 @@ const CreateEventForm = ({isOpen, onClose}) => {
                 </>       
             )}
 
-            <Modal isOpen={isOpen} onClose={() => { clearForm(); onClose(); }} isCentered>
+            <Modal isOpen={isOpen} onClose={() => { clearForm(); onClose(); }} isCentered border="2px solid black">
                 <ModalOverlay zIndex={1000}/>
                 <ModalContent
                     maxW={{ base: "100%", sm: "90%", md: "80%", lg: "50%" }}
@@ -234,6 +234,7 @@ const CreateEventForm = ({isOpen, onClose}) => {
                     overflowY="auto"
                     overflowX="auto"
                     bg="linear-gradient(to top left, #ffecd2, #fcb69f)"
+                    border={"2px solid black"}
                 >
                     <ModalHeader>Create Event</ModalHeader>
                     <ModalCloseButton />

@@ -182,6 +182,8 @@ const UpdateEventForm = ({isOpen, onClose, eventURL, eventsNowInfo}) => {
                 maxH="90vh"
                 overflowY="auto"
                 overflowX="auto"
+                bg="linear-gradient(to top left, #ffecd2, #fcb69f)"
+                border={"2px solid black"}
             >
                 <ModalHeader>Update Event</ModalHeader>
                 <ModalCloseButton />
@@ -220,7 +222,13 @@ const UpdateEventForm = ({isOpen, onClose, eventURL, eventsNowInfo}) => {
                         <Box display={"flex"} justifyContent={"space-between"}>
                             <FormControl isInvalid={!!updateEventErrors.newEventStartDate} mb="4">
                                 <FormLabel>Start Date</FormLabel>
-                                <Box display={"flex"} border={"1px solid black"} borderRadius={"sm"}>
+                                <Box display={"flex"} border={"1px solid black"} borderRadius={"sm"}
+                                    sx={{
+                                        '.react-datepicker__input-container input': {
+                                            backgroundColor: 'transparent'
+                                        }
+                                    }}
+                                >
                                     <DatePicker
                                         selected={newEventStartDate}
                                         onChange={(date) => setNewEventStartDate(date)}
@@ -237,7 +245,13 @@ const UpdateEventForm = ({isOpen, onClose, eventURL, eventsNowInfo}) => {
 
                             <FormControl mb="4">
                                 <FormLabel ml={"8px"}>End Date</FormLabel>
-                                <Box display={"flex"} border={"1px solid black"} borderRadius={"sm"} ml={"8px"}>
+                                <Box display={"flex"} border={"1px solid black"} borderRadius={"sm"} ml={"8px"}
+                                    sx={{
+                                        '.react-datepicker__input-container input': {
+                                            backgroundColor: 'transparent'
+                                        }
+                                    }}                                
+                                >
                                     <DatePicker
                                         selected={newEventEndDate}
                                         onChange={(date) => setNewEventEndDate(date)}

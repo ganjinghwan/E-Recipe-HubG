@@ -130,6 +130,8 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
             maxW={{ base: "100%", sm: "80%", md: "60%", lg: "50%" }}
             maxH="90vh"
             overflowY="auto"
+            bg="linear-gradient(to top left, #ffecd2, #fcb69f)"
+            border={"2px solid black"}
           >
             <ModalHeader>Update Profile</ModalHeader>
             <ModalCloseButton />
@@ -151,6 +153,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                     placeholder="Enter your new username here"
                     value={newName}
                     onChange={(e) => setNewName(e.target.value)}
+                    borderColor={"black"}
                   />
                 </FormControl>
       
@@ -162,6 +165,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                     value={newPhoneNumber}
                     onChange={(e) => setNewPhoneNumber(e.target.value)}
                     onWheel={(e) => e.target.blur()} //Prevent scrolling
+                    borderColor={"black"}
                   />
                 </FormControl>
       
@@ -172,6 +176,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                     placeholder="Enter your new password here"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
+                    borderColor={"black"}
                   />
                   {updateError.newPassword && (
                     <FormErrorMessage>{updateError.newPassword}</FormErrorMessage>
@@ -187,6 +192,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
                     placeholder="Please confirm your new password"
                     value={newConfirmPassword}
                     onChange={(e) => setNewConfirmPassword(e.target.value)}
+                    borderColor={"black"}
                   />
                   {updateError.newConfirmPassword && (
                     <FormErrorMessage>{updateError.newConfirmPassword}</FormErrorMessage>

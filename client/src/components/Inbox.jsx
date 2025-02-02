@@ -125,7 +125,7 @@ const InboxModal = ({ isOpen, onClose }) => {
       {/* Inbox Modal */}
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
           <ModalHeader>Inbox</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
@@ -136,6 +136,7 @@ const InboxModal = ({ isOpen, onClose }) => {
               p={2}
               boxShadow="sm"
               overflowY="auto"
+              borderColor={"black"}
               sx={{
                 "&::-webkit-scrollbar": {
                   height: "8px",
