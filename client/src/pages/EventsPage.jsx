@@ -30,7 +30,7 @@ const EventsPage = () => {
       } else {
         getAllEvents();
       }
-    }, 4000);
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, [user, getAllSpecificEventOrgEvents, getAllEvents]);
@@ -122,6 +122,10 @@ const EventsPage = () => {
                       textAlign={"left"}
                       alignItems={"center"}
                       _hover={{ bg: "blue.100" }}
+                      mt={2}
+                      ml={2}
+                      mr={2}
+                      mb={-1}
                     >
                       <Box flex={9} minW={"0"}>
                         <Text fontSize="2xl" fontWeight="bold" color={"orange.800"} isTruncated>
@@ -133,11 +137,13 @@ const EventsPage = () => {
                       </Box>
 
                       {/* Buttons */}
-                      <Box flex={1}
-                        display={"absolute"}
-                        justifyContent={"right"}
-                        alignItems={"right"}
-                        justifyItems={"right"}
+                      <Box
+                        flex={1}
+                        display={"flex"}
+                        justifyContent={"center"}
+                        alignItems={"center"}
+                        align={"center"}
+                        gap={1}
                       >
                         <Tooltip label="More Info">
                           <IconButton
