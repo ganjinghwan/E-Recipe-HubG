@@ -44,6 +44,7 @@ const VisitorPage = () => {
   const { fetchFavoriteRecipes, toggleFavorite } = useStoreRecipe();
   const { addComment, addReport, addRate, fetchRecipeById} = useStoreRecipe();
   const {fetchRecipesWithoutEvent, recipesWithoutEvent} = useStoreRecipe();
+  const {selectedFoodGlobal} = useStoreRecipe();
 
 
   const [selectedUser, setSelectedUser] = useState(null);
@@ -199,6 +200,14 @@ const VisitorPage = () => {
   : filteredByUser.filter(
       (recipe) => recipe.category.toLowerCase() === selectedCategory
     );
+
+  /**********************************When global selection changes *********************************/
+  useEffect(() => {
+    if (selectedFoodGlobal) {
+      setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
+    }
+  }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
+  
 
 
   useEffect(() => {

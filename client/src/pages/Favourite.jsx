@@ -32,6 +32,8 @@ const Favorites = () => {
   const [recipes, setRecipes] = useState([]); // Store all fetched recipes
   const [authorName, setAuthorName] = useState("Unknown");
 
+  const { selectedFoodGlobal} = useStoreRecipe();
+
   const [selectedFood, setSelectedFood] = useState(null);
   const [animationState, setAnimationState] = useState("");
   const [activeTab, setActiveTab] = useState("Instruction");
@@ -172,6 +174,14 @@ const Favorites = () => {
   
       fetchData();
     }, [selectedFood?._id, fetchRecipeById, fetchCook, cooks]);
+
+  /**********************************When global selection changes *********************************/
+    useEffect(() => {
+      if (selectedFoodGlobal) {
+        setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
+      }
+    }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
+    
 
 
   // This useEffect will run when recipes change

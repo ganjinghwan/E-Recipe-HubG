@@ -58,6 +58,7 @@ const EventsRecipePage = () => {
   /***********************************For cooks***************************************************/
   /****************CRUD****************/
   const {createRecipe, deleteRecipes, updateRecipes, fetchRecipeById} = useStoreRecipe();
+  const {selectedFoodGlobal} = useStoreRecipe();
   const [newRecipe, setNewRecipe] = useState({
     title: "",
     ingredients: [],
@@ -79,6 +80,14 @@ const EventsRecipePage = () => {
       video: "",
     });
   };
+
+  /**********************************When global selection changes *********************************/
+    useEffect(() => {
+      if (selectedFoodGlobal) {
+        setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
+      }
+    }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
+    
   
   /***********************************For user that got favourite recipe***************************************************/
   const { toggleFavorite } = useStoreRecipe();
@@ -235,7 +244,7 @@ const EventsRecipePage = () => {
       setCategories(["All", ...uniqueCategories]);
 
     }
-  }, [eventRecipes]);
+  }, []);
 
   const filteredRecipes =
     selectedCategory === "all"

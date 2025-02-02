@@ -8,6 +8,9 @@ export const useStoreRecipe = create((set) => ({
     userRecipes: [],
     favoriteRecipes:[],
     recipesWithoutEvent: [],
+    selectedFoodGlobal: null,
+
+    setSelectedFoodGlobal: (recipe) => set({ selectedFoodGlobal: recipe }),
 
     setRecipes: (recipes) => set({ recipes }),
     createRecipe: async (newRecipe) =>{

@@ -7,7 +7,7 @@ import { useLocation } from 'react-router-dom';
 
 const MotionBox = motion(Box);
 
-const SearchBar = ({ setSelectedFood, selectedUserId }) => {
+const SearchBar = ({ setSelectedFoodGlobal, selectedUserId }) => {
     const location = useLocation();
     const { user } = useAuthStore();
     const searchBarRef = useRef(null);
@@ -110,7 +110,7 @@ const SearchBar = ({ setSelectedFood, selectedUserId }) => {
     /*********************************** Handle Selecting a Recipe ***********************************/
     const handleItemClick = (recipe) => {
         setIsSearchBarActive(false);
-        setSelectedFood(recipe); 
+        setSelectedFoodGlobal(recipe); 
 
         toast({
             title: "Recipe Selected",

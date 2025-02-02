@@ -27,6 +27,7 @@ import { useAuthStore } from "../store/authStore";
 import ProfileForm from "./ProfileForm";
 import SearchBar from "./SearchBar";
 import InboxModal from "./Inbox";
+import { useStoreRecipe } from "../store/StoreRecipe";
 
 const Navbar = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -37,6 +38,7 @@ const Navbar = () => {
   const location = useLocation();
 
   const { selectedUserId } = useAuthStore(); // ✅ Get selectedUserId from global state
+  const { setSelectedFoodGlobal } = useStoreRecipe();
 
   const [unreadNum, setUnreadNum] = useState(0);
 
@@ -295,7 +297,11 @@ const Navbar = () => {
         <>
         {/* Search Bar */}
         {shouldShowSearch && (
-            <SearchBar selectedUserId={selectedUserId} /> // ✅ Pass to SearchBar
+            <SearchBar 
+                selectedUserId={selectedUserId} 
+                setSelectedFoodGlobal={setSelectedFoodGlobal} 
+
+                /> 
 
           )}
 

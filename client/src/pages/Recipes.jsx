@@ -37,8 +37,6 @@ import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
 
-import SearchBar from "../components/SearchBar";
-
 const Recipes = () => {
   const [selectedFood, setSelectedFood] = useState(null);
   const [animationState, setAnimationState] = useState("");
@@ -56,6 +54,9 @@ const Recipes = () => {
     image: "",
     video: "",
   });
+
+  /**Global selected food */
+  const {selectedFoodGlobal} = useStoreRecipe();
 
   const {createRecipe, deleteRecipes, updateRecipes, fetchRecipeById, addReportUser, toggleFavorite} = useStoreRecipe();
   const { fetchFavoriteRecipes, favoriteRecipes } = useStoreRecipe();
@@ -198,6 +199,14 @@ const Recipes = () => {
     });
   }, [fetchRecipes]);
 
+/**********************************When global selection changes *********************************/
+  useEffect(() => {
+    if (selectedFoodGlobal) {
+      setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
+    }
+  }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
+  
+
 
   useEffect(() => {
     if (recipes.length > 0) {
@@ -212,7 +221,7 @@ const Recipes = () => {
       setCategories(["All", ...uniqueCategories]);
 
     }
-  }, [recipes]);
+  }, []);
 
   const filteredRecipes =
     selectedCategory === "all"
