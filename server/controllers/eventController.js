@@ -12,7 +12,9 @@ export const getEventOrganizerCreatedEvents = async (req, res) => {
             return res.status(404).json({message: ["Event organization information not found"]});
         }
 
-        const events = await Event.find({ eventBelongs_id: req.user._id });
+        const events = await Event.find({ eventBelongs_id: req.user._id })
+                                  .sort({ createdAt: -1 })
+        ;
 
         res.status(200).json({ 
             success: true,
@@ -27,9 +29,8 @@ export const getEventOrganizerCreatedEvents = async (req, res) => {
 export const getAllEvents = async (req, res) => {
     try {
         const Allevents = await Event.find({
-            start_date: { $lte: new Date() },
-            end_date: { $gte: new Date() }
-        })
+            start_date: { $lte: new Date() }
+        }).sort({ start_date: -1 });
 
         res.status(200).json({
             success: true,
