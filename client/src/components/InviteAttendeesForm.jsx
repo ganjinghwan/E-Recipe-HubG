@@ -20,8 +20,6 @@ import { useEventStore } from '../store/eventStore';
 import LoadingSpinner from './LoadingSpinner';
 import { motion } from 'framer-motion';
 
-import invitation from '../pic/Invitation.jpg';
-import invitation2 from '../pic/Invitation2.jpg';
 import invitation3 from '../pic/Invitation3.jpg';
 
 const MotionImage = motion(Box);
@@ -90,43 +88,9 @@ const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
     }, [eventURL, sendInviteEventReq, addInbox, toast]);
 
     return (
-        <Box position={"relative"} maxW={{ base: "100%", sm: "90%", md: "80%", lg: "50%" }} minW={"100%"} zIndex={0} overflow={"hidden"}>
+        <Box position={"relative"} maxW={{ base: "100%", sm: "90%", md: "80%", lg: "50%" }} minW={"100%"} zIndex={0}>
             {isOpen && isLargerScreen && (
                 <>    
-                <Box overflow={"hidden"} >
-                    <Portal>
-                        <MotionImage
-                            as="img"
-                            src={invitation}
-                            alt="Invitation"
-                            position="absolute"
-                            top={0}
-                            width="10%"
-                            left="10%"
-                            zIndex={2000}
-                            initial={{ x: -60, y:-600 }}
-                            animate={{ x: -60, y: 400 }}
-                            transition={{ duration: 1.2 }}
-                        />
-                    </Portal>
-                </Box>
-                <Box overflow={"hidden"} >
-                    <Portal>
-                        <MotionImage
-                            as="img"
-                            src={invitation2}
-                            alt="Invitation2"
-                            position="absolute"
-                            top={0}
-                            width="10%"
-                            right="10%"
-                            zIndex={2000}
-                            initial={{ x: -40, y: -600}}
-                            animate={{ x: -40, y: 100}}
-                            transition={{ duration: 1.2 }}
-                        />
-                    </Portal>
-                </Box>
                 <Box overflow={"hidden"} >
                     <Portal>
                         <MotionImage
@@ -138,8 +102,8 @@ const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
                             width="10%"
                             right="10%"
                             zIndex={2000}
-                            initial={{ x: 60, y: -600}}
-                            animate={{ x: 60, y: 400}}
+                            initial={{ x: -116, y: -600}}
+                            animate={{ x: -116, y: 420}}
                             transition={{ duration: 1.2 }}
                         />
                     </Portal>

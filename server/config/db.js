@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import { authCleanUpUnverifiedUsers } from "../utils/authCleanUp.js";
-import { eventCleanUpExpiredEvents } from "../utils/eventCleanUp.js";
 
 export const connectDB = async () => {
     try {
@@ -12,9 +11,7 @@ export const connectDB = async () => {
         console.log("Date now:", new Date());
         console.log(`MongoDB Connected: ${conn.connection.host}`);
         authCleanUpUnverifiedUsers();
-        eventCleanUpExpiredEvents();
         setInterval(authCleanUpUnverifiedUsers, 60 * 1000); // Run every minute
-        setInterval(eventCleanUpExpiredEvents, 60 * 1000); // Run every minute
     } catch (error) {
         console.error(`Error: ${error.message}`);
         process.exit(1); // Exit the process with failure

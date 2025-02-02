@@ -186,7 +186,7 @@ const CreateEventForm = ({isOpen, onClose}) => {
     }, [eventName, eventDescription, eventStartDate, eventEndDate, eventImage, hasSubmitted]);
     
     return (
-        <Box position={"relative"} maxW={{ base: "100%", sm: "90%", md: "80%", lg: "50%" }} minW={"100%"} zIndex={0} overflow={"hidden"}>
+        <Box position={"relative"} maxW={{ base: "100%", sm: "90%", md: "80%", lg: "50%" }} minW={"100%"} zIndex={0}>
             {isOpen && isLargerScreen && (
                 <>    
                 <Box overflow={"hidden"} >
