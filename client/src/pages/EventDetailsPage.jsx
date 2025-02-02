@@ -73,7 +73,9 @@ const EventDetailsPage = () => {
         };
     
         fetchEventData();
-      }, [eventSpecificEndUrl, getEventInfo, navigate, toast]);
+    }, [eventSpecificEndUrl, getEventInfo, navigate, toast]);
+
+    const isEventExpired = new Date(events?.specificEventInfo?.end_date) < new Date();
 
     const openUpdateEventModal = () => {
         setIsUpdateModalOpen(true);
@@ -196,7 +198,7 @@ const EventDetailsPage = () => {
                     justifyContent={"flex-start"}
                     borderRadius={"lg"}
                     alignItems={"flex-start"}
-                >
+                    >
                         <Box
                             position={"absolute"}
                             width={"100%"}
@@ -264,6 +266,24 @@ const EventDetailsPage = () => {
                         {user && events ? (
                             user.role === "event-organizer" && events?.specificEventInfo?.eventBelongs_id === user?._id ? (
                             <>
+                                {!isEventExpired && (
+                                    <>
+                                    <Tooltip label="Invite Attendees">
+                                        <IconButton
+                                            size={iconButtonSize}
+                                            icon={<IoIosSend />}
+                                            position={"absolute"}
+                                            aria-label='Invite Attendees'
+                                            colorScheme='blue'
+                                            bottom={"10px"}
+                                            right={"170px"}
+                                            onClick={openInviteAttendeesModal}
+                                        />
+                                    </Tooltip>
+                                    <InviteAttendeesForm isOpen={isInviteModalOpen} onClose={closeInviteAttendeesModal} eventURL={eventSpecificEndUrl}/>
+                                    </>
+                                )}
+
                                 <Tooltip label="Update Event">
                                     <IconButton
                                         size={iconButtonSize}
@@ -272,26 +292,12 @@ const EventDetailsPage = () => {
                                         aria-label='Update Event'
                                         colorScheme='green'
                                         bottom="10px"
-                                        right="170px"
+                                        right="120px"
                                         onClick={openUpdateEventModal}
                                     />
                                 </Tooltip>
                                 <UpdateEventForm isOpen={isUpdateModalOpen} onClose={closeUpdateEventModal} eventURL={eventSpecificEndUrl} eventsNowInfo={events?.specificEventInfo}/>
 
-                                <Tooltip label="Invite Attendees">
-                                    <IconButton
-                                        size={iconButtonSize}
-                                        icon={<IoIosSend />}
-                                        position={"absolute"}
-                                        aria-label='Invite Attendees'
-                                        colorScheme='blue'
-                                        bottom={"10px"}
-                                        right={"120px"}
-                                        onClick={openInviteAttendeesModal}
-                                    />
-                                </Tooltip>
-                                <InviteAttendeesForm isOpen={isInviteModalOpen} onClose={closeInviteAttendeesModal} eventURL={eventSpecificEndUrl}/>
-                                
                                 <Tooltip label="Delete Event">
                                     <IconButton
                                         size={iconButtonSize}
@@ -346,32 +352,49 @@ const EventDetailsPage = () => {
                                             />
                                             </Tooltip>
                                             {/* Display text cannot join if user is already attending */}
-                                            <Text 
+                                            <Text
                                                 fontSize={"xl"} 
                                                 fontWeight={"bold"} 
                                                 color={"blue.500"}
                                                 ml={"10px"}
-                                                mt={"6px"}
-                                                
+                                                mt={"6px"}    
                                             >
-                                                You have already join this event
+                                                {isEventExpired ? "Event expired" : "You have already join this event"}
                                             </Text>
                                         </Flex>
                                     </Box>
                                 </>                                
                                 ) : (
                                     <>
-                                    <Button
-                                    position={"absolute"}
-                                    bottom="10px"
-                                    right="20px"
-                                    colorScheme="teal"
-                                    size="md"
-                                    _hover={{ bg: "teal.600" }}
-                                    onClick={() => setIsJoinAlertOpen(true)}
-                                    >
-                                        Join Event
-                                    </Button>
+                                    {isEventExpired ? (
+                                        <Box
+                                            position={"absolute"}
+                                            bottom="16px"
+                                            right="20px"
+                                        >
+                                            <Text 
+                                                fontSize={"xl"} 
+                                                fontWeight={"bold"} 
+                                                color={"purple.500"}
+                                                ml={"10px"}
+                                                mt={"6px"}                                               
+                                            >
+                                                Event expired, unable to join event
+                                            </Text>                                        
+                                        </Box>
+                                    ) : (
+                                        <Button
+                                        position={"absolute"}
+                                        bottom="10px"
+                                        right="20px"
+                                        colorScheme="teal"
+                                        size="md"
+                                        _hover={{ bg: "teal.600" }}
+                                        onClick={() => setIsJoinAlertOpen(true)}
+                                        >
+                                            Join Event
+                                        </Button>
+                                    )}
                                     </>
                                 )
                             ) : (
