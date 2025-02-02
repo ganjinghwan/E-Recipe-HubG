@@ -85,23 +85,6 @@ const Navbar = () => {
     setIsMobileMenuOpen(false);
   };
 
-  const handleFavoriteClick = () => {
-    const newState = !isFavorite; // Determine the new state
-    setIsFavorite(newState);
-
-    if (newState) {
-      // Navigate to favorites page when activated
-      navigate("/favourite");
-    } else {
-      // Navigate back to the page based on user role when deactivated
-      if (user?.role === "cook") {
-        navigate("/recipes");
-      } else if (user?.role === "guest") {
-        navigate("/visitors");
-      }
-    }
-  };
-
   useEffect(() => {
     if (location.pathname === "/verify-email") {
       setIsMobileMenuOpen(false);
@@ -311,7 +294,7 @@ const Navbar = () => {
             icon={<i className="fas fa-heart"></i>}
             aria-label="Favorite"
             bg={"transparent"}
-            onClick={handleFavoriteClick}
+            onClick={() => navigate("/favourite")}
             _hover={{ bg: "whiteAlpha.200", color: "orange.300" }}
             color={location.pathname === "/favourite" ? "red" : "inherit"}
           />
