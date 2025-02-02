@@ -42,7 +42,6 @@ const Navbar = () => {
 
   const [unreadNum, setUnreadNum] = useState(0);
 
-  const [isFavorite, setIsFavorite] = useState(false); // Track favorite state
   const navigate = useNavigate();
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
