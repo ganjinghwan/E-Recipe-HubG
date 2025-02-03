@@ -88,17 +88,21 @@ export const checkUserAcceptInviteStatus = async (req, res) => {
 
         const user = await User.findById(req.user._id);
 
-        const event = await Event.findOne({ eventSpecificEndUrl: specificEventURL });
+        const AvailableEvent = await Event.findOne({ eventSpecificEndUrl: specificEventURL });
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        if (!event) {
-            return res.status(404).json({ success: false, message: "Event not found" });
+        if (!AvailableEvent) {
+            return res.status(200).json({ 
+                success: true, 
+                eventExpired: true,
+                message: "Event has expired or has deleted" 
+            });
         }
 
-        const alreadyJoin = event.attendees.includes(user._id);
+        const alreadyJoin = AvailableEvent.attendees.includes(user._id);
 
         console.log("Already Join :", alreadyJoin);
         return res.status(200).json({ success: true, alreadyJoined: alreadyJoin });
@@ -114,17 +118,21 @@ export const checkUserRejectInviteStatus = async (req, res) => {
 
         const user = await User.findById(req.user._id);
 
-        const event = await Event.findOne({ eventSpecificEndUrl: specificEventURL });
+        const AvailableEvent = await Event.findOne({ eventSpecificEndUrl: specificEventURL });
 
         if (!user) {
             return res.status(404).json({ success: false, message: "User not found" });
         }
 
-        if (!event) {
-            return res.status(404).json({ success: false, message: "Event not found" });
+        if (!AvailableEvent) {
+            return res.status(200).json({ 
+                success: true,
+                eventExpired: true, 
+                message: "Event has expired or has deleted"
+            });
         }
 
-        const alreadyReject = event.rejected.includes(user._id);
+        const alreadyReject = AvailableEvent.rejected.includes(user._id);
 
         console.log("Already Join :", alreadyReject);
         return res.status(200).json({ success: true, alreadyRejected: alreadyReject });

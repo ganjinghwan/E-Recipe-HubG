@@ -26,6 +26,7 @@ const InboxModal = ({ isOpen, onClose }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [eventAcceptMap, setEventAcceptMap] = useState({});
   const [eventRejectMap, setEventRejectMap] = useState({});
+  const [eventExpiredMap, setExpiredEventMap] = useState({});
 
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ const InboxModal = ({ isOpen, onClose }) => {
     const fetchEventInviteStatus = async () => {
       const accept = {}
       const decline = {}
+      const expired = {}
 
       const fromOrganizerInbox = userInbox.filter((msg) => msg.senderRole === "event-organizer");
 
@@ -58,8 +60,12 @@ const InboxModal = ({ isOpen, onClose }) => {
           const isAccepted = await checkAcceptInviteStatus(msg.additionalInformation);
           const isRejected = await checkDeclineInviteStatus(msg.additionalInformation);
   
-          accept[msg._id] = isAccepted;
-          decline[msg._id] = isRejected;
+          if (isAccepted.expired && isRejected.expired) {
+            expired[msg._id] = true;
+          } else {
+            accept[msg._id] = isAccepted.alreadyJoined;
+            decline[msg._id] = isRejected.alreadyRejected;
+          }
         } catch (error) {
           console.error("Error fetching accept status:", error);
         }
@@ -70,14 +76,16 @@ const InboxModal = ({ isOpen, onClose }) => {
       // Update accept map with the results
       setEventAcceptMap(accept);
       setEventRejectMap(decline);
-      // console.log("Accept map updated:", eventAcceptMap);
-      // console.log("Decline map updated:", eventRejectMap);
+      setExpiredEventMap(expired);
+      //console.log("Accept map updated:", eventAcceptMap);
+      //console.log("Decline map updated:", eventRejectMap);
+      //console.log("Expired map updated:", eventExpiredMap);
     }
 
     if (userInbox.length > 0) {
       fetchEventInviteStatus();
     }
-  }, [userInbox, checkAcceptInviteStatus]);
+  }, [userInbox, checkAcceptInviteStatus, checkDeclineInviteStatus]);
 
   // Mark a message as read
   const handleMarkAsRead = async (index) => {
@@ -190,6 +198,8 @@ const InboxModal = ({ isOpen, onClose }) => {
                             <Text color="green.500" fontWeight={"bold"}>Invite Accepted</Text>
                           ) : eventRejectMap[msg._id] === true ? (
                             <Text color="red.500" fontWeight={"bold"}>Invite Declined</Text>
+                          ) : eventExpiredMap[msg._id] === true ? (
+                            <Text color="orange.500" fontWeight={"bold"}>Event Expired</Text>
                           ) : (
                             <>
                               <Tooltip label="Reject Invite" aria-label="Reject Invite tooltip">
@@ -209,7 +219,6 @@ const InboxModal = ({ isOpen, onClose }) => {
                                   aria-label="Accept Invite"
                                   colorScheme="green"
                                   ml={2}
-                                  mr={2}
                                   onClick={() => handleAcceptInvite(msg, index)}
                                 />
                               </Tooltip>
@@ -225,6 +234,7 @@ const InboxModal = ({ isOpen, onClose }) => {
                             colorScheme="blue"
                             size="sm"
                             onClick={() => handleMarkAsRead(index)}
+                            ml={2}
                           />
                         </Tooltip>
                       )}

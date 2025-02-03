@@ -39,7 +39,6 @@ export const useEventStore = create((set) => ({
                     error: null,
                     isLoading: false
                 })
-                console.log(response.data.events);
             } else {
                 set({ error: response.data.message, isLoading: false });
             }

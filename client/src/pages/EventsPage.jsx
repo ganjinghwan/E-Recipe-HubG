@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Flex, IconButton, Text, Tooltip, useBreakpointValue, VStack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
-import eventBlur from "../pic/event-blur.png";
+import foodTable from "../pic/foodTable.jpg"
 import { useAuthStore } from "../store/authStore";
 import { useEventStore } from "../store/eventStore";
 
@@ -35,12 +35,6 @@ const EventsPage = () => {
     return () => clearTimeout(timer);
   }, [user, getAllSpecificEventOrgEvents, getAllEvents]);
 
-  useEffect(() => {
-    if (!isLoading) {
-      console.log("Events:", events);
-    }
-  }, [isLoading, events]);
-
   const openCreateEventModal = () => {
     setIsModalOpen(true);
   }
@@ -58,7 +52,7 @@ const EventsPage = () => {
       position="relative"
       textAlign="center"
       overflow="hidden"
-      bgImage={`url(${eventBlur})`}
+      bgImage={`url(${foodTable})`}
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
@@ -90,7 +84,7 @@ const EventsPage = () => {
           width="90%"
           height="80%"
           bg={"white"}
-          opacity={"0.8"}
+          opacity={"0.9"}
           justifyContent={"flex-start"}
           borderRadius={"lg"}
           alignItems={"flex-start"}
