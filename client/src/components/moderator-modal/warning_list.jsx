@@ -71,13 +71,13 @@ const WarningListModal = ({ isOpen, onClose }) => {
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="xl">
               <ModalOverlay />
-              <ModalContent>
+              <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
                 <ModalHeader>Warnings List</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <Box
                     maxH="400px"
-                    border="1px solid lightgray"
+                    border="1px solid black"
                     borderRadius="md"
                     p={2}
                     boxShadow="sm"
@@ -105,9 +105,9 @@ const WarningListModal = ({ isOpen, onClose }) => {
                     {/* Header Row */}
                     <Flex
                     alignItems="center"
-                    bg="gray.100"
+                    bg="linear-gradient(to top left, #ffecd2, #fcb69f)"
                     fontWeight="bold"
-                    borderBottom="1px solid lightgray"
+                    borderBottom="1px solid black"
                     position="sticky"
                     top="0" // Keeps the header row fixed during vertical scrolling
                     zIndex="1"
@@ -140,8 +140,8 @@ const WarningListModal = ({ isOpen, onClose }) => {
                         justifyContent="space-between"
                         p={2}
                         mb={2}
-                        borderBottom="1px solid lightgray"
-                        bg="white" // Ensure background color applies even during horizontal scroll
+                        borderBottom="1px solid black"
+                        bg="transparent" // Ensure background color applies even during horizontal scroll
                         >
                         {/* Report Data Columns */}
                         <Flex flex="1">

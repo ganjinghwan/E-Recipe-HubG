@@ -199,13 +199,13 @@ const EventListModal = ({ isOpen, onClose }) => {
         {/* Event List Modal */}
         <Modal isOpen={isOpen} onClose={onClose} size="xl">
               <ModalOverlay />
-              <ModalContent>
+              <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
                 <ModalHeader>List of Events</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
                   <Box
                     maxH="400px"
-                    border="1px solid lightgray"
+                    border="1px solid black"
                     borderRadius="md"
                     p={2}
                     boxShadow="sm"
@@ -233,9 +233,9 @@ const EventListModal = ({ isOpen, onClose }) => {
                     {/* Header Row */}
                     <Flex
                     alignItems="center"
-                    bg="gray.100"
+                    bg="linear-gradient(to top left, #ffecd2, #fcb69f)"
                     fontWeight="bold"
-                    borderBottom="1px solid lightgray"
+                    borderBottom="1px solid black"
                     position="sticky"
                     top="0" // Keeps the header row fixed during vertical scrolling
                     zIndex="1"
@@ -271,8 +271,8 @@ const EventListModal = ({ isOpen, onClose }) => {
                         justifyContent="space-between"
                         p={2}
                         mb={2}
-                        borderBottom="1px solid lightgray"
-                        bg="white" // Ensure background color applies even during horizontal scroll
+                        borderBottom="1px solid black"
+                        bg="transparent" // Remove background color to prevent highlighting
                         >
                         {/* Event Data Columns */}
                         <Flex flex="1">
@@ -345,7 +345,7 @@ const EventListModal = ({ isOpen, onClose }) => {
             {/* Reason Modal */}
             <Modal isOpen={isReasonModalOpen} onClose={closeReasonModal}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
                 <ModalHeader>Reason for Deletion</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
@@ -353,6 +353,7 @@ const EventListModal = ({ isOpen, onClose }) => {
                     placeholder="Enter the reason for deletion..."
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
+                    border={"1px solid black"}
                 />
                 </ModalBody>
                 <ModalFooter gap={2}>

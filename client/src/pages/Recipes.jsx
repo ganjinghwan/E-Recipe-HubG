@@ -1013,9 +1013,9 @@ const Recipes = () => {
       >
         <ModalOverlay />
         <ModalContent
-          bg="rgba(255, 255, 255, 0.6)" // Semi-transparent modal background
+          bg="linear-gradient(to top left, #ffecd2, #fcb69f)" // Gradient background
           boxShadow="lg"
-          border="1px solid grey"
+          border="2px solid black"
         > 
           <ModalHeader>
             {activeModal === "create" && "Create New Recipe"}
@@ -1029,6 +1029,7 @@ const Recipes = () => {
               <Input
                 placeholder="Title"
                 name="title"
+                border={"1px solid black"}
                 value={activeModal === "update" ? updatedRecipe?.title || "" : newRecipe.title}
                 onChange={(e) =>
                   activeModal === "update"
@@ -1042,6 +1043,7 @@ const Recipes = () => {
               <Textarea
                 placeholder="Ingredients (comma-separated)"
                 name="ingredients"
+                border={"1px solid black"}
                 value={
                   activeModal === "update"
                     ? updatedRecipe?.ingredients.join(",") || ""
@@ -1059,6 +1061,7 @@ const Recipes = () => {
               <Textarea
                 placeholder="Instructions (one per line)"
                 name="instructions"
+                border={"1px solid black"}
                 value={
                   activeModal === "update"
                     ? updatedRecipe?.instructions.join("\n") || ""
@@ -1077,6 +1080,7 @@ const Recipes = () => {
                 placeholder="Time Needed (minutes)"
                 type="number"
                 name="prepTime"
+                border={"1px solid black"}
                 value={activeModal === "update" ? updatedRecipe?.prepTime || "" : newRecipe.prepTime}
                 onChange={(e) =>
                   activeModal === "update"
@@ -1090,6 +1094,7 @@ const Recipes = () => {
               <Input
                 placeholder="Category"
                 name="category"
+                border={"1px solid black"}
                 value={activeModal === "update" ? updatedRecipe?.category || "" : newRecipe.category}
                 onChange={(e) =>
                   activeModal === "update"
@@ -1105,12 +1110,14 @@ const Recipes = () => {
                 <Stack direction="row" spacing={4} mt={2}>
                   <Button
                     variant={imageSource === "url" ? "solid" : "outline"}
+                    border={"1px solid black"}
                     onClick={() => setImageSource("url")}
                   >
                     URL
                   </Button>
                   <Button
                     variant={imageSource === "upload" ? "solid" : "outline"}
+                    border={"1px solid black"}
                     onClick={() => setImageSource("upload")}
                   >
                     Upload
@@ -1121,6 +1128,7 @@ const Recipes = () => {
                     mt={4}
                     placeholder="Enter Image URL"
                     name="image"
+                    border={"1px solid black"}
                     value={activeModal === "update" ? updatedRecipe?.image || "" : newRecipe.image || ""}
                     onChange={(e) =>
                       activeModal === "update"
@@ -1136,6 +1144,7 @@ const Recipes = () => {
                     mt={4}
                     type="file"
                     accept="image/*"
+                    border={"1px solid black"}
                     key={activeModal === "update" ? "updateFileInput" : "newFileInput"} // Force re-render for consistent behavior
                     onChange={(e) => {
                       const file = e.target.files?.[0];
@@ -1168,6 +1177,7 @@ const Recipes = () => {
               <Input
                 placeholder="Video URL [optional]"
                 name="video"
+                border={"1px solid black"}
                 value={activeModal === "update" ? updatedRecipe?.video || "" : newRecipe.video}
                 onChange={(e) =>
                   activeModal === "update"
@@ -1236,7 +1246,7 @@ const Recipes = () => {
           autoFocus = {false}
         >
           <ModalOverlay />
-          <ModalContent>
+          <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
             <ModalHeader>Report User</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
@@ -1258,6 +1268,7 @@ const Recipes = () => {
                 <Input
                   placeholder="Title"
                   value={reportDetails.title}
+                  border={"1px solid black"}
                   onChange={(e) =>
                     setReportDetails((prev) => ({
                       ...prev,
@@ -1268,6 +1279,7 @@ const Recipes = () => {
                 <Textarea
                   placeholder="Reason"
                   value={reportDetails.reason}
+                  border={"1px solid black"}
                   onChange={(e) =>
                     setReportDetails((prev) => ({
                       ...prev,
