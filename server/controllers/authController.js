@@ -6,7 +6,7 @@ import { verifyEmailSMTP } from "../nodemailer/emailVerify.js";
 import { Cook } from "../models/Cook.js";
 import { Guest } from "../models/Guest.js";
 import { EventOrganizer } from "../models/EventOrganizer.js";
-import { Moderator } from "../models/moderator.js";
+import { Moderator } from "../models/Moderator.js";
 import Recipe from "../models/Recipe.js";
 import cloudinary from "../cloudinary/cloudinary.js";
 
