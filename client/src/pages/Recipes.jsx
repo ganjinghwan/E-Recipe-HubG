@@ -221,7 +221,7 @@ const Recipes = () => {
       setCategories(["All", ...uniqueCategories]);
 
     }
-  }, []);
+  }, [recipes]);
 
   const filteredRecipes =
     selectedCategory === "all"

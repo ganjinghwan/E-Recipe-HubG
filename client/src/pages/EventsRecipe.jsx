@@ -39,6 +39,7 @@ import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; /
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
+import e from "express";
 
 const EventsRecipePage = () => {
 
@@ -244,7 +245,7 @@ const EventsRecipePage = () => {
       setCategories(["All", ...uniqueCategories]);
 
     }
-  }, []);
+  }, [eventRecipes]);
 
   const filteredRecipes =
     selectedCategory === "all"
