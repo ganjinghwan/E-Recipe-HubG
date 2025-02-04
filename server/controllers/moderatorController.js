@@ -7,7 +7,7 @@ import { Event } from '../models/Event.js';
 import { EventOrganizer } from '../models/EventOrganizer.js';
 import { Guest } from '../models/Guest.js';
 import { Cook } from '../models/Cook.js';
-import { Moderator } from '../models/Moderator.js';
+import { Moderator } from '../models/moderator.js';
 
 export const newModeratorInformation = async (req, res) => {
     const { moderatorKey } = req.body;
