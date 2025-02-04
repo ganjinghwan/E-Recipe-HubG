@@ -1006,13 +1006,14 @@ const VisitorPage = () => {
       {/* Modal for choosing a user/chef */}
       <Modal isOpen={showModal} onClose={() => setShowModal(false)}>
         <ModalOverlay />
-        <ModalContent>
+        <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
             <ModalHeader>Select a Cook</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
             {cooks.length > 0 ? (
                 <Select
                 placeholder="Select a Cook"
+                border={"1px solid black"}
                 value={tempUserName}
                 onChange={(e) => setTempUserName(e.target.value)}
                 >
@@ -1045,7 +1046,7 @@ const VisitorPage = () => {
         {/* Rate Modal */}
         <Modal isOpen={showRateModal} onClose={() => setShowRateModal(false)}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
             <ModalHeader>Rate Recipe</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
@@ -1080,7 +1081,7 @@ const VisitorPage = () => {
         }
           }>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
             <ModalHeader>Add a Comment</ModalHeader>
             <ModalCloseButton 
             />
@@ -1088,11 +1089,12 @@ const VisitorPage = () => {
                 <Textarea
                 placeholder="Enter your comment here..."
                 value={commentText}
+                border={"1px solid black"}
                 onChange={(e) => setCommentText(e.target.value)}
                 />
             </ModalBody>
             <ModalFooter>
-                <Button colorScheme="blue" onClick={handleSubmitComment}>
+                <Button colorScheme="blue" mr={2}onClick={handleSubmitComment}>
                 Submit
                 </Button>
                 <Button variant="ghost" onClick={() => {
@@ -1113,7 +1115,7 @@ const VisitorPage = () => {
           setShowReportModal(false);
           }}>
             <ModalOverlay />
-            <ModalContent>
+            <ModalContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
             <ModalHeader>Report Recipe</ModalHeader>
             <ModalCloseButton />
             <ModalBody>
@@ -1121,17 +1123,19 @@ const VisitorPage = () => {
                 <Input
                     placeholder="Report Title"
                     value={reportTitle}
+                    border={"1px solid black"}
                     onChange={(e) => setReportTitle(e.target.value)}
                 />
                 <Textarea
                     placeholder="Reason for reporting"
                     value={reportReason}
+                    border={"1px solid black"}
                     onChange={(e) => setReportReason(e.target.value)}
                 />
                 </VStack>
             </ModalBody>
             <ModalFooter>
-                <Button colorScheme="red" onClick={handleSubmitReport}>
+                <Button colorScheme="red" mr={2} onClick={handleSubmitReport}>
                 Submit Report
                 </Button>
                 <Button variant="ghost" onClick={() =>{
