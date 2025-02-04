@@ -56,6 +56,7 @@ export const useStoreRecipe = create((set) => ({
     },
 
     /* only for cook recipe fetching purpose */
+    
     fetchRecipes: async () => {
         const res = await fetch("/api/recipesinfo");
         const data = await res.json();
