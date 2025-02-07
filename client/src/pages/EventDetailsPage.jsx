@@ -416,7 +416,7 @@ const EventDetailsPage = () => {
                 isCentered
             >
                 <AlertDialogOverlay>
-                    <AlertDialogContent>
+                    <AlertDialogContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)">
                         <AlertDialogHeader>
                             Confirm Delete Event
                         </AlertDialogHeader>
@@ -446,7 +446,7 @@ const EventDetailsPage = () => {
                 isCentered
             >
                 <AlertDialogOverlay>
-                    <AlertDialogContent>
+                    <AlertDialogContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)">
                         <AlertDialogHeader>
                             Join Event
                         </AlertDialogHeader>

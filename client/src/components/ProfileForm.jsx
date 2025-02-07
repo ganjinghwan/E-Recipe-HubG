@@ -273,7 +273,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                 </Box>
 
                 {/* User Details Section */}
-                <Box flex="1">
+                <Box flex="1" width={"100%"} overflowX={"hidden"}>
                   <Box
                     bg="purple.100"
                     p="4"
@@ -281,11 +281,10 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     fontWeight="bold"
                     fontSize="xl"
                     textAlign="center"
-                    maxWidth={{base: "400px", md: "500px"}}
                   >
                     Welcome, {user.name}
                   </Box>
-                  <Box bg="blue.100" p="4" borderRadius="md" mt="4" maxWidth={{base: "400px", md: "500px"}}>
+                  <Box bg="blue.100" p="4" borderRadius="md" mt="4">
                     <span style={{ fontWeight: "bold" }}>Username: </span>
                     {user.name} 
                     <br />
@@ -305,7 +304,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     )}
                     </div>
                   </Box>
-                  <Box bg="green.100" p="4" borderRadius="md" mt="4" maxWidth={{base: "400px", md: "500px"}}>
+                  <Box bg="green.100" p="4" borderRadius="md" mt="4">
                     <Text as="span" fontWeight="bold" textDecoration={"underline"}>
                       Account activity:
                     </Text>
@@ -320,7 +319,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
                     <span style={{ fontWeight: "bold" }}>Last login: </span>
                     {formatDate(user.lastLogin)}
                   </Box>
-                  <Box bg="yellow.100" p="4" borderRadius="md" mt="4" mb="4" overflow={"auto"} maxWidth={{base: "400px", md: "500px"}}>
+                  <Box bg="yellow.100" p="4" borderRadius="md" mt="4" mb="4" overflow={"auto"}>
                     <Text as="span" fontWeight="bold" textDecoration={"underline"}>
                       Role information:
                     </Text>
@@ -369,7 +368,7 @@ const ProfileForm = ({ isOpen, onClose }) => {
         onClose={() => setIsAlertOpen(false)}
       >
         <AlertDialogOverlay>
-          <AlertDialogContent>
+          <AlertDialogContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)">
             <AlertDialogHeader>
               Confirm Delete Account
             </AlertDialogHeader>

@@ -224,7 +224,7 @@ const UpdateProfileForm = ({isOpen, onClose, switchToProfile}) => {
               onClose={() => setIsAlertOpen(false)}
             >
               <AlertDialogOverlay>
-                <AlertDialogContent>
+                <AlertDialogContent bg="linear-gradient(to top left, #ffecd2, #fcb69f)" border={"2px solid black"}>
                   <AlertDialogHeader fontSize="lg" fontWeight="bold">
                     Confirm Changes
                   </AlertDialogHeader>
