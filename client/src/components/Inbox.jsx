@@ -26,7 +26,8 @@ const InboxModal = ({ isOpen, onClose }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [eventAcceptMap, setEventAcceptMap] = useState({});
   const [eventRejectMap, setEventRejectMap] = useState({});
-  const [eventExpiredMap, setExpiredEventMap] = useState({});
+  const [eventUnavailableMap, setEventUnavailableMap] = useState({});
+  const [eventExpiredMap, setEventExpiredMap] = useState({});
 
   const navigate = useNavigate();
 
@@ -50,6 +51,7 @@ const InboxModal = ({ isOpen, onClose }) => {
       const accept = {}
       const decline = {}
       const expired = {}
+      const unavailable = {}
 
       const fromOrganizerInbox = userInbox.filter((msg) => msg.senderRole === "event-organizer");
 
@@ -59,7 +61,9 @@ const InboxModal = ({ isOpen, onClose }) => {
           const isAccepted = await checkAcceptInviteStatus(msg.additionalInformation);
           const isRejected = await checkDeclineInviteStatus(msg.additionalInformation);
   
-          if (isAccepted.expired && isRejected.expired) {
+          if (isAccepted.unavailable && isRejected.unavailable) {
+            unavailable[msg._id] = true;
+          } else if (isAccepted.expired && isRejected.expired) {
             expired[msg._id] = true;
           } else {
             accept[msg._id] = isAccepted.alreadyJoined;
@@ -75,7 +79,9 @@ const InboxModal = ({ isOpen, onClose }) => {
       // Update accept map with the results
       setEventAcceptMap(accept);
       setEventRejectMap(decline);
-      setExpiredEventMap(expired);
+      setEventUnavailableMap(unavailable);
+      setEventExpiredMap(expired);
+      //setExpiredEventMap(expired);
       //console.log("Accept map updated:", eventAcceptMap);
       //console.log("Decline map updated:", eventRejectMap);
       //console.log("Expired map updated:", eventExpiredMap);
@@ -197,6 +203,8 @@ const InboxModal = ({ isOpen, onClose }) => {
                             <Text color="green.500" fontWeight={"bold"}>Invite Accepted</Text>
                           ) : eventRejectMap[msg._id] === true ? (
                             <Text color="red.500" fontWeight={"bold"}>Invite Declined</Text>
+                          ) : eventUnavailableMap[msg._id] === true ? (
+                            <Text color="red.500" fontWeight={"bold"}>Event Unavailable</Text>
                           ) : eventExpiredMap[msg._id] === true ? (
                             <Text color="orange.500" fontWeight={"bold"}>Event Expired</Text>
                           ) : (
