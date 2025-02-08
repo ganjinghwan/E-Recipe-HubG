@@ -104,10 +104,10 @@ export const checkUserAcceptInviteStatus = async (req, res) => {
 
         const alreadyJoin = AvailableEvent.attendees.includes(user._id);
 
-        console.log("Already Join :", alreadyJoin);
+        // console.log("Already Join :", alreadyJoin);
         return res.status(200).json({ success: true, alreadyJoined: alreadyJoin });
     } catch (error) {
-        console.error("Error fetching event status:", error.message);
+        // console.error("Error fetching event status:", error.message);
         res.status(500).json({ success: false, message: "Failed to fetch user inbox" });
     }
 };

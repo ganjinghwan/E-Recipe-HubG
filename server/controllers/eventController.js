@@ -4,6 +4,28 @@ import { EventOrganizer } from "../models/EventOrganizer.js";
 import { v4 as uuidv4 } from 'uuid';
 import cloudinary from "../cloudinary/cloudinary.js";
 
+export const isEventExpired = async (req, res) => {
+    try {
+        const event = await Event.findById(req.params.eventId);
+
+        if (!event) {
+            return res.status(404).json({ message: "Event not found" });
+        }
+
+        const eventEndDate = new Date(event.end_date);
+        const today = new Date();
+        const expired = eventEndDate < today;
+        console.log("Controller Expired:", expired);
+
+        res.status(200).json({ expired });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+
+
+
 export const getEventOrganizerCreatedEvents = async (req, res) => {
     try {
         const eventOrg = await EventOrganizer.findOne({ event_org_id: req.user._id });

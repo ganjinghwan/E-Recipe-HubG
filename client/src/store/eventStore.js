@@ -7,7 +7,25 @@ export const useEventStore = create((set) => ({
     events: [],
     attendeesList: [],
     inviteNeeded: null,
-    eventGlobalExpiredStatus: null,
+    eventExpired: false,
+
+    isEventExpired: async (eventId) => {
+        try {
+            const response = await axios.get(`/api/events/is-expired/${eventId}`);
+            
+            if (response.status === 200) {
+                set({ eventExpired: response.data.expired }); 
+                return response.data.expired;
+            } else {
+                set({ error: "Unable to check event expiration" });
+                return false;
+            }
+        } catch (error) {
+            set({ error: error.response?.data?.message || "Error checking event expiration" });
+            return false;
+        }
+    },
+
 
     getAllSpecificEventOrgEvents: async () => {
         set({ isLoading: true, error: null });

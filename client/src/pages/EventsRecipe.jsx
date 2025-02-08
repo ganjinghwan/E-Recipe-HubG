@@ -39,6 +39,7 @@ import { FaChevronLeft, FaChevronRight, FaChevronDown } from "react-icons/fa"; /
 import recipesBackground from "../pic/room.jpg";
 import { useStoreRecipe } from "../store/StoreRecipe";
 import { useAuthStore } from "../store/authStore";
+import { useEventStore } from "../store/eventStore";
 
 const EventsRecipePage = () => {
 
@@ -122,6 +123,24 @@ const EventsRecipePage = () => {
   const location = useLocation(); // Get URL parameters
   const searchParams = new URLSearchParams(location.search);
   const event_id = searchParams.get("event_id"); // Extract event_id
+  const { isEventExpired, eventExpired } = useEventStore();
+
+  useEffect(() => {
+    if (event_id) {
+      isEventExpired(event_id).then((expired) => {
+
+        if (expired) {
+          toast({
+            title: "Event Expired",
+            description: "You can only view the recipe.",
+            status: "info",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      });
+    }
+  }, [event_id, isEventExpired]);
 
   useEffect(() => {
      if(event_id){ // Fetch recipes only if event_id exists
@@ -950,69 +969,93 @@ const EventsRecipePage = () => {
                 />
                 </Tooltip>
 
-                {user?.role === "cook" ? (
-                <>
-                    <Tooltip label="Create">
-                    <IconButton
-                      size={iconButtonSize}
-                      icon={<FaPlus />}
-                      aria-label="Create"
-                      colorScheme="blue"
-                      onClick={() => handleIconClick("create")}
-                    />
-                    </Tooltip>
-
-                    <Tooltip label="Update">
-                    <IconButton
-                        size={iconButtonSize}
-                        icon={<FaEdit />}
-                        aria-label="Update"
-                        colorScheme="yellow"
-
-                        onClick={() => handleIconClick("update")}
-                    />
-                    </Tooltip>
-
-                    <Tooltip label="Delete">
-                    <IconButton
-                        size={iconButtonSize}
-                        icon={<FaTrash />}
-                        colorScheme = "green"
-                        aria-label="Delete"
-                        onClick={() => handleIconClick("delete")}
-                    />
-                    </Tooltip>
-                </>
-            ) : (
-                (user?.role === "event-organizer" || user?.role === "guest") && (
-                <>
-
-                     {/* Report IconButton */}
+                {eventExpired ? (
+                // Show Report Icon only for "cook", "event-organizer", and "guest"
+                (user?.role === "cook" || user?.role === "event-organizer" || user?.role === "guest") && (
                     <Tooltip label="Report User">
-                      <IconButton
-                        size={iconButtonSize}
-                        icon={<FaFlag />}
-                        aria-label="Report User"
-                        colorScheme="orange"
-
-                        onClick={() => handleIconClick("report")}
-                      />
-                    </Tooltip>
-                
-                    {/* Comment IconButton */}
-                    <Tooltip label="Comments">
                         <IconButton
                             size={iconButtonSize}
-                            icon={<FaComment />}
-                            aria-label="Add Comment"
-                            colorScheme="teal"
-
-                            onClick={() => handleRCClick("comments")}
+                            icon={<FaFlag />}
+                            aria-label="Report User"
+                            colorScheme="orange"
+                            onClick={() => handleIconClick("report")}
                         />
                     </Tooltip>
-                </>
+                )
+            ) : (
+                // If event is NOT expired, show icons based on user role
+                user?.role === "cook" ? (
+                    <>
+                        <Tooltip label="Create">
+                            <IconButton
+                                size={iconButtonSize}
+                                icon={<FaPlus />}
+                                aria-label="Create"
+                                colorScheme="blue"
+                                onClick={() => handleIconClick("create")}
+                            />
+                        </Tooltip>
+
+                        <Tooltip label="Update">
+                            <IconButton
+                                size={iconButtonSize}
+                                icon={<FaEdit />}
+                                aria-label="Update"
+                                colorScheme="yellow"
+                                onClick={() => handleIconClick("update")}
+                            />
+                        </Tooltip>
+
+                        <Tooltip label="Delete">
+                            <IconButton
+                                size={iconButtonSize}
+                                icon={<FaTrash />}
+                                colorScheme="green"
+                                aria-label="Delete"
+                                onClick={() => handleIconClick("delete")}
+                            />
+                        </Tooltip>
+
+                        {/* Report Icon */}
+                        <Tooltip label="Report User">
+                            <IconButton
+                                size={iconButtonSize}
+                                icon={<FaFlag />}
+                                aria-label="Report User"
+                                colorScheme="orange"
+                                onClick={() => handleIconClick("report")}
+                            />
+                        </Tooltip>
+                    </>
+                ) : (
+                    (user?.role === "event-organizer" || user?.role === "guest") && (
+                        <>
+                            {/* Report Icon */}
+                            <Tooltip label="Report User">
+                                <IconButton
+                                    size={iconButtonSize}
+                                    icon={<FaFlag />}
+                                    aria-label="Report User"
+                                    colorScheme="orange"
+                                    onClick={() => handleIconClick("report")}
+                                />
+                            </Tooltip>
+
+                            {/* Comment Icon */}
+                            <Tooltip label="Comments">
+                                <IconButton
+                                    size={iconButtonSize}
+                                    icon={<FaComment />}
+                                    aria-label="Add Comment"
+                                    colorScheme="teal"
+                                    onClick={() => handleRCClick("comments")}
+                                />
+                            </Tooltip>
+                        </>
+                    )
                 )
             )}
+
 
 
 

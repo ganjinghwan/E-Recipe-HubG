@@ -46,7 +46,7 @@ export const useAuthStore = create((set) => ({
         try {
             const res = await axios.get("/api/auth/get-CGE-users");
             set({ CGEs: res.data.data }); 
-            console.log("Fetched CGEs:", res.data.data);
+            // console.log("Fetched CGEs:", res.data.data);
         } catch (error) {
             console.error("Failed to fetch CGEs:", error);
         }
@@ -173,11 +173,11 @@ export const useAuthStore = create((set) => ({
     checkAuth: async () => {
         set({ isCheckingAuth: true, error: null });
         try {
-            console.log('Checking auth...'); // Debug log
+            // console.log('Checking auth...'); // Debug log
             const response = await axios.get(`/api/auth/check-auth`, {
                 withCredentials: true
             });
-            console.log('Auth response:', response); // Debug log
+            // console.log('Auth response:', response); // Debug log
             set({
                 user: response.data.user, 
                 isAuthenticated: true, 
