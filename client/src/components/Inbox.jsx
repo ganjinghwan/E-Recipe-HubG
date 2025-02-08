@@ -199,6 +199,7 @@ const InboxModal = ({ isOpen, onClose }) => {
                     key={index}
                     p={4}
                     mb={2}
+                    minH={"140px"}
                     border="1px solid lightgray"
                     borderRadius="md"
                     bg={msg.readStatus ? "gray.200" : "blue.100"} // Different background for read/unread
@@ -221,17 +222,20 @@ const InboxModal = ({ isOpen, onClose }) => {
                         Sent by: {msg.senderName} ({msg.senderRole})
                       </Text>
                     </Box>
-                    <Flex position={"absolute"} bottom={"5px"} right={"8px"} alignItems={"center"}>
+                    <Flex position={"absolute"} bottom={"1px"} right={"8px"} alignItems={"center"}>
                       {msg.senderRole === "event-organizer" && (
                         <>
+                        <Box mt={4}>
+
+                        </Box>
                           {eventAcceptMap[msg._id] === true ? (
-                            <Text color="green.500" fontWeight={"bold"}>Invite Accepted</Text>
+                            <Text color="green.500" fontWeight={"bold"} fontSize={"sm"}>Invite Accepted</Text>
                           ) : eventRejectMap[msg._id] === true ? (
-                            <Text color="red.500" fontWeight={"bold"}>Invite Declined</Text>
+                            <Text color="red.500" fontWeight={"bold"} fontSize={"sm"}>Invite Declined</Text>
                           ) : eventUnavailableMap[msg._id] === true ? (
-                            <Text color="red.500" fontWeight={"bold"}>Event Unavailable</Text>
+                            <Text color="red.500" fontWeight={"bold"} fontSize={"sm"}>Event Unavailable</Text>
                           ) : eventExpiredMap[msg._id] === true ? (
-                            <Text color="orange.500" fontWeight={"bold"}>Event Expired</Text>
+                            <Text color="orange.500" fontWeight={"bold"} fontSize={"sm"}>Event Expired</Text>
                           ) : (
                             <>
                               <Tooltip label="Reject Invite" aria-label="Reject Invite tooltip">

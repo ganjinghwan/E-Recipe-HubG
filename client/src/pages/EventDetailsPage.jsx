@@ -56,7 +56,7 @@ const EventDetailsPage = () => {
             // Promise = ensures both operations are done before rendering the component
             await Promise.all([
               getEventInfo(eventSpecificEndUrl),
-              new Promise(resolve => setTimeout(resolve, 4000)) // 4-second delay
+              new Promise(resolve => setTimeout(resolve, 1500)) // 4-second delay
             ]);
           } catch (error) {
             toast({

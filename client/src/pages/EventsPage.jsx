@@ -10,10 +10,13 @@ import CreateEventForm from "../components/CreateEventForm";
 import { useNavigate } from "react-router-dom";
 import { FaInfoCircle } from "react-icons/fa";
 import { IoBook } from "react-icons/io5";
+import { useStoreRecipe } from "../store/StoreRecipe";
 
 const EventsPage = () => {
   const { user } = useAuthStore();
   const { events, getAllSpecificEventOrgEvents, getAllEvents, isLoading: eventsLoading } = useEventStore();
+  const { fetchEventRecipes, eventRecipes } = useStoreRecipe();
+  const [eventRecipeCounts, setEventRecipeCounts] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -29,11 +32,29 @@ const EventsPage = () => {
         getAllSpecificEventOrgEvents();
       } else {
         getAllEvents();
-      }
-    }, 3000);
-
+      }  
+    }, 1500);
     return () => clearTimeout(timer);
   }, [user, getAllSpecificEventOrgEvents, getAllEvents]);
+
+  // Fetch recipes AFTER events are loaded
+  useEffect(() => {
+    if (events?.length > 0) {
+      const counts = {};
+      events.forEach((event) => {
+        fetchEventRecipes(event._id).then((res) => {
+          if (res.success) {
+            counts[event._id] = res.data.length;
+            setEventRecipeCounts((prevCounts) => ({ ...prevCounts, ...counts }));
+          }
+        });
+      });
+    }
+  }, [events]); // Only runs when `events` change
+
+  const getRecipeCount = (eventID) => {
+    return eventRecipeCounts[eventID] || 0;
+  }
 
   const openCreateEventModal = () => {
     setIsModalOpen(true);
@@ -121,7 +142,7 @@ const EventsPage = () => {
                       mr={2}
                       mb={-1}
                     >
-                      <Box flex={9} minW={"0"}>
+                      <Box flex={8} minW={"0"}>
                         <Text fontSize="2xl" fontWeight="bold" color={"orange.800"} isTruncated>
                           {event.event_name}
                         </Text>
@@ -138,43 +159,49 @@ const EventsPage = () => {
                             minute: "2-digit",
                             hour12: true, // AM/PM format
                           })}
+                          {new Date(event.end_date).getTime() < Date.now() ? " (Expired)" : ""}
                         </Text>
                       </Box>
 
-                      {/* Buttons */}
+                      {/* Buttons & recipe count */}
                       <Box
-                        flex={1}
+                        flex={2}
                         display={"flex"}
                         justifyContent={"center"}
                         alignItems={"center"}
                         align={"center"}
                         gap={1}
+                        flexDirection={"column"}
                       >
-                        <Tooltip label="More Info">
-                          <IconButton
-                            size={iconButtonSize}
-                            icon={<FaInfoCircle />}
-                            aria-label="More Info"
-                            colorScheme="orange"
-                            onClick={() => {
-                              navigate(`/events/${event.eventSpecificEndUrl}`);
-                            }}
-                          />
-                        </Tooltip>
-                          {(event.attendees?.includes(user?._id) || user?.role === "event-organizer" || user?.role === "moderator") && (
-                            <Tooltip label="View Event Recipe">
-                              <IconButton
-                                size={iconButtonSize}
-                                icon={<IoBook />}
-                                ml={4}
-                                aria-label="View Event Recipe"
-                                colorScheme="green"
-                                onClick={() => {
-                                  navigate(`/eventrecipes?event_id=${event._id}`); // Pass event_id as query param
-                                }}
-                              />
-                            </Tooltip>
-                          )}
+                        <Flex gap={1}>
+                          <Tooltip label="More Info">
+                            <IconButton
+                              size={iconButtonSize}
+                              icon={<FaInfoCircle />}
+                              aria-label="More Info"
+                              colorScheme="orange"
+                              onClick={() => {
+                                navigate(`/events/${event.eventSpecificEndUrl}`);
+                              }}
+                            />
+                          </Tooltip>
+                            {(event.attendees?.includes(user?._id) || user?.role === "event-organizer" || user?.role === "moderator") && (
+                              <Tooltip label="View Event Recipe">
+                                <IconButton
+                                  size={iconButtonSize}
+                                  icon={<IoBook />}
+                                  ml={4}
+                                  aria-label="View Event Recipe"
+                                  colorScheme="green"
+                                  onClick={() => {
+                                    navigate(`/eventrecipes?event_id=${event._id}`); // Pass event_id as query param
+                                  }}
+                                />
+                              </Tooltip>
+                            )}
+                        </Flex>
+                          
+                        <Text fontSize={"sm"}>Number of event recipes: {getRecipeCount(event._id)} </Text>
                       </Box>
                     </Flex>
                       ))

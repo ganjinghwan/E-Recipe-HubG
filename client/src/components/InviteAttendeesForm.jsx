@@ -39,7 +39,7 @@ const InviteAttendeesForm = ({ isOpen, onClose, eventURL }) => {
         setIsFinding(true);
         const timer = setTimeout(() => {
             setIsFinding(false);
-        }, 4000);
+        }, 1500);
         
         getInviteAttendeesList(eventURL);
         return () => clearTimeout(timer);
