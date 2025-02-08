@@ -7,6 +7,7 @@ export const useEventStore = create((set) => ({
     events: [],
     attendeesList: [],
     inviteNeeded: null,
+    eventGlobalExpiredStatus: null,
 
     getAllSpecificEventOrgEvents: async () => {
         set({ isLoading: true, error: null });
