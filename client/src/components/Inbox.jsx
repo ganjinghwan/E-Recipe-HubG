@@ -12,8 +12,8 @@ import {
   Flex,
   Text,
   IconButton,
-  useBreakpointValue,
   Tooltip,
+  useToast,
 } from "@chakra-ui/react";
 import { CheckIcon, CloseIcon, ViewIcon } from "@chakra-ui/icons";
 import { useAuthStore } from "../store/authStore";
@@ -22,7 +22,7 @@ import { useEventStore } from "../store/eventStore";
 
 const InboxModal = ({ isOpen, onClose }) => {
   const { fetchUserInbox, userInbox = [], setInboxRead, checkAcceptInviteStatus, checkDeclineInviteStatus } = useAuthStore(); // Access inbox from the store
-  const { rejectEventInviteReq } = useEventStore();
+  const { joinEvent, rejectEventInviteReq } = useEventStore();
   const [unreadCount, setUnreadCount] = useState(0);
   const [eventAcceptMap, setEventAcceptMap] = useState({});
   const [eventRejectMap, setEventRejectMap] = useState({});
@@ -30,6 +30,7 @@ const InboxModal = ({ isOpen, onClose }) => {
   const [eventExpiredMap, setEventExpiredMap] = useState({});
 
   const navigate = useNavigate();
+  const toast = useToast();
 
   // Fetch inbox messages when the modal opens
   useEffect(() => {
@@ -105,8 +106,32 @@ const InboxModal = ({ isOpen, onClose }) => {
     //setUnreadCount(updatedInbox.filter((msg) => !msg.read).length);
   };
 
+  const handleJoinEvent = async (eventURL) => {
+    try {
+      await joinEvent(eventURL);
+      toast({
+        position: "bottom",
+        title: "Successfully joined event",
+        description: "Redirect back to events page...",
+        status: "success",
+        duration: 5000,
+        isClosable: true,
+      })
+    } catch (error) {
+      toast({
+        position: "bottom",
+        title: "Failed to join event",
+        description: error.message, 
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      })
+    }
+  };
+
   const handleAcceptInvite = (msg, index) => {
     handleMarkAsRead(index);
+    handleJoinEvent(msg.additionalInformation);
     navigate(`/events/${msg.additionalInformation}`);
     onClose();
   };
