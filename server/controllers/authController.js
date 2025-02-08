@@ -490,7 +490,7 @@ export const checkAuth = async (req, res) => {
             user
         })
     } catch (error) {
-        console.log("Failed to check auth", error.message);
+        // console.log("Failed to check auth", error.message);
         res.status(400).json({ success: false, message: error.message });
     }
 }
