@@ -201,7 +201,7 @@ const EventsPage = () => {
                             )}
                         </Flex>
                           
-                        <Text fontSize={"sm"}>Number of event recipes: {getRecipeCount(event._id)} </Text>
+                        <Text fontSize={"sm"}>Event recipes: {getRecipeCount(event._id)} </Text>
                       </Box>
                     </Flex>
                       ))
