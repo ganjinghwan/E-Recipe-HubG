@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Box, Button, Flex, IconButton, Text, Tooltip, useBreakpointValue, VStack } from "@chakra-ui/react";
+import { Badge, Box, Button, Flex, IconButton, Text, Tooltip, useBreakpointValue, VStack } from "@chakra-ui/react";
 import { motion } from "framer-motion";
 import LoadingSpinner from "../components/LoadingSpinner";
 import foodTable from "../pic/foodTable.jpg"
@@ -171,9 +171,7 @@ const EventsPage = () => {
                         alignItems={"center"}
                         align={"center"}
                         gap={1}
-                        flexDirection={"column"}
                       >
-                        <Flex gap={1}>
                           <Tooltip label="More Info">
                             <IconButton
                               size={iconButtonSize}
@@ -186,6 +184,7 @@ const EventsPage = () => {
                             />
                           </Tooltip>
                             {(event.attendees?.includes(user?._id) || user?.role === "event-organizer" || user?.role === "moderator") && (
+                              <Box position="relative" display="inline-block">
                               <Tooltip label="View Event Recipe">
                                 <IconButton
                                   size={iconButtonSize}
@@ -194,14 +193,26 @@ const EventsPage = () => {
                                   aria-label="View Event Recipe"
                                   colorScheme="green"
                                   onClick={() => {
-                                    navigate(`/eventrecipes?event_id=${event._id}`); // Pass event_id as query param
+                                    navigate(`/eventrecipes?event_id=${event._id}`); 
                                   }}
                                 />
                               </Tooltip>
+                              
+                              {getRecipeCount(event._id) > 0 && (
+                                <Badge
+                                  colorScheme="red"
+                                  position="absolute"
+                                  top="-6px"
+                                  right="-8px"
+                                  borderRadius="full"
+                                  px={2}
+                                  fontSize="0.8em"
+                                >
+                                  {getRecipeCount(event._id)}
+                                </Badge>  
+                              )}
+                            </Box>
                             )}
-                        </Flex>
-                          
-                        <Text fontSize={"sm"}>Event recipes: {getRecipeCount(event._id)} </Text>
                       </Box>
                     </Flex>
                       ))

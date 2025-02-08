@@ -112,7 +112,7 @@ const InboxModal = ({ isOpen, onClose }) => {
       toast({
         position: "bottom",
         title: "Successfully joined event",
-        description: "Redirect back to events page...",
+        description: "Welcome to the event!",
         status: "success",
         duration: 5000,
         isClosable: true,
@@ -204,7 +204,6 @@ const InboxModal = ({ isOpen, onClose }) => {
                     borderRadius="md"
                     bg={msg.readStatus ? "gray.200" : "blue.100"} // Different background for read/unread
                     justifyContent="space-between"
-                    alignItems="center"
                     _hover={!msg.readStatus ? { bg: "blue.200" } : {}}
                     position={"relative"}
                   >
