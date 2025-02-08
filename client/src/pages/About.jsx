@@ -63,16 +63,9 @@ const About = () => {
           <br />
           E-Recipe Hub is a dynamic platform designed for culinary enthusiasts to create, 
           share, and explore diverse recipes. It brings together by four roles:
-          <br />
           Moderators, who ensure a safe and engaging community by managing reports and maintaining platform standards.
-          <br />
-          <br />
           Cooks, who craft and share their recipes with multimedia elements while engaging with users through feedback and ratings.
-          <br />
-          <br />
           Event Organizers, who create and manage cooking-related events, inviting participants to showcase their culinary talents.
-          <br />
-          <br />
           Guests, who explore recipes, rate dishes, and participate in discussions, making the platform interactive and engaging for all.
         </Text>
       </Flex>
