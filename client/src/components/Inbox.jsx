@@ -26,9 +26,9 @@ const InboxModal = ({ isOpen, onClose }) => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [eventAcceptMap, setEventAcceptMap] = useState({});
   const [eventRejectMap, setEventRejectMap] = useState({});
-  const [eventExpiredMap, setExpiredEventMap] = useState({});
+  const [eventUnavailableMap, setEventUnavailableMap] = useState({});
+  const [eventExpiredMap, setEventExpiredMap] = useState({});
 
-  const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
   const navigate = useNavigate();
 
   // Fetch inbox messages when the modal opens
@@ -51,6 +51,7 @@ const InboxModal = ({ isOpen, onClose }) => {
       const accept = {}
       const decline = {}
       const expired = {}
+      const unavailable = {}
 
       const fromOrganizerInbox = userInbox.filter((msg) => msg.senderRole === "event-organizer");
 
@@ -60,7 +61,9 @@ const InboxModal = ({ isOpen, onClose }) => {
           const isAccepted = await checkAcceptInviteStatus(msg.additionalInformation);
           const isRejected = await checkDeclineInviteStatus(msg.additionalInformation);
   
-          if (isAccepted.expired && isRejected.expired) {
+          if (isAccepted.unavailable && isRejected.unavailable) {
+            unavailable[msg._id] = true;
+          } else if (isAccepted.expired && isRejected.expired) {
             expired[msg._id] = true;
           } else {
             accept[msg._id] = isAccepted.alreadyJoined;
@@ -76,7 +79,9 @@ const InboxModal = ({ isOpen, onClose }) => {
       // Update accept map with the results
       setEventAcceptMap(accept);
       setEventRejectMap(decline);
-      setExpiredEventMap(expired);
+      setEventUnavailableMap(unavailable);
+      setEventExpiredMap(expired);
+      //setExpiredEventMap(expired);
       //console.log("Accept map updated:", eventAcceptMap);
       //console.log("Decline map updated:", eventRejectMap);
       //console.log("Expired map updated:", eventExpiredMap);
@@ -191,20 +196,22 @@ const InboxModal = ({ isOpen, onClose }) => {
                         Sent by: {msg.senderName} ({msg.senderRole})
                       </Text>
                     </Box>
-                    <Flex position={"absolute"} bottom={"8px"} right={"8px"} alignItems={"center"}>
+                    <Flex position={"absolute"} bottom={"5px"} right={"8px"} alignItems={"center"}>
                       {msg.senderRole === "event-organizer" && (
                         <>
                           {eventAcceptMap[msg._id] === true ? (
                             <Text color="green.500" fontWeight={"bold"}>Invite Accepted</Text>
                           ) : eventRejectMap[msg._id] === true ? (
                             <Text color="red.500" fontWeight={"bold"}>Invite Declined</Text>
+                          ) : eventUnavailableMap[msg._id] === true ? (
+                            <Text color="red.500" fontWeight={"bold"}>Event Unavailable</Text>
                           ) : eventExpiredMap[msg._id] === true ? (
                             <Text color="orange.500" fontWeight={"bold"}>Event Expired</Text>
                           ) : (
                             <>
                               <Tooltip label="Reject Invite" aria-label="Reject Invite tooltip">
                                 <IconButton
-                                  size={iconButtonSize}
+                                  size="sm"
                                   icon={<CloseIcon />}
                                   aria-label="Reject Invite"
                                   colorScheme="red"
@@ -214,7 +221,7 @@ const InboxModal = ({ isOpen, onClose }) => {
                               </Tooltip>
                               <Tooltip label="Accept Invite" aria-label="Accept Invite tooltip">
                                 <IconButton
-                                  size={iconButtonSize}
+                                  size="sm"
                                   icon={<CheckIcon />}
                                   aria-label="Accept Invite"
                                   colorScheme="green"

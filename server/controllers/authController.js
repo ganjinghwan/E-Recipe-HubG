@@ -97,14 +97,24 @@ export const checkUserAcceptInviteStatus = async (req, res) => {
         if (!AvailableEvent) {
             return res.status(200).json({ 
                 success: true, 
-                eventExpired: true,
-                message: "Event has expired or has deleted" 
+                eventUnavailable: true,
+                message: "Event has deleted" 
             });
         }
 
         const alreadyJoin = AvailableEvent.attendees.includes(user._id);
 
-        // console.log("Already Join :", alreadyJoin);
+        const eventEndDate = new Date(AvailableEvent.end_date);
+        // Check if event has expired, not being deleted/available and user has not join
+        if (AvailableEvent && eventEndDate.getTime() < Date.now() && !alreadyJoin) {
+            return res.status(200).json({ 
+                success: true, 
+                eventExpired: true,
+                message: "Event has expired"
+            });
+        }
+
+        console.log("Already Join :", alreadyJoin);
         return res.status(200).json({ success: true, alreadyJoined: alreadyJoin });
     } catch (error) {
         // console.error("Error fetching event status:", error.message);
@@ -127,12 +137,22 @@ export const checkUserRejectInviteStatus = async (req, res) => {
         if (!AvailableEvent) {
             return res.status(200).json({ 
                 success: true,
-                eventExpired: true, 
-                message: "Event has expired or has deleted"
+                eventUnavailable: true, 
+                message: "Event has deleted"
             });
         }
 
         const alreadyReject = AvailableEvent.rejected.includes(user._id);
+
+        const eventEndDate = new Date(AvailableEvent.end_date);
+        // Check if event has expired, not being deleted/available and user has not join
+        if (AvailableEvent && eventEndDate.getTime() < Date.now() && !alreadyReject) {
+            return res.status(200).json({ 
+                success: true, 
+                eventExpired: true,
+                message: "Event has expired"
+            });
+        }
 
         console.log("Already Join :", alreadyReject);
         return res.status(200).json({ success: true, alreadyRejected: alreadyReject });

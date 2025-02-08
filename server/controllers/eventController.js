@@ -316,6 +316,7 @@ export const updateEvents = async (req, res) => {
         if (newStart_date && newEnd_date) {
             const updateNewEventStartDate = new Date(newStart_date);
             const updateNewEventEndDate = new Date(newEnd_date);
+            const specificEventStartDate = new Date(specificEventValid.start_date);
 
             if (isNaN(updateNewEventStartDate.getTime())) {
                 updateEventErrors.push("Invalid start date.");
@@ -331,6 +332,10 @@ export const updateEvents = async (req, res) => {
 
             if (updateNewEventStartDate > updateNewEventEndDate) {
                 updateEventErrors.push("Start date cannot be after end date.");
+            }
+
+            if (updateNewEventStartDate < Date.now() && updateNewEventStartDate.getTime() !== specificEventStartDate.getTime()) {
+                updateEventErrors.push("Updated start date cannot be in the past.");
             }
         }
 

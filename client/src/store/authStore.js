@@ -97,10 +97,15 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axios.get(`/api/auth/check-inbox-accept-invite/${eventURL}`);
 
-            if (response.data.eventExpired) {
-                return { expired: true, alreadyJoined: false };
+            if (response.data.eventUnavailable) {
+                return { unavailable: true, expired: false, alreadyJoined: false };
             }
-            return { expired: false, alreadyJoined: response.data.alreadyJoined };
+
+            if (response.data.eventExpired) {
+                return { unavailable: false, expired: true, alreadyRejected: false };
+            }
+
+            return { unavailable: false, expired: false, alreadyJoined: response.data.alreadyJoined };
         } catch (error) {
             console.error("Failed to check accept invite status:", error);
         }
@@ -111,11 +116,15 @@ export const useAuthStore = create((set) => ({
         try {
             const response = await axios.get(`/api/auth/check-inbox-decline-invite/${eventURL}`);
 
-            if (response.data.eventExpired) {
-                return { expired: true, alreadyRejected: false };
+            if (response.data.eventUnavailable) {
+                return { unavailable: true, expired: false, alreadyRejected: false };
             }
 
-            return { expired: false, alreadyRejected: response.data.alreadyRejected };
+            if (response.data.eventExpired) {
+                return { unavailable: false, expired: true, alreadyRejected: false };
+            }
+
+            return { unavailable: false, expired: false, alreadyRejected: response.data.alreadyRejected };
         } catch (error) {
             console.error("Failed to check decline invite status:", error);
         }

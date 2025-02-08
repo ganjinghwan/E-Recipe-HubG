@@ -150,7 +150,7 @@ const EventsPage = () => {
                             }}
                           />
                         </Tooltip>
-                          {(event.attendees?.includes(user?._id) || user?.role === "event-organizer") && (
+                          {(event.attendees?.includes(user?._id) || user?.role === "event-organizer" || user?.role === "moderator") && (
                             <Tooltip label="View Event Recipe">
                               <IconButton
                                 size={iconButtonSize}
