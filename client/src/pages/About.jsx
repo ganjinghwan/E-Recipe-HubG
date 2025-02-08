@@ -53,11 +53,27 @@ const About = () => {
           textShadow="1px 1px 3px rgba(0, 0, 0, 0.7)"
           mb={6}
           fontFamily="'Poppins', sans-serif"
-          maxW="600px"
+          maxW="900px"
         >
-          Welcome to E-Recipes Hub! Here, we empower you to create delicious meals
-          with ease. Explore our curated collection of recipes, designed to inspire 
-          chefs of all skill levels. Let’s cook something amazing together!
+          Welcome to E-Recipe Hub! Whether you're a passionate cook, an eager guest, a dedicated event organizer, or a vigilant moderator, we bring the culinary community together. 
+          Discover and share recipes, engage with fellow food enthusiasts, and participate in exciting cooking events. 
+          With our curated collection of recipes and interactive features, creating delicious meals has never been easier. 
+          Let's cook, share, and celebrate flavors together!
+          <br />
+          <br />
+          E-Recipe Hub is a dynamic platform designed for culinary enthusiasts to create, 
+          share, and explore diverse recipes. It brings together by four roles:
+          <br />
+          Moderators, who ensure a safe and engaging community by managing reports and maintaining platform standards.
+          <br />
+          <br />
+          Cooks, who craft and share their recipes with multimedia elements while engaging with users through feedback and ratings.
+          <br />
+          <br />
+          Event Organizers, who create and manage cooking-related events, inviting participants to showcase their culinary talents.
+          <br />
+          <br />
+          Guests, who explore recipes, rate dishes, and participate in discussions, making the platform interactive and engaging for all.
         </Text>
       </Flex>
     </Flex>
