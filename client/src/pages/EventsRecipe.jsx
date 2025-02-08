@@ -129,7 +129,7 @@ const EventsRecipePage = () => {
     if (event_id) {
       isEventExpired(event_id).then((expired) => {
 
-        if (expired) {
+        if (expired && user?.role !== "moderator") {
           toast({
             title: "Event Expired",
             description: "You can only view the recipe.",
