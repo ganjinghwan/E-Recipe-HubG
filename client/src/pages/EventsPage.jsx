@@ -128,6 +128,17 @@ const EventsPage = () => {
                         <Text mt={1} noOfLines={2}>
                           {event.event_description}
                         </Text>
+                        <Text mt={1} noOfLines={1}>
+                          Ends at: {new Date(event.end_date).toLocaleString("en-US", { 
+                            weekday: "short", // "Fri"
+                            year: "numeric", 
+                            month: "long",  // "February"
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                            hour12: true, // AM/PM format
+                          })}
+                        </Text>
                       </Box>
 
                       {/* Buttons */}
