@@ -9,15 +9,15 @@ function ProtectedRoute({ isAuthenticated, children }) {
   useEffect(() => {
     if (!isAuthenticated) {
       toast({
-        title: "Unauthorized",
-        description: "Please sign in to access this page.",
-        status: "error",
+        title: "You have been logged out.",
+        description: "Redirect to homepage...",
+        status: "info",
         duration: 3000,
         isClosable: true,
         position: "top",
       });
     }
-  }, [isAuthenticated, toast]);
+  }, [isAuthenticated]);
 
   // Redirect unauthenticated users to the home page
   if (!isAuthenticated) {
