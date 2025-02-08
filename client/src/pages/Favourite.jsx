@@ -35,6 +35,8 @@ const Favorites = () => {
   const { selectedFoodGlobal} = useStoreRecipe();
 
   const [selectedFood, setSelectedFood] = useState(null);
+  const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
+  
   const [animationState, setAnimationState] = useState("");
   const [activeTab, setActiveTab] = useState("Instruction");
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -177,10 +179,11 @@ const Favorites = () => {
 
   /**********************************When global selection changes *********************************/
     useEffect(() => {
-      if (selectedFoodGlobal) {
-        setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
-      }
-    }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
+        if (selectedFoodGlobal) {
+          setSelectedCategory("all"); // Set category to "All" after fetching recipes
+          setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
+        }
+      }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
     
 
 
@@ -210,12 +213,14 @@ const Favorites = () => {
         );
 
   useEffect(() => {
-      if (filteredRecipes.length > 0) {
-        setSelectedFood(filteredRecipes[0]); // Set the first recipe as default
-      } else {
-        setSelectedFood(null); // Clear selection if no recipes match
-      }
-    }, [selectedCategory]); // Re-run effect when `selectedCategory`
+    if (selectedFoodGlobal) return; // ✅ Prevent override if `selectedFoodGlobal` was just set
+
+    if (filteredRecipes.length > 0) {
+      setSelectedFood(filteredRecipes[0]); // Set the first recipe as default
+    } else {
+      setSelectedFood(null); // Clear selection if no recipes match
+    }
+  }, [selectedCategory, selectedFoodGlobal]); // Re-run effect when `selectedCategory`
 
 
   const handleFoodSelection = (food) => {
@@ -275,7 +280,7 @@ const Favorites = () => {
 
   const handleScrollRight = () => {
     setCarouselIndex((prevIndex) =>
-      Math.min(prevIndex + 1, recipes.length - 5)
+      Math.min(prevIndex + 1, recipes.length - numberOfItems)
     );
   };
 
@@ -312,6 +317,7 @@ const Favorites = () => {
       justify="center"
       align="center"
       h={{ base: "120vh", md: "100vh" }}
+      w={{ base: "100%", md: "150vh", lg: "100%" }}
       bgImage={`url(${recipesBackground})`}
       bgAttachment="fixed"
       bgSize="cover"
@@ -483,7 +489,7 @@ const Favorites = () => {
                 
               <HStack spacing={4} mt={4} marginLeft="30px">
                 <Menu>
-                  <MenuButton as={Button} rightIcon={<FaChevronDown />} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
+                <MenuButton as={Button} rightIcon={<FaChevronDown />} height={{ base: "30px", md: "40px" }} width={{ base: "150px", md: "180px" }} fontSize={{ base: "sm", md: "md" }} border="2px solid">
                   {truncateText(selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1), 10)}{/* Display selected category */}
                   </MenuButton>
                   <MenuList maxH="100px" minW={{ base: "150px", md: "180px" }} overflowY="auto"> {/* Set scrollable dropdown content */}
@@ -511,6 +517,7 @@ const Favorites = () => {
             p={{ base: 2, md: 4 }}
             borderRadius="md" 
             shadow="md" 
+            maxW={{ base: "80%", md: "100%" }}
             maxH={{ base: "150px", md: "300px" }}
           >
             {/* Tab Navigation */}
@@ -642,7 +649,7 @@ const Favorites = () => {
               // transform={`translateX(-${carouselIndex * 1}px)`} // Smooth transition
             >
               {filteredRecipes
-                .slice(carouselIndex, carouselIndex + 5) // Show only 5 items
+                .slice(carouselIndex, carouselIndex + numberOfItems) // Show only 5 items
                 .map((food) => (
                   <VStack
                     key={food._id}
@@ -693,7 +700,7 @@ const Favorites = () => {
               zIndex="2"
               aria-label="Scroll Right"
               _hover={{ bg: "gray.200" }}
-              isDisabled={carouselIndex + 5 >= filteredRecipes.length} // Disable if at end
+              isDisabled={carouselIndex + numberOfItems >= filteredRecipes.length} // Disable if at end
               size={{ base: "sm", md: "md" }}
             />
           </Flex>

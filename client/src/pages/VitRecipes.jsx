@@ -69,6 +69,7 @@ const VisitorPage = () => {
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
   
+  const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
   
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
@@ -203,20 +204,23 @@ const VisitorPage = () => {
 
   /**********************************When global selection changes *********************************/
   useEffect(() => {
-    if (selectedFoodGlobal) {
-      setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
-    }
-  }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
+      if (selectedFoodGlobal) {
+        setSelectedCategory("all"); // Set category to "All" after fetching recipes
+        setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
+      }
+    }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
   
 
 
   useEffect(() => {
+    if (selectedFoodGlobal) return; // ✅ Prevent override if `selectedFoodGlobal` was just set
+
     if (filteredRecipes.length > 0) {
       setSelectedFood(filteredRecipes[0]); // Set the first recipe as default
     } else {
       setSelectedFood(null); // Clear selection if no recipes match
     }
-  }, [selectedCategory]); // Re-run effect when `selectedCategory`
+  }, [selectedCategory, selectedFoodGlobal]); // Re-run effect when `selectedCategory
 
 
   const handleFoodSelection = (food) => {
@@ -297,7 +301,7 @@ const VisitorPage = () => {
 
   const handleScrollRight = () => {
     setCarouselIndex((prevIndex) =>
-      Math.min(prevIndex + 1, recipesWithoutEvent.length - 5)
+      Math.min(prevIndex + 1, recipesWithoutEvent.length - numberOfItems)
     );
   };
 
@@ -563,6 +567,7 @@ const VisitorPage = () => {
       justify="center"
       align="center"
       h={{ base: "120vh", md: "100vh" }}
+      w={{ base: "100%", md: "150vh", lg: "100%" }}
       bgImage={`url(${recipesBackground})`}
       bgSize="cover"
       bgPosition="center"
@@ -752,7 +757,6 @@ const VisitorPage = () => {
                     if (!selectedFood?.video || !isValidYoutubeUrl(selectedFood.video)) {
                       toast({
                         title: "Invalid or missing video link.",
-                        description: "Please provide a valid YouTube link.",
                         status: "warning",
                         duration: 3000,
                         isClosable: true,
@@ -811,6 +815,7 @@ const VisitorPage = () => {
             p={{ base: 2, md: 4 }}
             borderRadius="md" 
             shadow="md" 
+            maxW={{ base: "80%", md: "100%" }}
             maxH={{ base: "150px", md: "300px" }}
           >
             {/* Tab Navigation */}
@@ -942,7 +947,7 @@ const VisitorPage = () => {
               // transform={`translateX(-${carouselIndex * 1}px)`} // Smooth transition
             >
               {filteredRecipes
-                .slice(carouselIndex, carouselIndex + 5) // Show only 5 items
+                .slice(carouselIndex, carouselIndex + numberOfItems) // Show only 5 items
                 .map((food) => (
                   <VStack
                     key={food._id}
@@ -993,7 +998,7 @@ const VisitorPage = () => {
               zIndex="2"
               aria-label="Scroll Right"
               _hover={{ bg: "gray.200" }}
-              isDisabled={carouselIndex + 5 >= filteredRecipes.length} // Disable if at end
+              isDisabled={carouselIndex + numberOfItems >= filteredRecipes.length} // Disable if at end
               size={{ base: "sm", md: "md" }}
             />
           </Flex>

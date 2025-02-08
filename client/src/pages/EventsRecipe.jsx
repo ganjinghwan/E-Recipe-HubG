@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Flex,
@@ -54,6 +54,8 @@ const EventsRecipePage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [updatedRecipe, setUpdatedRecipe] = useState(selectedFood);
   const [imageSource, setImageSource] = useState("url"); // Default to URL
+  const hasInitialized = useRef(false); // Track first load of recipes
+  
   
   /***********************************For cooks***************************************************/
   /****************CRUD****************/
@@ -84,6 +86,7 @@ const EventsRecipePage = () => {
   /**********************************When global selection changes *********************************/
     useEffect(() => {
       if (selectedFoodGlobal) {
+        setSelectedCategory("all"); // Set category to "All" after fetching recipes
         setSelectedFood(selectedFoodGlobal); // Update local state when global selection changes
       }
     }, [selectedFoodGlobal]); // Runs whenever `selectedFoodGlobal` changes
@@ -228,13 +231,16 @@ const EventsRecipePage = () => {
       return () => clearInterval(interval);
     }, [selectedFood, fetchRecipeById]);
   
-
+  useEffect(() => {
+    if (eventRecipes.length > 0 && !hasInitialized.current) {
+      setSelectedFood(eventRecipes[0]); // Set the first recipe as the initial selected food
+      hasInitialized.current = true;
+    }
+  }, [eventRecipes]);
 
 
   useEffect(() => {
     if (eventRecipes.length > 0) {
-      setSelectedFood(eventRecipes[0]); // Set the first recipe as the initial selected food
-
       // Get unique categories from recipes
       const uniqueCategories = Array.from(
         new Set(
@@ -255,12 +261,14 @@ const EventsRecipePage = () => {
 
 
   useEffect(() => {
+      if (selectedFoodGlobal) return; // ✅ Prevent override if `selectedFoodGlobal` was just set
+
       if (filteredRecipes.length > 0) {
         setSelectedFood(filteredRecipes[0]); // Set the first recipe as default
       } else {
         setSelectedFood(null); // Clear selection if no recipes match
       }
-    }, [selectedCategory]); // Re-run effect when `selectedCategory`
+    }, [selectedCategory, selectedFoodGlobal]); // Re-run effect when `selectedCategory`
 
   const handleFoodSelection = (food) => {
     // console.log("Clicked Food111:", food);
@@ -341,7 +349,7 @@ const EventsRecipePage = () => {
 
   const handleScrollRight = () => {
     setCarouselIndex((prevIndex) =>
-      Math.min(prevIndex + 1, eventRecipes.length - 5)
+      Math.min(prevIndex + 1, eventRecipes.length - numberOfItems)
     );
   };
 
@@ -746,6 +754,7 @@ const EventsRecipePage = () => {
       justify="center"
       align="center"
       h={{ base: "120vh", md: "100vh" }}
+      w={{ base: "100%", md: "150vh", lg: "100%" }}
       bgImage={`url(${recipesBackground})`}
       bgSize="cover"
       bgPosition="center"
@@ -920,12 +929,8 @@ const EventsRecipePage = () => {
                   size={iconButtonSize}
                   icon={<FaYoutube/>}
                   aria-label="Video"
-                  bg="rgba(255, 255, 255, 0.6)"
-                  backdropFilter="blur(10px)"
-                  _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                  _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                  borderRadius="md"
-                  boxShadow="sm"
+                  colorScheme="red"
+
 
                   // colorScheme="red"
                   onClick={() => {
@@ -952,12 +957,7 @@ const EventsRecipePage = () => {
                       size={iconButtonSize}
                       icon={<FaPlus />}
                       aria-label="Create"
-                      bg="rgba(255, 255, 255, 0.6)" // Semi-transparent background
-                      backdropFilter="blur(10px)" // Apply blur effect
-                      _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                      _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                      borderRadius="md" // Medium border radius for rounded corners
-                      boxShadow="sm" // Subtle shadow for depth
+                      colorScheme="blue"
                       onClick={() => handleIconClick("create")}
                     />
                     </Tooltip>
@@ -967,12 +967,8 @@ const EventsRecipePage = () => {
                         size={iconButtonSize}
                         icon={<FaEdit />}
                         aria-label="Update"
-                        bg="rgba(255, 255, 255, 0.6)"
-                        backdropFilter="blur(10px)"
-                        _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                        _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                        borderRadius="md"
-                        boxShadow="sm"
+                        colorScheme="yellow"
+
                         onClick={() => handleIconClick("update")}
                     />
                     </Tooltip>
@@ -981,12 +977,7 @@ const EventsRecipePage = () => {
                     <IconButton
                         size={iconButtonSize}
                         icon={<FaTrash />}
-                        bg="rgba(255, 255, 255, 0.6)"
-                        backdropFilter="blur(10px)"
-                        _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                        _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                        borderRadius="md"
-                        boxShadow="sm"
+                        colorScheme = "green"
                         aria-label="Delete"
                         onClick={() => handleIconClick("delete")}
                     />
@@ -995,20 +986,6 @@ const EventsRecipePage = () => {
             ) : (
                 (user?.role === "event-organizer" || user?.role === "guest") && (
                 <>
-                    <Tooltip label="Comments">
-                        <IconButton
-                            size={iconButtonSize}
-                            icon={<FaComment />}
-                            aria-label="Add Comment"
-                            bg="rgba(255, 255, 255, 0.6)"
-                            backdropFilter="blur(10px)"
-                            _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                            _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                            borderRadius="md"
-                            boxShadow="sm"
-                            onClick={() => handleRCClick("comments")}
-                        />
-                    </Tooltip>
 
                      {/* Report IconButton */}
                     <Tooltip label="Report User">
@@ -1016,17 +993,23 @@ const EventsRecipePage = () => {
                         size={iconButtonSize}
                         icon={<FaFlag />}
                         aria-label="Report User"
-                        bg="rgba(255, 255, 255, 0.6)"
-                        backdropFilter="blur(10px)"
-                        _hover={{ bg: "rgba(255, 255, 255, 0.3)" }}
-                        _active={{ bg: "rgba(255, 255, 255, 0.4)" }}
-                        borderRadius="md"
-                        boxShadow="sm"
+                        colorScheme="orange"
 
                         onClick={() => handleIconClick("report")}
                       />
                     </Tooltip>
                 
+                    {/* Comment IconButton */}
+                    <Tooltip label="Comments">
+                        <IconButton
+                            size={iconButtonSize}
+                            icon={<FaComment />}
+                            aria-label="Add Comment"
+                            colorScheme="teal"
+
+                            onClick={() => handleRCClick("comments")}
+                        />
+                    </Tooltip>
                 </>
                 )
             )}
@@ -1067,7 +1050,7 @@ const EventsRecipePage = () => {
             p={{ base: 2, md: 4 }}
             borderRadius="md" 
             shadow="md" 
-            maxW={{ base: "60%", md: "100%" }}
+            maxW={{ base: "80%", md: "100%" }}
             maxH={{ base: "150px", md: "300px" }}
           >
             {/* Tab Navigation */}
@@ -1250,7 +1233,7 @@ const EventsRecipePage = () => {
               zIndex="2"
               aria-label="Scroll Right"
               _hover={{ bg: "gray.200" }}
-              isDisabled={carouselIndex + 5 >= filteredRecipes.length} // Disable if at end
+              isDisabled={carouselIndex + numberOfItems >= filteredRecipes.length} // Disable if at end
               size={{ base: "sm", md: "md" }}
             />
           </Flex>
