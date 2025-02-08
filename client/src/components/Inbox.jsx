@@ -28,7 +28,6 @@ const InboxModal = ({ isOpen, onClose }) => {
   const [eventRejectMap, setEventRejectMap] = useState({});
   const [eventExpiredMap, setExpiredEventMap] = useState({});
 
-  const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
   const navigate = useNavigate();
 
   // Fetch inbox messages when the modal opens
@@ -191,7 +190,7 @@ const InboxModal = ({ isOpen, onClose }) => {
                         Sent by: {msg.senderName} ({msg.senderRole})
                       </Text>
                     </Box>
-                    <Flex position={"absolute"} bottom={"8px"} right={"8px"} alignItems={"center"}>
+                    <Flex position={"absolute"} bottom={"5px"} right={"8px"} alignItems={"center"}>
                       {msg.senderRole === "event-organizer" && (
                         <>
                           {eventAcceptMap[msg._id] === true ? (
@@ -204,7 +203,7 @@ const InboxModal = ({ isOpen, onClose }) => {
                             <>
                               <Tooltip label="Reject Invite" aria-label="Reject Invite tooltip">
                                 <IconButton
-                                  size={iconButtonSize}
+                                  size="sm"
                                   icon={<CloseIcon />}
                                   aria-label="Reject Invite"
                                   colorScheme="red"
@@ -214,7 +213,7 @@ const InboxModal = ({ isOpen, onClose }) => {
                               </Tooltip>
                               <Tooltip label="Accept Invite" aria-label="Accept Invite tooltip">
                                 <IconButton
-                                  size={iconButtonSize}
+                                  size="sm"
                                   icon={<CheckIcon />}
                                   aria-label="Accept Invite"
                                   colorScheme="green"
