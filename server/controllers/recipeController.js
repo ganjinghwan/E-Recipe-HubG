@@ -77,6 +77,32 @@ export const getEventRecipes = async (req, res) => {
     }
 };
 
+// Add this function to count recipes
+export const getEventRecipeCount = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // If no event_id is provided, return a count of 0
+        if (!id) {
+            return res.status(200).json({ success: true, count: 0 });
+        }
+
+        // Validate event_id as a MongoDB ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ success: false, message: "Invalid Event ID" });
+        }
+
+        // Fetch count of recipes that belong to the given event_id
+        const count = await Recipe.countDocuments({ event_id: id });
+
+        res.status(200).json({ success: true, count });
+    } catch (error) {
+        console.error("Error counting event recipes:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+
 
 export const getRecipeById = async (req, res) => {
     const { id } = req.params;

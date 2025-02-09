@@ -98,7 +98,7 @@ const EventsRecipePage = () => {
   const { fetchFavoriteRecipes } = useStoreRecipe();
 
   /***********************************For all users***************************************************/
-  const { fetchEventRecipes, eventRecipes, addComment, addReportUser, addRate } = useStoreRecipe();
+  const {addComment, addReportUser, addRate } = useStoreRecipe();
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
   const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
@@ -123,7 +123,27 @@ const EventsRecipePage = () => {
   const location = useLocation(); // Get URL parameters
   const searchParams = new URLSearchParams(location.search);
   const event_id = searchParams.get("event_id"); // Extract event_id
+
+  const { fetchEventRecipes, eventRecipes, setEventRecipes } = useStoreRecipe();
   const { isEventExpired, eventExpired } = useEventStore();
+
+  const [hasRefreshed, setHasRefreshed] = useState(false);
+
+  // useEffect(() => {
+  //   // Reset hasRefreshed state whenever the page is entered
+  //   // setHasRefreshed(false);
+  // }, []); // This effect will run once when the component is mounted
+
+  // useEffect(() => {
+  //   // If the page has not been refreshed yet
+  //   if (!hasRefreshed) {
+  //     setHasRefreshed(true); // Mark as refreshed
+  //     window.location.reload(); // Force reload once
+  //   }
+  // }, [hasRefreshed]); // This effect runs when hasRefreshed changes
+
+
+
 
   useEffect(() => {
     if (event_id) {
@@ -143,13 +163,22 @@ const EventsRecipePage = () => {
   }, [event_id, isEventExpired]);
 
   useEffect(() => {
-     if(event_id){ // Fetch recipes only if event_id exists
-         fetchEventRecipes(event_id).then(() => {
-           fetchCGE();
-           setSelectedCategory("all"); // Set category to "All" after fetching recipes
-         });
-     }
-   }, [fetchEventRecipes, event_id]); // Add event_id as dependency
+    if (event_id) {
+      setEventRecipes([]); // Ensure it's cleared before fetching
+
+      fetchEventRecipes(event_id).then((res) => {
+        if (res.success && res.data.length === 0) {
+          setEventRecipes([]); // Strictly enforce an empty array when no recipes are fetched
+        }
+        fetchCGE();
+        setSelectedCategory("all"); // Reset category after fetching
+      });
+    }
+    // window.location.reload(); // Force page reload
+
+  }, [fetchEventRecipes, event_id]);
+
+  
   
 
   /**********************************OTHERS************************************************/
@@ -621,7 +650,7 @@ const EventsRecipePage = () => {
       date: new Date().toISOString(),
   };
 
-  console.log("Report Data:", reportData);
+  // console.log("Report Data:", reportData);
 
     try {
       const response = await addReportUser(reportData);
@@ -783,6 +812,7 @@ const EventsRecipePage = () => {
       textAlign="center"
       filter={isOpen ? "blur(5px)" : "none"}  // Apply blur when modal is open
     > 
+    
       {/* Keyframe animations */}
       <style>
         {`

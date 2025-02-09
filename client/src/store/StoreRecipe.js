@@ -9,8 +9,13 @@ export const useStoreRecipe = create((set) => ({
     favoriteRecipes:[],
     recipesWithoutEvent: [],
     selectedFoodGlobal: null,
+    eventRecipeCounts : {},
 
     setSelectedFoodGlobal: (recipe) => set({ selectedFoodGlobal: recipe }),
+
+    // Function to reset eventRecipes
+    setEventRecipes: (newRecipes) => set({ eventRecipes: newRecipes }),
+
 
     setRecipes: (recipes) => set({ recipes }),
     createRecipe: async (newRecipe) =>{
@@ -137,6 +142,32 @@ export const useStoreRecipe = create((set) => ({
             return { success: false, message: "Failed to fetch event recipes." };
         }
     },
+
+    fetchEventRecipeCount: async (event_id) => {
+        try {
+          if (!event_id) {
+            return { success: true, count: 0 }; // No event_id, return count 0
+          }
+    
+          const res = await fetch(`/api/recipesinfo/${event_id}/eventRecipeCount`);
+          const data = await res.json();
+    
+          if (!data.success) {
+            return { success: false, message: data.message };
+          }
+    
+          // Store the count in the store
+          set((state) => {
+            const updatedCounts = { ...state.eventRecipeCounts, [event_id]: data.count };
+            return { eventRecipeCounts: updatedCounts };
+          });
+
+          return { success: true, count: data.count };
+        } catch (error) {
+          console.error("Error fetching event recipe count:", error);
+          return { success: false, message: "Failed to fetch event recipe count." };
+        }
+      },
 
 
     deleteRecipes: async (rid) => {

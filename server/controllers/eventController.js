@@ -15,7 +15,6 @@ export const isEventExpired = async (req, res) => {
         const eventEndDate = new Date(event.end_date);
         const today = new Date();
         const expired = eventEndDate < today;
-        console.log("Controller Expired:", expired);
 
         res.status(200).json({ expired });
     } catch (error) {

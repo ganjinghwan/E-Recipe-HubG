@@ -114,7 +114,7 @@ export const checkUserAcceptInviteStatus = async (req, res) => {
             });
         }
 
-        console.log("Already Join :", alreadyJoin);
+        // console.log("Already Join :", alreadyJoin);
         return res.status(200).json({ success: true, alreadyJoined: alreadyJoin });
     } catch (error) {
         // console.error("Error fetching event status:", error.message);
@@ -154,7 +154,7 @@ export const checkUserRejectInviteStatus = async (req, res) => {
             });
         }
 
-        console.log("Already Join :", alreadyReject);
+        // console.log("Already Join :", alreadyReject);
         return res.status(200).json({ success: true, alreadyRejected: alreadyReject });
     } catch (error) {
         console.error("Error fetching event status:", error.message);

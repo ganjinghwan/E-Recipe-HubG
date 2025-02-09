@@ -2,7 +2,7 @@
 import express from 'express';
 import { getCookRecipes, createRecipe, updateRecipe, deleteRecipe, getAllRecipes,addComment, addReport, addReportUser,
          addRate, getRecipeById, toggleFavorite, getEventRecipes, getRecipesWithoutEvent,
-         getRecipeByUserId } from '../controllers/recipeController.js';
+         getRecipeByUserId, getEventRecipeCount } from '../controllers/recipeController.js';
 import { verifyToken } from '../middleware/authMiddleware.js';
 
 
@@ -23,5 +23,6 @@ router.post('/reportUser',verifyToken, addReportUser);
 router.get('/:id/userRecipes',verifyToken, getRecipeByUserId);
 router.get('/:id',verifyToken, getRecipeById);
 router.get('/:id/eventRecipes',verifyToken, getEventRecipes);
+router.get('/:id/eventRecipeCount',verifyToken, getEventRecipeCount);
 
 export default router;

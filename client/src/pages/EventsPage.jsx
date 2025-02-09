@@ -15,8 +15,8 @@ import { useStoreRecipe } from "../store/StoreRecipe";
 const EventsPage = () => {
   const { user } = useAuthStore();
   const { events, getAllSpecificEventOrgEvents, getAllEvents, isLoading: eventsLoading } = useEventStore();
-  const { fetchEventRecipes, eventRecipes } = useStoreRecipe();
-  const [eventRecipeCounts, setEventRecipeCounts] = useState({});
+  const { fetchEventRecipeCount, eventRecipeCounts  } = useStoreRecipe();
+  
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,20 +37,16 @@ const EventsPage = () => {
     return () => clearTimeout(timer);
   }, [user, getAllSpecificEventOrgEvents, getAllEvents]);
 
-  // Fetch recipes AFTER events are loaded
+  // Fetch recipe counts after events are loaded
   useEffect(() => {
     if (events?.length > 0) {
-      const counts = {};
+
       events.forEach((event) => {
-        fetchEventRecipes(event._id).then((res) => {
-          if (res.success) {
-            counts[event._id] = res.data.length;
-            setEventRecipeCounts((prevCounts) => ({ ...prevCounts, ...counts }));
-          }
-        });
+        fetchEventRecipeCount(event._id);  // Fetch count and store it in the store
       });
     }
-  }, [events]); // Only runs when `events` change
+  }, [events, fetchEventRecipeCount]);
+
 
   const getRecipeCount = (eventID) => {
     return eventRecipeCounts[eventID] || 0;
