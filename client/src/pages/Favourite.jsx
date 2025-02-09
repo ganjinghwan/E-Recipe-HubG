@@ -35,7 +35,7 @@ const Favorites = () => {
   const { selectedFoodGlobal} = useStoreRecipe();
 
   const [selectedFood, setSelectedFood] = useState(null);
-  const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
+  const numberOfItems = useBreakpointValue({ base: 2, md: 5 });
   
   const [animationState, setAnimationState] = useState("");
   const [activeTab, setActiveTab] = useState("Instruction");

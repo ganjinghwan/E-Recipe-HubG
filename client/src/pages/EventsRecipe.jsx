@@ -101,7 +101,7 @@ const EventsRecipePage = () => {
   const {addComment, addReportUser, addRate } = useStoreRecipe();
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
-  const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
+  const numberOfItems = useBreakpointValue({ base: 2, md: 5 });
 
   /***********************************For comments***************************************************/
   const [showCommentModal, setShowCommentModal] = useState(false);

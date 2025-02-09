@@ -69,7 +69,7 @@ const VisitorPage = () => {
   const [categories, setCategories] = useState(["All"]); // "All" as default
   const [selectedCategory, setSelectedCategory] = useState("All");
   
-  const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
+  const numberOfItems = useBreakpointValue({ base: 2, md: 5 });
   
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
