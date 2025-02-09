@@ -626,7 +626,7 @@ const Favorites = () => {
               icon={<FaChevronLeft />} 
               onClick={handleScrollLeft}
               pos="absolute"
-              left={{ base: "5px", md: "10px" }}
+              left={{ base: "1px", md: "10px" }}
               bg="transparent"
               color="black"
               boxShadow="md"
@@ -693,7 +693,7 @@ const Favorites = () => {
               icon={<FaChevronRight />} // Use the React Icon component here
               onClick={handleScrollRight}
               pos="absolute"
-              right={{ base: "5px", md: "10px" }}
+              right={{ base: "80px", md: "10px" }}
               bg="transparent"
               color= "black"
               boxShadow="md"
