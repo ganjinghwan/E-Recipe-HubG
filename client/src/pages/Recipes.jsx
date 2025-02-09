@@ -66,7 +66,7 @@ const Recipes = () => {
   const [updatedRecipe, setUpdatedRecipe] = useState(selectedFood);
   const toast = useToast();
   const iconButtonSize = useBreakpointValue({ base: "sm", md: "md" });
-  const numberOfItems = useBreakpointValue({ base: 3, md: 5 });
+  const numberOfItems = useBreakpointValue({ base: 2, md: 5 });
 
   const [imageSource, setImageSource] = useState("url"); // Default to URL
 
@@ -530,18 +530,13 @@ const Recipes = () => {
       direction="column"
       justify="center"
       align="center"
-      // h={{ base: "120vh", md: "100vh" }}
-      minH="100vh" // Ensures it takes full viewport height
-
-      // w={{ base: "100%", md: "150vh", lg: "100%" }}
-      w="100%" // Keeps the width consistent across screen sizes
-
+      h={{ base: "120vh", md: "100vh" }}
+      w={{ base: "100%", md: "150vh", lg: "100%" }}
       bgImage={`url(${recipesBackground})`}
       bgSize="cover"
       bgPosition="center"
       bgRepeat="no-repeat"
-      // bgAttachment="fixed"
-      bgAttachment={{ base: "scroll", md: "fixed" }} // Prevents issues on mobile
+      bgAttachment="fixed"
       position="relative"
       textAlign="center"
       filter={isOpen ? "blur(5px)" : "none"}  // Apply blur when modal is open
@@ -961,7 +956,7 @@ const Recipes = () => {
               icon={<FaChevronRight />} // Use the React Icon component here
               onClick={handleScrollRight}
               pos="absolute"
-              right={{ base: "5px", md: "10px" }}
+              right={{ base: "110px", md: "10px" }}
               bg="transparent"
               color= "black"
               boxShadow="md"
