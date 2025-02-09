@@ -274,7 +274,10 @@ const Navbar = () => {
       </Box>
 
       {/* Right Section: Search, Favorites, Profile */}
-      <Flex align="center" gap="4" position="relative">
+      <Flex 
+      align="center" 
+      gap= {{ base: "2", md: "4" }} 
+      position="relative">
       {isAuthenticated ? (
         <>
         {/* Search Bar */}
