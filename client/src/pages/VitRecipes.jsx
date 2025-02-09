@@ -924,7 +924,7 @@ const VisitorPage = () => {
               icon={<FaChevronLeft />} 
               onClick={handleScrollLeft}
               pos="absolute"
-              left={{ base: "1px", md: "10px" }}
+              left="1px"
               bg="transparent"
               color="black"
               boxShadow="md"
