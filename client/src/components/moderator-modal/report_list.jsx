@@ -28,7 +28,7 @@ const ReportListModal = ({ isOpen, onClose }) => {
     const {fetchAllReports, deleteReport, reports, } = useReportStore();
     const {addInbox, CGEs} = useAuthStore();
    
-    const {addPassedReport, deleteImproperUser, addWarning} = useModeratorStore();
+    const {addPassedReport, deleteImproperUser, addWarning, addDeletedUserHistory} = useModeratorStore();
 
     const [reason, setReason] = useState(""); // State for reason input
     const [selectedReportId, setSelectedRReportId] = useState(null); // State for selected report
@@ -58,9 +58,20 @@ const ReportListModal = ({ isOpen, onClose }) => {
         setUserToDelete(null);
         setIsDeleteUserModalOpen(false);
       };
-
+      
       const handleDeleteUser = async () => {
         // Call the delete user API
+        const historyData = {
+          userID: userToDelete,
+          userName: CGEs.find((EOUsername) => EOUsername._id === userToDelete)?.name || "Unknown User",
+          userRole: CGEs.find((EOUsername) => EOUsername._id === userToDelete)?.role || "No record found",
+          reason: "Report Threshold Exceeded",
+          date: new Date().toLocaleString(),
+        };
+        const response = await addDeletedUserHistory(historyData);
+        if (!response.success) {
+          throw new Error(response.message);
+        }
         await deleteImproperUser(userToDelete); // Implement this in your moderatorStore
         toast({
           title: "User Deleted",
@@ -70,6 +81,8 @@ const ReportListModal = ({ isOpen, onClose }) => {
           isClosable: true,
         });
         closeDeleteUserModal();
+        fetchAllReports();
+
       };
 
 /****************************************Handle PAss for Report**************************************** */

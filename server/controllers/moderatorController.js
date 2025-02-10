@@ -114,17 +114,17 @@ export const deleteImproperUser = async (req, res) => {
             await EventOrganizer.findOneAndDelete({ event_org_id: user._id });
         } else if (user.role === 'guest') {
             await Guest.findOneAndDelete({ guest_id: user._id });
-            await Report.deleteMany({ reporter_id: user._id });
+            
         } else if (user.role === 'cook') {
             await Recipe.deleteMany({ user_id: user._id });
             await Cook.findOneAndDelete({ cook_id: user._id });
-            await Report.deleteMany({ reporter_id: user._id });
         } else {
             res.status(400).json({ success: false, message: 'User role not found' });
         }
 
         await User.findByIdAndDelete(id);
-        await Report.deleteMany({ reported_id: id });
+        await Report.deleteMany({ reporter_id: user._id });
+        await Report.deleteMany({ reportedUserId: user._id });
 
 
         res.status(200).json({ success: true, message: 'User deleted successfully' });
