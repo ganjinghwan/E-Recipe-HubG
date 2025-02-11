@@ -88,10 +88,10 @@ const SearchBar = ({ setSelectedFoodGlobal, selectedUserId }) => {
 
     /*********************************** Search Filtering Logic ***********************************/
     const handleInputChange = (e) => {
-        const query = e.target.value.trim(); // Remove extra spaces
+        const query = e.target.value; // Keep spaces intact
         setSearchQuery(query);
     
-        if (!query) {
+        if (!query.trim()) { // Only clear results if the input is entirely empty
             setSearchResults([]);
             return;
         }
